@@ -1,0 +1,55 @@
+using System;
+using UnityEngine;
+
+namespace HeroShooter.Core
+{
+    /// <summary>
+    /// Small health component shared by the player, enemies and test targets.
+    /// It owns no visuals and no game flow: it only clamps a value and raises events,
+    /// so death handling belongs to whoever subscribed.
+    /// </summary>
+    public class Health : MonoBehaviour, IDamageable
+    {
+        [SerializeField] float maxHealth = 100f;
+        [SerializeField] bool destroyOnDeath;
+
+        /// <summary>Raised on every accepted hit, with the hit that caused it.</summary>
+        public event Action<DamageInfo> Damaged;
+
+        /// <summary>Raised once, when health reaches zero.</summary>
+        public event Action<DamageInfo> Died;
+
+        public float Max => maxHealth;
+        public float Current { get; private set; }
+        public float Normalized => maxHealth <= 0f ? 0f : Mathf.Clamp01(Current / maxHealth);
+        public bool IsAlive => Current > 0f;
+
+        void Awake() => Current = maxHealth;
+
+        /// <summary>Restores full health — used when an enemy is recycled from its pool.</summary>
+        public void ResetHealth() => Current = maxHealth;
+
+        public void TakeDamage(in DamageInfo info)
+        {
+            if (!IsAlive || info.Amount <= 0f)
+            {
+                return;
+            }
+
+            Current = Mathf.Max(0f, Current - info.Amount);
+            Damaged?.Invoke(info);
+
+            if (Current > 0f)
+            {
+                return;
+            }
+
+            Died?.Invoke(info);
+
+            if (destroyOnDeath)
+            {
+                Destroy(gameObject);
+            }
+        }
+    }
+}
