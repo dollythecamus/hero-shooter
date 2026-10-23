@@ -24,7 +24,7 @@ cooldowns and the Bulwark meter, the weapon charge, enemy health, the aiming sta
 |---|---|---|
 | health value + hit/death events | `Health.Current`, `.Normalized`, `.Damaged`, `.Died` | ready |
 | ability identity per slot | `PlayerAbilities.Definitions[slot]` (`displayName`, `slotLabel`, `cooldown`) | ready |
-| cooldown ratio — **1 = just used, 0 = ready** | `PlayerAbilities.CooldownRatio(slot)`, `.IsReady(slot)` | ready, but the ratio is inverted vs its XML comment: draw `1 - ratio` |
+| cooldown ratio — **0 = just used, 1 = ready** | `PlayerAbilities.CooldownRatio(slot)`, `.IsReady(slot)` | ready — bind straight to a fill amount |
 | charge progress | `Weapon.ChargeRatio`, `.IsCharging` | ready |
 | speed / fire-rate state | `PlayerStatus.SpeedMultiplier`, `.FireRateMultiplier`, `.IsClimbing` | ready |
 | enemy "marked" | `Health.IncomingDamageMultiplier > 1` | partial — value only, no remaining time |

@@ -51,8 +51,7 @@ class PlayerAbilities : MonoBehaviour {
     const int SlotCount = 2;
     AbilityDefinition[] Definitions { get; }
     bool IsReady(int slot);
-    float CooldownRatio(int slot);                // fraction of cooldown REMAINING: 1 right after use,
-                                                  // 0 when ready — reverse of its XML doc comment
+    float CooldownRatio(int slot);                // HUD fill amount: 0 right after use, rising to 1 when ready
     void Configure(CharacterDefinition character);// builds both slots + context; also resets both cooldowns
     bool TryActivate(int slot);                   // false when not ready / no definition / no context
 }
@@ -107,10 +106,10 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
   not go on cooldown — nothing throws today.
 - `Cooldown` falls back to **5 s** when the definition is null or its `cooldown <= 0`; that fallback is the
   reason a mis-wired slot still blocks for 5 s instead of being free.
-- `CooldownRatio` returns `(_readyAt - now) / cooldown`: **1 immediately after use, decaying to 0 when ready.**
-  The XML doc comment on the method says the opposite ("1 = fully ready, 0 = just used"), so a HUD that trusts
-  the comment draws an inverted bar. Use `1 - CooldownRatio(slot)` for a fill that grows toward ready, and fix
-  the comment when the HUD lands.
+- `CooldownRatio` returns `1 - (_readyAt - now) / cooldown`: **0 immediately after use, rising to 1 when
+  ready** — a uGUI `Image.fillAmount` / radial-fill value, so the HUD draws it as-is. (`IsReady` is the same
+  clock as a bool.) Measured in play mode 2026-10-23 on Scissors' 3 s Climb: `0.000 / 0.107 / 0.312 / 0.520 /
+  0.726 / 0.939 / 1.000`, with `IsReady` flipping true exactly at 1.000.
 - Abilities are plain C# objects created once per selection (`AbilityFactory.Create`). They cannot use
   `StartCoroutine` themselves — `MarkTarget`, `Snare` (and the planned Slam driver) run coroutines on
   `context.Host`, i.e. `PlayerAbilities`.
@@ -136,8 +135,14 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
 | Rock E — Bulwark | `Bulwark` | cd 14, dur 4, mag 0.4 | one-shot buff: damage ×0.4 and speed ×0.75 for 4 s. **Shooting stays enabled; no meter.** |
 | Paper Q — Mark | `MarkTarget` | cd 10, dur 6, mag 1.35, range 70 | sets `Health.IncomingDamageMultiplier = 1.35`, restores the previous value after 6 s via coroutine |
 | Paper E — Snare | `Snare` | cd 12, dur 3, mag 0.25, range 14 | sets `EnemyBrain.SpeedMultiplier = 0.25`, restores after 3 s via coroutine |
-| Scissors Q — Climb | `WallClimb` | cd 3, dur 0.9, mag 6 (**ignored**) | adds the `Climb` status effect → `PlayerStatus` lifts the controller at its own hardcoded 7 m/s for 0.9 s. `WallClimb.Activate` passes a literal `1f` as the magnitude, so the asset's `magnitude = 6` is dead data. **No wall contact test, no cap, no mantle.** |
+| Scissors Q — Climb | `WallClimb` | cd 3, dur 0.9, mag 6 (**m/s**) | adds the `Climb` status effect; `PlayerStatus` lifts the controller at `magnitude` m/s for `duration`. **No wall contact test, no cap, no mantle**, and the lift fights `PlayerMotor`'s gravity — see `player-movement-and-camera.md`. |
 | Scissors E — Overclock | `Overclock` | cd 12, dur 3, mag 1.8 | fire rate ×1.8 and speed ×1.25 for 3 s (no VFX yet) |
+
+The `Climb` magnitude reaches `PlayerStatus` now: measured in play mode on 2026-10-23 with `PlayerMotor`
+suspended (one mover), a 0.9 s climb rises **5.260 m at `magnitude = 6`** and **2.376 m at `magnitude = 3`**
+(two runs, same asset otherwise), i.e. the asset owns the height. With the motor's gravity also running the
+apex is not reproducible in the 0.05–1.4 m band from run to run — that conflict, not the plumbing, is what
+the rework's one-mover rule removes.
 
 Heroes as built: Rock 200 hp / 4.2 m/s / sprint ×1.35 / body ×1.25 orange; Paper 90 / 5.2 / ×1.6 / ×0.9 pale
 blue; Scissors 130 / 6.8 / ×1.7 / ×0.95 green. These match `docs/HERO_ROSTER.md` except that the roster's

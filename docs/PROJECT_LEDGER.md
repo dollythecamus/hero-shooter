@@ -1,6 +1,6 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-10-23 13:05 (-03) · session 20261023_105517_ed63d44c · owner default profile
+Updated: 2026-10-23 20:10 (-03) · session 20261023_1941… · owner default profile
 Sprint: **one long block today from 13:00**, then 10-24 → 10-29 as buffer (plan § 6–7).
 
 ## Goal
@@ -27,34 +27,39 @@ and reverted at Chloe's instruction before any compile verification. Tree clean,
 and six feature docs under `docs/features/` now describe the code as it actually is, including the drift against
 `docs/HERO_ROSTER.md`. No source file, prefab, scene or data asset was touched by that pass.
 
+**Audit-fix step landed 2026-10-23 ~20:05** (item 1 below, code phase, Chloe's go at 19:41): the three defects the
+docs audit turned up are fixed and each one was measured in play mode, not inferred —
+`PlayerAbilities.CooldownRatio` (now 0 = just used → 1 = ready), `WallClimb` (asset `magnitude` is now the climb
+speed in m/s, `PlayerStatus` reads it), `EnemyBrain.CallTarget` + `CallAlliesState` (a called ally converges on
+the caller's target). Five files under `Assets/_Project/Scripts/`, no prefab, scene or data asset touched.
+Still open in this block: the ability rework, the HUD, and VFX (items 2–4).
+
 ## Next action
 
-**Code block not started.** Chloe gave a go at 19:10 for this order, then at ~19:2x asked for the
-documentation/architecture pass instead — only docs were written (`ARCHITECTURE.md`, `AGENTS.md`, six feature
-docs). Starting the code block needs its own explicit go; a docs phase is not permission for the next step
-(decision below). Order she fixed: **ability rework → HUD → VFX last.** Working
-scope, in this order:
+**Item 1 (the three audit fixes) is DONE and verified** — see Status and Evidence. **Item 2, the ability rework, is
+next and needs its own explicit go** (a halt/stop still stops every write; finishing one item is not permission
+for the next). Order Chloe fixed: **ability rework → HUD → VFX last.**
 
-1. **correctness fixes from the docs audit** (added 2026-10-23 at Chloe's instruction) — three code defects
-   found while documenting, each small and each currently misdocumented only because the code is wrong:
-   - `PlayerAbilities.CooldownRatio` (`PlayerAbilities.cs:36-46`) returns 1 right after use and 0 when ready;
-     its XML comment says the reverse. Fix the semantics *or* the comment — the HUD must not be built on the
-     wrong one.
-   - `WallClimb.Activate` (`WallClimb.cs:18`) passes a literal `1f`; pass `Magnitude` instead, or drop
-     `Ability_Scissors_Climb.magnitude = 6` as dead data. Superseded by `WallClimbPassive` if that lands first.
-   - `CallAlliesState` (`CallAlliesState.cs:22-33`) walks to the ally's own `Spyglass.Target`; pass the caller's
-     target from `EnemyBrain.OnAllyCallHeard` (`EnemyBrain.cs:237-254`) so the graded "chama amigos" actually
-     converges.
-   Done when: each change is observed in play mode (cooldown bar direction, climb height responds to the asset,
-   a called ally behind cover moves to the player), the docs match the new behaviour, and the three
-   `docs/features/*.md` notes that describe the defects are corrected.
-2. ability rework (input press/hold/release, `BulwarkShield`, `SlamDriver`, `WallClimbPassive`, knockback fix)
+1. ~~**correctness fixes from the docs audit**~~ — **landed 2026-10-23 ~20:05**, gate results in Evidence:
+   - `PlayerAbilities.CooldownRatio` — semantics fixed, not the comment: it now returns the HUD fill amount
+     (0 right after use → 1 when ready). The HUD can bind it directly; `IsReady` is the same clock as a bool.
+   - `WallClimb.Activate` — passes `Magnitude` instead of a literal, and `PlayerStatus` reads the `Climb` effect's
+     magnitude as **m/s** (`climbSpeed` 7 is now only the fallback for a non-positive value). The asset's
+     `magnitude = 6` is live data. **Not fixed here:** the motor's gravity still cancels most of the lift (two
+     movers) — that is the rework's one-mover job, and the measured apex with the motor running was 0.05–1.4 m
+     with no reproducible relation to the magnitude.
+   - `CallAlliesState` — `EnemyBrain` now stores the caller's target in `CallTarget` on hearing a call; the state
+     paths to it, falling back to its own `Spyglass.Target` only when null. Cleared by `EndCallAllies`.
+2. **ability rework** (input press/hold/release, `BulwarkShield`, `SlamDriver`, `WallClimbPassive`, knockback fix)
+   — `docs/tasks/2026-10-23_S3b-ability-rework.md`. `WallClimbPassive` replaces `WallClimb`/the `Climb` status
+   effect, so the climb plumbing above is deliberately disposable; the input/aim binding work must also drop
+   `rightButton` from `Ability1Pressed`.
 3. aiming (FOV/offset/spread/speed) + authored `HUD.prefab` (health, Q/E cooldowns, Bulwark meter, Mark/Snare
    chips, crosshair/reticle, hit marker) + world-space enemy bars
 4. VFX last (impact sparks, Paper trails, Overclock green, ability particles)
 
-Ordered first because the cooldown-ratio fix decides what the HUD is allowed to draw, and the climb fix touches a
-file the ability rework rewrites. Nothing here is started: it is a code phase and needs its own explicit go.
+Item 1 went first because the cooldown-ratio fix decides what the HUD is allowed to draw and the climb fix touches
+a file the ability rework rewrites.
 
 Deferred out of this block and recorded there: minimap + Tab frag board (both need systems that do not exist
 yet — `ScoreService`, a minimap mask/layer split), and the guns/projectiles rework (Chloe has not answered).
@@ -109,6 +114,33 @@ Still open:
 
 ## Evidence
 
+- **Audit-fix gate, 2026-10-23 19:5x–20:0x** — play-mode probes through the MCP bridge. Method: register an
+  `UnityEditor.EditorApplication.update` callback that samples and `Debug.Log`s, let it run, then read
+  `Logs/Editor.log` from disk (`grep -a '\[Probe\]'`). Sleeping in the shell does **not** advance game time here —
+  the clamp is `Time.maximumDeltaTime` and one `execute_code` call buys about one frame.
+  - **Cooldown direction** (Scissors' 3 s Climb, slot 0): `A activate slot0 ok=True t=25.131`,
+    `A t=25.131 ratio=0.000 ready=False` → `0.107 / 0.210 / 0.312 / 0.418 / 0.520 / 0.621 / 0.726 / 0.831 /
+    0.939` → `A t=28.142 ratio=1.000 ready=True`. Rise toward ready, `IsReady` true exactly at 1.000.
+  - **Climb responds to the asset** (`PlayerMotor` disabled so the climb is the only mover):
+    `B1 start mag=6.0 y0=0.080` → `B1 end rise=5.260 dt=1.272`; `B2 start mag=3.0 y0=5.340` →
+    `B2 end rise=2.376 dt=1.191`. Measured in continuous frames: `y=0.592 → 2.935 → 5.340`.
+  - **Climb with the motor running (honest number, not the gate):** `rise` came out 0.000 / 0.049 / 0.356 / 1.222 /
+    1.369 across runs at magnitudes 6 and 3 — gravity is the second mover, so the apex is not reproducible. This is
+    the rework's problem (one-mover rule), not the plumbing's.
+  - **Called ally converges on the caller's target** — the ally's own `Spyglass.Target` was pointed at a decoy:
+    `D5 setup ally=RangedEnemy@(5.7, 1.2, 13.9) ownTarget(decoy)=(20.7, 1.2, 23.9) player=(5.7, 1.2, 1.9)
+    startDist=12.00`, `D5 broadcast: state=CallAllies callTarget=Player`, then `dest=(4.2, 0.1, 3.1)
+    dPlayer=10.48 dOwn=18.37` → … → `dest=(2.9, 0.1, 2.3) dPlayer=5.63 dOwn=22.98`: the destination is the
+    player's position and the distance to the player falls while the distance to its own target grows.
+  - Compile after the five edits: `Library/ScriptAssemblies/Assembly-CSharp.dll` rebuilt 19:43,
+    `grep -c "error CS" Logs/Editor.log` → **0**; `grep -rn "Instantiate(" Assets/_Project/Scripts` → one hit
+    (`Core/ObjectPool.cs:43`); `grep -rn attackRange` → declaration only; `git diff --check` clean.
+- **Play-mode side effects had to be reverted** (2026-10-23, same session): the project runs with *Reload Scene*
+  and *Reload Domain* disabled, so the play sessions wrote `90_TestArena.unity` (camera rig position 0,1,-10 →
+  0,1.5,-8.5 and distance 4.5 → 2.5), `CharacterSelect.prefab` (Canvas render mode 1 → 0) and
+  `ProjectSettings/TimeManager.asset` (the probe's `timeScale: 4`, `maximumDeltaTime: 8`). All three were restored
+  with `git checkout --` and the scene reloaded from disk; the pitfall and the probing method are written into
+  `docs/features/editor-mcp-tooling.md`.
 - `docs/reference/assignment.jpeg` — the brief as received.
 - `docs/ASSIGNMENT.md` — verbatim pt-BR + translation + 11-row checklist.
 - `docs/tasks/2026-10-23_S1-player-shooting.md` — S1 file map, wiring actually performed, gate table.
@@ -197,6 +229,13 @@ none
   Three of these are code defects, not doc defects, and belong to the rework block: the inverted
   `CooldownRatio` XML comment (any HUD trusting it draws backwards), the ignored climb magnitude, and
   "calls friends" allies walking to their own target instead of the caller's.
+- 2026-10-23 19:41–20:10 (session `20261023_1941…`, this TUI session) — Chloe: **"let's execute next actions"** →
+  executed item 1 of the block, the three audit fixes, and nothing else (item 2 still needs its own go). Five files
+  changed: `PlayerAbilities.cs` (CooldownRatio returns the fill amount), `WallClimb.cs` + `PlayerStatus.cs`
+  (the `Climb` effect's magnitude is m/s and comes from the asset), `EnemyBrain.cs` + `CallAlliesState.cs`
+  (`CallTarget`). Verified in play mode with the quoted probe lines in Evidence, docs corrected in the same pass
+  (`characters-and-abilities.md`, `enemy-fsm.md`, `hud-aiming-and-feedback.md`, `player-movement-and-camera.md`,
+  `editor-mcp-tooling.md`), scene/prefab/ProjectSettings churn produced by play mode reverted.
 
 
 

@@ -40,6 +40,7 @@ class EnemyBrain : MonoBehaviour {
     NavMeshAgent Agent { get; }
     IEnemyAttack Attack { get; }
     Transform Target { get; }
+    Transform CallTarget { get; }               // the target the last answered call pointed at; null outside CallAllies
     Vector3 SpawnPoint { get; }
     bool HasTarget { get; }
     float SpeedMultiplier { get; set; }         // 1; Paper's Snare sets 0.25
@@ -108,11 +109,13 @@ static class AllyCall {
   immediately flee again and will not stutter between Flee and Chase. `EndCallAllies` has no such cooldown but
   `RequestAllyCall` throttles broadcasts to one per `allyCallCooldown` (12 s).
 - Hearing a call (`OnAllyCallHeard`) is ignored when: caller is self, brain is dead, distance to the caller
-  exceeds `stats.allyCallRadius` (16 m), or the current state is already `Flee` or `Attack`. Otherwise the state
-  becomes `CallAllies`. **The `target` argument is ignored**: `OnAllyCallHeard` uses the caller only for the
-  radius test, and `CallAlliesState` walks to the ally's *own* `Spyglass.Target` at `chaseSpeed` for
-  `callAlliesDuration` (4 s). An ally that has not spotted the player itself enters the state and stands still
-  for 4 s — see the limitations below.
+  exceeds `stats.allyCallRadius` (16 m), or the current state is already `Flee` or `Attack`. Otherwise it stores
+  the caller's target in `CallTarget` and the state becomes `CallAllies`. `CallAlliesState` walks to
+  **`CallTarget`** — the caller's target — falling back to its own `Spyglass.Target` only when that is null, at
+  `chaseSpeed` for `callAlliesDuration` (4 s). `CallTarget` is cleared by `EndCallAllies`.
+  Play-mode evidence (2026-10-23): an ally whose own `Spyglass.Target` was a decoy 18 m away entered
+  `CallAllies` with `callTarget=Player`, `agent.destination` = the player's position, and closed 10.48 → 5.63 m
+  on the player while moving *away* from its own target (18.37 → 22.98 m).
 - Calls are broadcast from two places: `RangedAttack.TryAttack` (every shot attempt) and `MeleeAttack.Swing`
   after a landed swing. Both only *request*; the brain owns the cooldown.
 - Death (`OnDied`) sets `_isDead`, stops and disables the agent, and stops coroutines. The corpse stays in the
@@ -150,10 +153,10 @@ static class AllyCall {
   read the SO or the field must be deleted — do not "fix" one side only.
 - **Knockback does not move enemies in practice** (play-test 2026-10-23): the agent's next `SetDestination`
   cancels the `agent.Move` offset. The rework replaces the push with an agent-disabling impulse.
-- **"Calls friends" is only half-wired**: a called ally switches state and is ignored if it is already in
-  `Flee`/`Attack`, but it converges on its own target, not the caller's. With `Spyglass` needing line of sight,
-  a neighbour behind cover answers the call and then stands still for the full 4 s. Passing the caller's target
-  into `CallAlliesState` is the one-line fix, and it is what the demo needs to show.
+- **"Calls friends" is wired but blind outside its radius test.** A called ally converges on the caller's
+  target, but the recall is only heard by enemies within `allyCallRadius` of the *caller*, and a called ally
+  that is already in `Flee`/`Attack` ignores the call entirely. Nothing makes the caller pick a target worth
+  converging on, and the state has no wall/cover check of its own — it just paths at the target.
 - No wave spawning, no corpse recycling, no pooled enemies, no score/kill events; four enemies are hand-placed
   in `90_TestArena.unity`.
 - No attack telegraph visual, no audio, no damage numbers, no ranged enemy strafing or backing off (the plan's

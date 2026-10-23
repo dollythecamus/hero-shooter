@@ -90,6 +90,9 @@ class PlayerStatus : MonoBehaviour {
   multiplicatively (0.75 × 0.45 = 0.34) — this is intended, and the reason no ability may write the motor.
 - Effects are stored with an absolute end time and removed lazily on the next `Update`; an effect with
   `duration <= 0` still lives until the next frame.
+- `Climb` is the **one effect whose magnitude is a speed (m/s), not a multiplier**: the case reads
+  `climb = magnitude`, falling back to the serialized `climbSpeed` (7) only when the ability passes a
+  non-positive value. Every other kind multiplies.
 
 ## Known limitations / deliberately not handled
 
@@ -97,9 +100,9 @@ class PlayerStatus : MonoBehaviour {
   the `Climb` effect, while `PlayerMotor.Update` also calls it in the same frame. The result is a climb that
   fights gravity and rotation. The ability rework (`docs/tasks/2026-10-23_S3b-ability-rework.md`) replaces
   this: `SlamDriver` / `WallClimbPassive` drive the controller and suspend `PlayerMotor`.
-- **Climb is not wall traversal.** Today it is a 0.9 s vertical boost launched from anywhere at 7 m/s, with a
-  3 s cooldown. The roster specifies a passive wall climb: 6 m cap, 3 m/s, exit jump on cap, mantle over a
-  lower wall top, reset only on floor contact.
+- **Climb is not wall traversal.** Today it is a 0.9 s vertical boost launched from anywhere at the
+  definition's `magnitude` (6 m/s), with a 3 s cooldown. The roster specifies a passive wall climb: 6 m cap,
+  3 m/s, exit jump on cap, mantle over a lower wall top, reset only on floor contact.
 - **RMB is overloaded.** `Ability1Pressed` returns true for Q **and** right mouse button, while the roster
   makes RMB the aim button for all three heroes. The rework must remove `rightButton` from `Ability1Pressed`
   before aiming lands, or RMB will fire an ability and aim at once.

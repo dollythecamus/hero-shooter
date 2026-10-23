@@ -39,5 +39,23 @@ agent drive the open editor instead.
 
 - A successful `manage_editor play` does not prove play mode started — verify `Application.isPlaying`
   via `execute_code`, and grep `Logs/Editor.log` for `error CS`.
+- **A play-mode transition returns stale edit-mode values.** `execute_code` fired during the transition sees
+  `Application.isPlaying == False` and a scene where no `Start` has run; `mcpforunity://editor/state` can be
+  30 s stale (`staleness.is_stale`). Read the state twice, and use `Time.time`/`Time.frameCount` to judge whether
+  the game is actually ticking.
+- **Game time advances only as the editor renders frames, and one `execute_code` call buys roughly one frame**
+  (clamped by `Time.maximumDeltaTime`, 0.333 s), so `sleep 8` in the shell does not advance an 8 s cooldown.
+  Probe with an `UnityEditor.EditorApplication.update` callback that samples and `Debug.Log`s, let it run, then
+  read `Logs/Editor.log` from disk (`grep -a '\[Probe\]' Logs/Editor.log`) — that is how the 2026-10-23 ability
+  probes were measured. Set `Time.timeScale`/`Time.maximumDeltaTime` back to 1 / 0.333 before finishing.
+- **Enter Play Mode Options here have Reload Scene *and* Reload Domain disabled**, so play runs on the open
+  scene and runtime mutations leak into it: a play session on 2026-10-23 wrote `90_TestArena.unity` (camera rig
+  position/distance), `CharacterSelect.prefab` (canvas render mode) and `ProjectSettings/TimeManager.asset`
+  (the probe's `timeScale` 4 / `maximumDeltaTime` 8). After any play-mode work run `git status --short`, restore
+  the churn with `git checkout --`, then reload the scene from disk
+  (`EditorSceneManager.OpenScene(path, OpenSceneMode.Single)`) so the editor does not save it again.
+- Leftover `EditorApplication.update` callbacks survive across `execute_code` calls (each call compiles a new
+  assembly) and keep running in later probes — give every callback a self-cancel condition and prefer one probe
+  per play session.
 - Batchmode runs (`-batchmode -quit`) and the GUI editor must not share the project: check
   `Temp/UnityLockfile` and `pgrep -f <project path>` before any headless run.
