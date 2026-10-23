@@ -36,20 +36,25 @@ each observed in play mode, not inferred.
 
 ## Open questions
 
-Asked 2026-10-23 — every "open" line in `docs/HERO_ROSTER.md` maps to one of these.
+**Answered 2026-10-23** (recorded in `docs/HERO_ROSTER.md`, each under its own "Decided" table):
 
-- **Aiming**: FOV values (hip → aim), shoulder offset amount, does aiming slow movement, does it tighten spread?
-- **Slam**: jump height, descent speed multiplier, radius/damage (5 m / 40 today), steering during the jump,
-  can it start mid-air?
-- **Bulwark**: damage reduction value while shielded, can Rock shoot while shielded, movement penalty, length of
-  the short cooldown after an early release, length of the longer cooldown after depletion, refill delay.
-- **Mark / Snare feedback**: world marker above the enemy + HUD chip with the remaining time — enough, or do you
-  want an outline/highlight through walls?
-- **Climb**: max height (6 m today), climb speed, direction of the exit jump, does it cost anything?
-- **Overclock**: bullet/trail colour for the active window.
-- **Guns and projectiles**: what specifically is unsatisfying (feel of the shot, tracer look, spread, rate,
-  hitscan vs projectile, sound) — design questions still to be asked in the chat, answers to be recorded here.
-- Git remote `dollythecamus/hero-shooter`: push or stay local? — Chloe
+- Aiming — FOV **60 → 42**, blend 8/s, offset **+0.55 right / −0.20 down**, movement **×0.9** all heroes,
+  **×0.6** Paper, spread **−50 %**, nothing visible through walls.
+- Slam — jump **4 m**, descent **2.5× gravity**, radius **5 m**, damage **40**, cooldown **8 s**, **no steering**,
+  **grounded start only**.
+- Bulwark — **5 s** meter, damage **×0.4**, **no shooting** while shielded, movement **×0.75**, **0.5 s** cooldown
+  after early release, **8 s** after depletion, refill **1/s** starting **1 s** after release.
+- Mark / Snare — marker above the enemy + HUD chip with remaining seconds, **never through walls**.
+- Climb — cap **6 m**, **3 m/s**, exit jump **wall-normal + 2 m up**, no cost, reset on floor, **mantle over a
+  wall whose top is below the cap** instead of jumping off.
+- Overclock — **green** bullets/trails/particles.
+- Enemy bars — world-space, hidden at full, **amber** when marked, **blue-grey** when snared.
+
+Still open:
+
+- **Guns and projectiles rework** — Chloe is answering this later; nothing on the weapon feel starts before that.
+- Git remote `dollythecamus/hero-shooter`: push or stay local?
+
 
 ## Decisions
 
