@@ -141,6 +141,13 @@ Still open:
   `ProjectSettings/TimeManager.asset` (the probe's `timeScale: 4`, `maximumDeltaTime: 8`). All three were restored
   with `git checkout --` and the scene reloaded from disk; the pitfall and the probing method are written into
   `docs/features/editor-mcp-tooling.md`.
+- **Editor bridge dropped at the end of the session (20:12).** After the scene was reloaded from disk the
+  editor-side MCP client's websocket died (`McpLog` send exceptions in `Logs/Editor.log`;
+  `mcpforunity://editor/state` → "Unity session not ready (ping not answered)"), while the Python server
+  (pid 34863) still listens on `127.0.0.1:8080` — `curl /health` → healthy. A retry ~10 minutes later still
+  failed. Nothing was left running: play mode stopped, `Time.timeScale` 1, `maximumDeltaTime` 0.333, scene not
+  dirty, working tree clean at `32aba1d`. The next drive session needs Window → MCP for Unity → Auto-Connect
+  (or an editor restart) before the bridge answers again.
 - `docs/reference/assignment.jpeg` — the brief as received.
 - `docs/ASSIGNMENT.md` — verbatim pt-BR + translation + 11-row checklist.
 - `docs/tasks/2026-10-23_S1-player-shooting.md` — S1 file map, wiring actually performed, gate table.
