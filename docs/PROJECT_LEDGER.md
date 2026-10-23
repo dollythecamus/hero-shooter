@@ -18,19 +18,20 @@ A buildable Unity 6 third-person hero shooter that satisfies all 11 minimum mech
 
 ## Status
 
-**S1 closed, gate passed** — player, third-person camera, generic `ObjectPool<T>`, pooled projectile and
-weapon are wired into `Assets/_Project/Scenes/90_TestArena.unity` and verified in play mode through the
-MCP bridge: `created=64 active=0 inactive=64` at start, 61 shots → `created=64`, `active=0` after
-settling, `[DamageLog] Target_2 hit for 20 → 40/60 … 0/60`, player unhurt. Commit `f82e489`, tree clean.
+**S2 closed, gate passed** — one `EnemyBrain` + `StateMachine` drive both archetypes; a live play session
+logged all five states (`Search → Chase → Attack`, `Chase → Flee` at 20/90 hp, `Chase → CallAllies` from a
+neighbour's call). Player took damage from both archetypes; corpses freeze (`_isDead`, agent disabled).
+Wiring: player tag, `Stats_Ranged`/`Stats_Melee` SOs, `RangedEnemy`/`MeleeEnemy` prefabs, legacy NavMesh
+bake (116 verts / 52 tris), 2+2 spawned in `90_TestArena`. Evidence: `docs/tasks/2026-10-23_S2-enemy-fsm.md`.
 
 ## Next action
 
-S2: write `EnemyBrain` + `IState`/`StateMachine` + the five states (`Search`, `Chase`, `Attack`, `Flee`,
-`CallAllies`), `Spyglass` perception, `RangedAttack`/`MeleeAttack` strategies, `AllyCall`, and the
-`RangedEnemy`/`MeleeEnemy` prefabs.
+S3: `CharacterDefinition` + `WeaponDefinition` + `AbilityDefinition` ScriptableObjects, 3 characters,
+6 abilities, character-select screen. Weapons become per-character data (see `docs/PLAN.md` § 9b) — the
+`Weapon` component must read a definition instead of owning its numbers.
 
-**Stopping point:** both enemy types visit all five states in play mode with a state-transition log, and
-a called ally turns toward the caller's target.
+**Stopping point:** choosing a character on screen spawns that hero with its own weapon stats and both
+abilities firing from Q/E with working cooldowns.
 
 ## Open questions
 

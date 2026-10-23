@@ -39,7 +39,7 @@ namespace HeroShooter.Core
             Current = maxHealth;
         }
 
-        public void TakeDamage(in DamageInfo info)
+        public void TakeDamage(DamageInfo info)
         {
             if (!IsAlive || info.Amount <= 0f)
             {

@@ -69,9 +69,18 @@ namespace HeroShooter.Enemies
             return true;
         }
 
-        /// <summary>Re-checks sight. Called once per frame by the brain.</summary>
+        /// <summary>Re-checks sight. Called once per frame by the brain; acquires a target if it has none yet.</summary>
         public void Refresh(float sightRange)
         {
+            if (Target == null)
+            {
+                GameObject found = GameObject.FindGameObjectWithTag(targetTag);
+                if (found != null)
+                {
+                    Target = found.transform;
+                }
+            }
+
             if (Target == null || !InRange(sightRange))
             {
                 return;

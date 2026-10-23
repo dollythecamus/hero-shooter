@@ -27,6 +27,6 @@ namespace HeroShooter.Core
     public interface IDamageable
     {
         bool IsAlive { get; }
-        void TakeDamage(in DamageInfo info);
+        void TakeDamage(DamageInfo info);
     }
 }

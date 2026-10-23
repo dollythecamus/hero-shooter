@@ -137,6 +137,25 @@ ScriptableObjects?", "why one brain for two enemies?").
 4. **Windows build** — install the Windows build-support module (~1.5–3 GB; the last Unity registry
    download ran at ~90 KB/s, so it starts as a background job now).
 
+## 9b. Deferred by design — weapons become per-character
+
+Recorded 2026-10-23 (Chloe): once characters exist, **each character may carry its own weapon**, so the
+single shared `Weapon` component and its inspector numbers are provisional. Do not build more behaviour
+into `Weapon` than S1 needed.
+
+What this costs now, and what it saves:
+
+- Today: one `Weapon` component on the player prefab, numbers serialized on the component, one shared
+  `ProjectilePool`. Cheapest thing that passes S1.
+- S3 shape: `WeaponDefinition` ScriptableObject (fire rate, damage, projectile speed, spread, pool,
+  optional projectile prefab) referenced from `CharacterDefinition`, and `Weapon` becomes the runtime that
+  reads a definition instead of owning numbers. The prefab then carries a `WeaponMount`, not a gun.
+- Rule while S2 runs: no new tuning field goes on `Weapon` unless it is a definition candidate too — write
+  it so it can move into `WeaponDefinition` without touching call sites.
+- Enemy weapons already point this way: `RangedAttack` reads damage and cooldown from `EnemyStats`, not
+  from a `Weapon` component, so archetypes are data-driven today. The player side follows in S3.
+
+
 ## 10. Risks
 
 | Risk | Mitigation |

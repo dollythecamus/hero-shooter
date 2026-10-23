@@ -33,6 +33,7 @@ namespace HeroShooter.Enemies
         Vector3 _spawnPoint;
         float _nextFleeTime;
         float _nextAllyCallTime;
+        bool _isDead;
 
         public EnemyStats Stats => stats;
         public StateMachine Machine => _machine;
@@ -62,12 +63,18 @@ namespace HeroShooter.Enemies
                 _agent.speed = stats.searchSpeed;
                 _agent.stoppingDistance = Mathf.Max(0.1f, stats.stopDistance);
                 SetHealthToStats();
+
+                if (spyglass != null)
+                {
+                    spyglass.Initialise(stats.sightRange, stats.loseSightGrace);
+                }
             }
 
             RegisterStates();
 
             _machine.Transitioned += OnTransitioned;
             AllyCall.Broadcasted += OnAllyCallHeard;
+            _health.Died += OnDied;
         }
 
         void OnEnable()
@@ -82,6 +89,11 @@ namespace HeroShooter.Enemies
         {
             _machine.Transitioned -= OnTransitioned;
             AllyCall.Broadcasted -= OnAllyCallHeard;
+
+            if (_health != null)
+            {
+                _health.Died -= OnDied;
+            }
         }
 
         void Start()
@@ -91,7 +103,7 @@ namespace HeroShooter.Enemies
 
         void Update()
         {
-            if (stats == null)
+            if (_isDead || stats == null)
             {
                 return;
             }
@@ -99,6 +111,25 @@ namespace HeroShooter.Enemies
             spyglass.Refresh(stats.sightRange);
             _machine.Tick(Time.deltaTime);
             EvaluateTransitions();
+        }
+
+        /// <summary>
+        /// A corpse must not keep thinking. The FSM is frozen, the agent is switched off so the body stops
+        /// moving, and the brain ignores further ally calls. Recycling/destroying the body belongs to the
+        /// wave director (S6), not here.
+        /// </summary>
+        void OnDied(DamageInfo info)
+        {
+            _isDead = true;
+            _agent.isStopped = true;
+            _agent.enabled = false;
+            StopAllCoroutines();
+
+            if (logTransitions)
+            {
+                Debug.Log($"[EnemyBrain] {name}: died in {_machine.Current} (source: " +
+                          $"{(info.Source != null ? info.Source.name : "unknown")})", this);
+            }
         }
 
         void RegisterStates()
@@ -188,7 +219,7 @@ namespace HeroShooter.Enemies
 
         void OnAllyCallHeard(EnemyBrain caller, Transform target)
         {
-            if (caller == this || stats == null)
+            if (caller == this || _isDead || stats == null)
             {
                 return;
             }
