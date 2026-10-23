@@ -32,8 +32,24 @@ namespace HeroShooter.Weapons
         public int ShotsFired { get; private set; }
         public float Damage => damage;
 
+        void Awake()
+        {
+            ResolvePool();
+        }
+
+        /// <summary>Late binding: the pool may wake up after this component, so re-check on use.</summary>
+        void ResolvePool()
+        {
+            if (pool == null)
+            {
+                pool = ProjectilePool.Instance;
+            }
+        }
+
         public void TryFire()
         {
+            ResolvePool();
+
             if (pool == null || Time.time < _nextShotTime)
             {
                 return;

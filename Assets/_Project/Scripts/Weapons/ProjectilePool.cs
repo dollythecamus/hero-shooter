@@ -9,6 +9,30 @@ namespace HeroShooter.Weapons
     /// </summary>
     public class ProjectilePool : ObjectPool<Projectile>
     {
+        /// <summary>
+        /// The single shared pool. The weapon falls back to this when its inspector field is empty,
+        /// which keeps the player prefab free of a scene reference it could not hold.
+        /// </summary>
+        public static ProjectilePool Instance { get; private set; }
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
         protected override Projectile CreateInstance()
         {
             Projectile projectile = base.CreateInstance();
