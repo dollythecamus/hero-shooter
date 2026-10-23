@@ -8,24 +8,33 @@ waves of FSM-driven ranged and melee enemies with pooled projectiles and two abi
 
 ## Read in this order
 
-1. `docs/ASSIGNMENT.md` — the brief as received (pt-BR) + English translation + requirement checklist.
-2. `docs/PLAN.md` — architecture, requirement→system map, the one-day sprint schedule, decisions owed.
-3. `docs/PROJECT_LEDGER.md` — what is true **now**: status, next action, open questions.
-4. `docs/HERO_ROSTER.md` — the three heroes, their abilities as specified, aiming and feedback requirements.
-5. `docs/LAYERS.md` — layer indices and the mask values that follow from them.
-6. `docs/tasks/` — one file per sprint block: what was built, what was verified, what was reverted.
+1. `ARCHITECTURE.md` — what exists: stack, components, conventions, directory map, feature-doc index.
+2. `AGENTS.md` — commands that work here, permission boundaries, done criteria.
+3. `docs/ASSIGNMENT.md` — the brief as received (pt-BR) + English translation + requirement checklist.
+4. `docs/PLAN.md` — sprint plan and requirement→system map (its § 3 file list is partly aspirational; see
+   ARCHITECTURE.md *Not built yet*).
+5. `docs/PROJECT_LEDGER.md` — what is true **now**: status, next action, open questions.
+6. `docs/HERO_ROSTER.md` — the three heroes, their abilities as specified, aiming and feedback requirements.
+   Where it disagrees with the code, the roster wins.
+7. `docs/LAYERS.md` — layer indices and the mask values that follow from them.
+8. `docs/features/` — one doc per system (`damage-and-pooling`, `player-movement-and-camera`,
+   `weapons-and-projectiles`, `enemy-fsm`, `characters-and-abilities`, `hud-aiming-and-feedback` (planned),
+   `editor-mcp-tooling`).
+9. `docs/tasks/` — one file per sprint block: what was built, what was verified, what was reverted.
 
 ## Status
 
-Unity project in place and importing clean — **no gameplay code yet**. Sprint block S1 is the next
-step. See the ledger's *Next action*.
+S1 (player + camera + pooled shooting), S2 (enemy FSM, both archetypes) and S3 (3 characters, 6 abilities,
+authored character select) are landed. S3's six ability *effects* were never measured in play mode; the ability
+rework, HUD/aiming/VFX and the remaining brief items (minimap, Tab frags, map select, tutorial) are not built.
+Truth lives in `docs/PROJECT_LEDGER.md`.
 
 ## Layout
 
 ```
-Assets/_Project/   gameplay tree (scenes, scripts, data, prefabs) — see PLAN.md § 3
+Assets/_Project/   gameplay tree — scenes, scripts, SO data, prefabs, materials (full map in ARCHITECTURE.md)
 Assets/Settings/   URP assets from the template
-docs/              assignment brief, plan, ledger, code-defense notes, reference image
+docs/              assignment brief, plan, ledger, roster, layers, feature docs, per-block task files
 ```
 
 ## Project facts

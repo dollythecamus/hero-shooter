@@ -23,12 +23,25 @@ A buildable Unity 6 third-person hero shooter that satisfies all 11 minimum mech
 `docs/tasks/2026-10-23_S3b-ability-rework.md` and **not built** — an implementation pass was started at ~18:10
 and reverted at Chloe's instruction before any compile verification. Tree clean, working tree == `dced7ba`.
 
+**Docs retrofit landed 2026-10-23 ~19:2x** (`docs-driven-dev-pipeline` stage 0): `ARCHITECTURE.md`, `AGENTS.md`,
+and six feature docs under `docs/features/` now describe the code as it actually is, including the drift against
+`docs/HERO_ROSTER.md`. No source file, prefab, scene or data asset was touched by that pass.
+
 ## Next action
 
-**Waiting for Chloe's explicit go.** The next code block is S3b (ability rework) + S4 (HUD + game feel), in this
-order, per the *Planned implementation* table in `docs/tasks/2026-10-23_S3b-ability-rework.md`:
-input hold/release → `BulwarkShield` → `SlamDriver` → `WallClimbPassive` → aiming → authored HUD → enemy bars →
-VFX.
+**Code block not started.** Chloe gave a go at 19:10 for this order, then at ~19:2x asked for the
+documentation/architecture pass instead — only docs were written (`ARCHITECTURE.md`, `AGENTS.md`, six feature
+docs). Starting the code block needs its own explicit go; a docs phase is not permission for the next step
+(decision below). Order she fixed: **ability rework → HUD → VFX last.** Working
+scope, in this order:
+
+1. ability rework (input press/hold/release, `BulwarkShield`, `SlamDriver`, `WallClimbPassive`, knockback fix)
+2. aiming (FOV/offset/spread/speed) + authored `HUD.prefab` (health, Q/E cooldowns, Bulwark meter, Mark/Snare
+   chips, crosshair/reticle, hit marker) + world-space enemy bars
+3. VFX last (impact sparks, Paper trails, Overclock green, ability particles)
+
+Deferred out of this block and recorded there: minimap + Tab frag board (both need systems that do not exist
+yet — `ScoreService`, a minimap mask/layer split), and the guns/projectiles rework (Chloe has not answered).
 
 **Stopping point:** the per-ability verification table in that file, measured in play mode rather than inferred,
 plus the S4 gates. Nothing is declared closed on the strength of "it compiles".
@@ -88,15 +101,24 @@ Still open:
 - Play-mode probes through the bridge: pool `created=64` → 61 shots → `created=64`, `active=0`;
   `[DamageLog] Target_2 hit for 20 → 40/60`, `… → 0/60`.
 - `Packages/packages-lock.json` — 32 packages incl. `com.coplaydev.unity-mcp`; ProBuilder 6.1.2.
-- `Assets/Scenes/Level.unity` — Chloe's own ProBuilder scene (cube + `ProBuilderMesh`), left untouched.
+- `Assets/Scenes/Level.unity` — Chloe's own ProBuilder scene, left untouched during S1; **no longer present in
+  the repo at `dced7ba`** (the only scenes now are `90_TestArena` and the template `SampleScene`).
 - `~/projects/shootshoot/Assets/shootshoot/Scripts/{PlayerControl,ShootPool,Projectile}.cs` — reuse source.
 - `PlaybackEngines/` → `WindowsStandaloneSupport` (965 MB) installed 2026-10-23; `windows-il2cpp` does not
   exist in this Hub, so Windows is Mono-backend.
+- Docs retrofit probes, 2026-10-23: `curl 127.0.0.1:8080/health` → healthy v10.0.0; editor running as
+  `Unity -projectpath /home/chloe/projects/hero-shooter` (pid 126381) with `Temp/UnityLockfile` present;
+  `Library/ScriptAssemblies/Assembly-CSharp.dll` present; `grep -c "error CS" Logs/Editor.log` → **0**;
+  `grep -rn "Instantiate(" Assets/_Project/Scripts` → **one** hit (`Core/ObjectPool.cs:43`);
+  `grep -rn "attackRange"` → declaration only; `git diff --check` clean. Scene inventory from the YAML:
+  `90_TestArena` holds 20 objects incl. 2 × `RangedEnemy`, 2 × `MeleeEnemy`, 1 × `Player`, the
+  `CharacterSelect` canvas, `ProjectilePool` (`warmUpCount: 64`) and a baked NavMesh.
 
 
 ## Uncommitted at last checkpoint
 
-none — `git status --short` empty at commit `f82e489`.
+none — `git status --short` empty at commit `f82e489`, and empty again after the docs retrofit, which is
+committed together with this line. No source, prefab, scene or data asset changed in that pass.
 
 ## Handoff
 
@@ -140,6 +162,14 @@ none
   `dced7ba`, the two new components and the two deleted ability files undone, nothing verified or committed. The
   rework is now documented as planned-only in `docs/tasks/2026-10-23_S3b-ability-rework.md` (shapes, file table,
   one-mover rule, verification table).
+- 2026-10-23 ~19:2x (session `20261023_1920…`, this TUI session) — Chloe: **apply `docs-driven-dev-pipeline` and
+  create documentation + architecture for the features** — done as stage 0 retrofit, docs only, no code:
+  `ARCHITECTURE.md`, `AGENTS.md`, `docs/features/{damage-and-pooling,player-movement-and-camera,
+  weapons-and-projectiles,enemy-fsm,characters-and-abilities,hud-aiming-and-feedback}.md`, README status
+  corrected. Drift found and written down rather than fixed: `EnemyStats.attackRange` is dead data; the aim ray
+  in `Weapon.SolveAimDirection` uses mask `~0` and can hit the hero's own capsule; `InputReader.Ability1Pressed`
+  binds RMB, which collides with the planned RMB aiming; `PLAN.md` § 3 lists ~16 files that do not exist;
+  `Health.IncomingDamageMultiplier` / `EnemyBrain.SpeedMultiplier` restores are not stack-safe.
 
 
 
