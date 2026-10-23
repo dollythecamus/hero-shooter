@@ -237,7 +237,7 @@ MonoBehaviour:
   eyeHeight: 1.4
   sightBlockers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 9
 --- !u!114 &8564784187396156953
 MonoBehaviour:
   m_ObjectHideFlags: 0

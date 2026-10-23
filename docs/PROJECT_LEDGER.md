@@ -26,12 +26,12 @@ bake (116 verts / 52 tris), 2+2 spawned in `90_TestArena`. Evidence: `docs/tasks
 
 ## Next action
 
-S3: `CharacterDefinition` + `WeaponDefinition` + `AbilityDefinition` ScriptableObjects, 3 characters,
-6 abilities, character-select screen. Weapons become per-character data (see `docs/PLAN.md` § 9b) — the
-`Weapon` component must read a definition instead of owning its numbers.
+Verify the six ability effects deterministically (S3 gate): Rock Slam damage + knockback, Bulwark's 0.4
+incoming-damage multiplier, Paper Mark's 1.35 on the target, Paper Snare's 0.25 enemy speed, Scissors Climb
+height, Overclock's fire-rate multiplier — plus `CooldownRatio > 0` right after each activation. Then S4.
 
-**Stopping point:** choosing a character on screen spawns that hero with its own weapon stats and both
-abilities firing from Q/E with working cooldowns.
+**Stopping point:** each row of the table at the end of `docs/tasks/2026-10-23_S3-characters.md` shows the
+measured value, not the intended one.
 
 ## Open questions
 

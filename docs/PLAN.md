@@ -145,6 +145,20 @@ ScriptableObjects?", "why one brain for two enemies?").
 
 ## 9b. Deferred by design — weapons become per-character
 
+**Done 2026-10-23 in S3**: `WeaponDefinition` exists, `Weapon` reads it, and `CharacterDefinition` carries
+one weapon + two abilities. See `docs/HERO_ROSTER.md` and `docs/tasks/2026-10-23_S3-characters.md`.
+
+## 9c. Conventions fixed during S3
+
+- **Layers** (Chloe, 2026-10-23): level geometry lives on the **Structure** layer (index 3), Player is 6,
+  Enemy is 7. Masks that mention 8 / 9 / 64 / 128 / -65 are correct, not mistakes — table in
+  `docs/LAYERS.md`. New world queries use Structure, never `Default`.
+- **UI** (Chloe, 2026-10-23): **UI is authored as prefabs, never built at runtime.** The character select
+  was rebuilt as `Prefabs/UI/CharacterSelect.prefab` after the runtime-built version proved hard to read and
+  hard to edit; each card's button is a persistent listener visible in the inspector. The S4 HUD follows the
+  same rule.
+
+
 Recorded 2026-10-23 (Chloe): once characters exist, **each character may carry its own weapon**, so the
 single shared `Weapon` component and its inspector numbers are provisional. Do not build more behaviour
 into `Weapon` than S1 needed.
