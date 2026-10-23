@@ -83,6 +83,7 @@ Defensibility rules (this is what the 20:20 session grades):
 
 ## 5. The three self-chosen mechanics — decided at 21:30, not now
 
+
 Ranked by grade-per-hour. Chloe picks three at S6, once the mandatory systems stand.
 Recommended set in bold.
 
@@ -117,10 +118,15 @@ Anything unfinished at the end of its block goes to the **cut list** that night,
 
 | Day | Use |
 |---|---|
-| Sat 24 – Sun 25 | Fix what the sprint cut or broke; playtest with a second person; balance waves/abilities |
+| Sat 24 – Sun 25 | **Balance pass** (deferred on purpose — Chloe's call 2026-10-23: simple testing looked fine, real balancing happens once every feature exists): TTK per matchup, enemy damage, wave ramp, ability cooldowns |
 | Mon 26 – Wed 28 | Finish and rehearse `docs/CODE_DEFENSE.md` out loud (6 systems × ~3 min); Windows build once the module lands |
 | Thu 29 | Final builds for both targets, submit to the LMS (multiple submissions allowed), demo rehearsal with a stopwatch |
 | Fri 30 | Freeze. 18:30 demo, 20:20 code walkthrough. No edits after 18:00. |
+
+**Balance is explicitly deferred, not forgotten.** Recorded 2026-10-23: features first (the whole point of the
+one-day sprint), balancing after the sprint with every system present. Current known imbalance: four S2 enemies
+kill the player in ~13 s, and the player has no death handling yet (that is S4 work, not a balance fix).
+
 
 ## 8. Code-defense preparation
 

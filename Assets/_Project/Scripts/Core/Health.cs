@@ -24,6 +24,12 @@ namespace HeroShooter.Core
         public float Normalized => maxHealth <= 0f ? 0f : Mathf.Clamp01(Current / maxHealth);
         public bool IsAlive => Current > 0f;
 
+        /// <summary>
+        /// Scales incoming damage: below 1 is armour (Rock's Bulwark), above 1 is vulnerability (Paper's Mark).
+        /// Set by whoever applies the effect and restored by it, so Health stays a plain value holder.
+        /// </summary>
+        public float IncomingDamageMultiplier { get; set; } = 1f;
+
         void Awake() => Current = maxHealth;
 
         /// <summary>Restores full health — used when an enemy is recycled from its pool.</summary>
@@ -46,7 +52,7 @@ namespace HeroShooter.Core
                 return;
             }
 
-            Current = Mathf.Max(0f, Current - info.Amount);
+            Current = Mathf.Max(0f, Current - info.Amount * Mathf.Max(0f, IncomingDamageMultiplier));
             Damaged?.Invoke(info);
 
             if (Current > 0f)

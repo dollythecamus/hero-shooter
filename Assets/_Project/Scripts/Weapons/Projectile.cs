@@ -25,6 +25,8 @@ namespace HeroShooter.Weapons
         float _age;
         GameObject _owner;
         int _mask;
+        float _lifetime;
+        float _collisionRadius;
 
         /// <summary>Set by <see cref="ProjectilePool"/> when the instance is created.</summary>
         public ObjectPool<Projectile> Pool { get; set; }
@@ -33,6 +35,8 @@ namespace HeroShooter.Weapons
         {
             _age = 0f;
             _mask = hitMask.value;
+            _lifetime = maxLifetime;
+            _collisionRadius = radius;
         }
 
         public void OnDespawned()
@@ -42,18 +46,21 @@ namespace HeroShooter.Weapons
         }
 
         /// <summary>
-        /// Called by the weapon through the pool: give the bullet its flight parameters. A non-zero
-        /// <paramref name="maskOverride"/> replaces the prefab's hit mask, so the same bullet prefab can serve
-        /// a player weapon (hits enemies) and an enemy weapon (hits only the player).
+        /// Called by the weapon through the pool: give the bullet its flight parameters. Overrides let one
+        /// bullet prefab serve every weapon — a heavy slug is slower with a shorter lifetime (range), a sniper
+        /// round is faster and thinner. A non-zero <paramref name="maskOverride"/> retargets the bullet, so the
+        /// same prefab also serves enemy fire.
         /// </summary>
         public void Launch(Vector3 direction, float speedOverride, float damageOverride, GameObject owner,
-            LayerMask maskOverride = default(LayerMask))
+            LayerMask maskOverride = default(LayerMask), float lifetimeOverride = 0f, float radiusOverride = 0f)
         {
             _direction = direction.normalized;
             _speed = speedOverride > 0f ? speedOverride : speed;
             _damage = damageOverride > 0f ? damageOverride : damage;
             _owner = owner;
             _age = 0f;
+            _lifetime = lifetimeOverride > 0f ? lifetimeOverride : maxLifetime;
+            _collisionRadius = radiusOverride > 0f ? radiusOverride : radius;
 
             if (maskOverride.value != 0)
             {
@@ -61,6 +68,7 @@ namespace HeroShooter.Weapons
             }
 
             transform.rotation = Quaternion.LookRotation(_direction);
+            transform.localScale = Vector3.one * (_collisionRadius / Mathf.Max(0.01f, radius));
         }
 
         void Update()
@@ -68,7 +76,7 @@ namespace HeroShooter.Weapons
             float step = _speed * Time.deltaTime;
             Vector3 origin = transform.position;
 
-            if (Physics.SphereCast(origin, radius, _direction, out RaycastHit hit, step, _mask,
+            if (Physics.SphereCast(origin, _collisionRadius, _direction, out RaycastHit hit, step, _mask,
                     QueryTriggerInteraction.Ignore))
             {
                 Impact(hit.collider, hit.point, hit.normal);
@@ -78,7 +86,7 @@ namespace HeroShooter.Weapons
             transform.position = origin + _direction * step;
             _age += Time.deltaTime;
 
-            if (_age >= maxLifetime)
+            if (_age >= _lifetime)
             {
                 ReturnToPool();
             }

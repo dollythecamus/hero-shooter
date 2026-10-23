@@ -24,6 +24,9 @@ namespace HeroShooter.Player
         [Tooltip("Camera transform used to make movement camera-relative. Falls back to Camera.main.")]
         [SerializeField] Transform cameraTransform;
 
+        [Tooltip("Supplies the status multipliers (firing slowdown, Overclock, Bulwark).")]
+        [SerializeField] PlayerStatus status;
+
         CharacterController _controller;
         Vector3 _planarVelocity;
         float _verticalVelocity;
@@ -39,6 +42,18 @@ namespace HeroShooter.Player
             {
                 cameraTransform = Camera.main.transform;
             }
+
+            if (status == null)
+            {
+                status = GetComponent<PlayerStatus>();
+            }
+        }
+
+        /// <summary>Applied by the loadout when a character is selected.</summary>
+        public void Configure(float newWalkSpeed, float newSprintMultiplier)
+        {
+            walkSpeed = newWalkSpeed;
+            sprintMultiplier = newSprintMultiplier;
         }
 
         void Update()
@@ -52,7 +67,8 @@ namespace HeroShooter.Player
             }
 
             IsSprinting = InputReader.SprintHeld;
-            Vector3 targetVelocity = desired * (walkSpeed * (IsSprinting ? sprintMultiplier : 1f));
+            float statusMultiplier = status != null ? status.SpeedMultiplier : 1f;
+            Vector3 targetVelocity = desired * (walkSpeed * (IsSprinting ? sprintMultiplier : 1f) * statusMultiplier);
             _planarVelocity = Vector3.MoveTowards(_planarVelocity, targetVelocity, acceleration * Time.deltaTime);
 
             ApplyGravityAndJump();

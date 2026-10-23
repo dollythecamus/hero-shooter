@@ -135,6 +135,10 @@ GameObject:
   - component: {fileID: 7840951788191305918}
   - component: {fileID: 3187548390469735647}
   - component: {fileID: 515936480818419589}
+  - component: {fileID: 4998190288313544065}
+  - component: {fileID: 7115789505888564853}
+  - component: {fileID: 7970637098124364802}
+  - component: {fileID: 254024828259018535}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -196,13 +200,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1eca299d89449d7dcbb295941467fd51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.PlayerMotor
-  walkSpeed: 6
+  walkSpeed: 7
   sprintMultiplier: 1.6
-  acceleration: 45
+  acceleration: 60
   rotationSpeed: 14
   jumpHeight: 1.4
   gravity: -25
   cameraTransform: {fileID: 0}
+  status: {fileID: 4998190288313544065}
 --- !u!114 &7840951788191305918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242,11 +247,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3de8e59e9bd7ab0d9873a98ffc5aa0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Weapons.Weapon
+  definition: {fileID: 0}
   pool: {fileID: 0}
   muzzle: {fileID: 6114449703233220740}
-  shotsPerSecond: 8
-  projectileSpeed: 70
-  damage: 20
-  spreadDegrees: 0.5
   aimCamera: {fileID: 0}
-  maxAimDistance: 200
+  status: {fileID: 4998190288313544065}
+--- !u!114 &4998190288313544065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151086699822332920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f3b5c4a5a385b750bfbf9c25cde84ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.PlayerStatus
+  health: {fileID: 3187548390469735647}
+  climbSpeed: 7
+--- !u!114 &7115789505888564853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151086699822332920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fbb09e05abd2206185aad93f1ce3a7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.PlayerAbilities
+  status: {fileID: 4998190288313544065}
+  health: {fileID: 3187548390469735647}
+  weapon: {fileID: 515936480818419589}
+  enemyMask:
+    serializedVersion: 2
+    m_Bits: 128
+  worldMask:
+    serializedVersion: 2
+    m_Bits: 9
+--- !u!114 &7970637098124364802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151086699822332920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c4881d923a481bfb5780dbbb51ee28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.PlayerAppearance
+  body: {fileID: 39129339006064774}
+  baseBodyScale: {x: 0.7, y: 0.9, z: 0.7}
+--- !u!114 &254024828259018535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151086699822332920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ecc72f949930a166a077073b06f9607, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.HeroLoadout
+  health: {fileID: 3187548390469735647}
+  motor: {fileID: 2206979223620228171}
+  weapon: {fileID: 515936480818419589}
+  abilities: {fileID: 7115789505888564853}
+  appearance: {fileID: 7970637098124364802}

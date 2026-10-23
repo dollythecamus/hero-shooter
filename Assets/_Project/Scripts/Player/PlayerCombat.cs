@@ -14,6 +14,8 @@ namespace HeroShooter.Player
 
         public Weapon Weapon => weapon;
 
+        bool _wasHeld;
+
         void Awake()
         {
             if (weapon == null)
@@ -29,10 +31,27 @@ namespace HeroShooter.Player
                 return;
             }
 
-            if (InputReader.FireHeld)
+            bool held = InputReader.FireHeld;
+
+            // Charge weapons (Paper) fire on release; automatic weapons (Rock, Scissors) fire while held.
+            if (weapon.Definition != null && weapon.Definition.RequiresCharge)
+            {
+                if (InputReader.FirePressed)
+                {
+                    weapon.BeginTrigger();
+                }
+
+                if (!held && _wasHeld)
+                {
+                    weapon.EndTrigger();
+                }
+            }
+            else if (held)
             {
                 weapon.TryFire();
             }
+
+            _wasHeld = held;
         }
     }
 }

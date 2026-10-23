@@ -1,40 +1,61 @@
+using HeroShooter.Data;
+using HeroShooter.Player;
 using UnityEngine;
 
 namespace HeroShooter.Weapons
 {
     /// <summary>
-    /// Fire-rate gate, aim solve and pool request. It owns no projectile instance:
-    /// the pool does the creating, this only asks for one.
+    /// The player's gun. It owns no balance numbers any more: everything (damage, rate, charge, spread, range,
+    /// firing slowdown) comes from a <see cref="WeaponDefinition"/>, so each hero carries its own gun as data
+    /// and rebalancing is an asset edit. Charge weapons fire on release; the rest fire on the trigger.
     /// </summary>
     public class Weapon : MonoBehaviour
     {
-        [Header("Pool")]
+        [Header("Data")]
+        [SerializeField] WeaponDefinition definition;
+
+        [Header("References")]
         [SerializeField] ProjectilePool pool;
-
-        [Header("Spawn point")]
         [SerializeField] Transform muzzle;
-
-        [Header("Ballistics")]
-        [SerializeField] float shotsPerSecond = 8f;
-        [SerializeField] float projectileSpeed = 70f;
-        [SerializeField] float damage = 20f;
-
-        [Tooltip("Random cone in degrees applied around the aim direction.")]
-        [SerializeField] float spreadDegrees = 0.5f;
-
-        [Header("Aim")]
-        [Tooltip("Camera used to solve the aim point at the screen centre (crosshair aiming).")]
+        [Tooltip("Camera used to solve the aim point at the screen centre. Falls back to Camera.main.")]
         [SerializeField] Camera aimCamera;
-        [SerializeField] float maxAimDistance = 200f;
+        [SerializeField] PlayerStatus status;
 
         float _nextShotTime;
+        float _chargeStart;
+        bool _charging;
+
+        public WeaponDefinition Definition => definition;
+        public bool IsCharging => _charging;
+
+        /// <summary>0..1 while a charge weapon is held down.</summary>
+        public float ChargeRatio { get; private set; }
 
         public int ShotsFired { get; private set; }
-        public float Damage => damage;
 
         void Awake()
         {
             ResolvePool();
+        }
+
+        void Update()
+        {
+            ResolvePool();
+
+            if (_charging && definition != null && definition.RequiresCharge)
+            {
+                ChargeRatio = Mathf.Clamp01((Time.time - _chargeStart) / Mathf.Max(0.01f, definition.chargeTime));
+            }
+        }
+
+        /// <summary>Called by the loadout when a character is selected.</summary>
+        public void SetDefinition(WeaponDefinition newDefinition)
+        {
+            definition = newDefinition;
+            _charging = false;
+            ChargeRatio = 0f;
+            _nextShotTime = 0f;
+            ShotsFired = 0;
         }
 
         /// <summary>Late binding: the pool may wake up after this component, so re-check on use.</summary>
@@ -46,21 +67,84 @@ namespace HeroShooter.Weapons
             }
         }
 
-        public void TryFire()
+        /// <summary>Trigger pressed. Charge weapons start charging, the rest fire immediately.</summary>
+        public void BeginTrigger()
         {
-            ResolvePool();
-
-            if (pool == null || Time.time < _nextShotTime)
+            if (definition == null)
             {
                 return;
             }
 
-            _nextShotTime = Time.time + 1f / Mathf.Max(1f, shotsPerSecond);
+            if (!definition.RequiresCharge)
+            {
+                TryFire();
+                return;
+            }
+
+            if (!_charging)
+            {
+                _charging = true;
+                _chargeStart = Time.time;
+                ChargeRatio = 0f;
+            }
+        }
+
+        /// <summary>Trigger released. Only charge weapons do anything here.</summary>
+        public void EndTrigger()
+        {
+            if (!_charging)
+            {
+                return;
+            }
+
+            float charged = ChargeRatio;
+            _charging = false;
+            ChargeRatio = 0f;
+            Fire(charged);
+        }
+
+        /// <summary>Fire without charging — also how automatic weapons are driven while held.</summary>
+        public void TryFire()
+        {
+            if (_charging)
+            {
+                return;
+            }
+
+            Fire(0f);
+        }
+
+        void Fire(float charge)
+        {
+            ResolvePool();
+
+            if (definition == null || pool == null || Time.time < _nextShotTime)
+            {
+                return;
+            }
+
+            float fireRate = definition.shotsPerSecond * (status != null ? status.FireRateMultiplier : 1f);
+            _nextShotTime = Time.time + 1f / Mathf.Max(0.01f, fireRate);
+
+            float damage = definition.RequiresCharge
+                ? Mathf.Lerp(definition.damage, definition.chargedDamage, charge)
+                : definition.damage;
+
+            float speed = definition.RequiresCharge && definition.chargedProjectileSpeed > 0f
+                ? Mathf.Lerp(definition.projectileSpeed, definition.chargedProjectileSpeed, charge)
+                : definition.projectileSpeed;
 
             Vector3 origin = muzzle != null ? muzzle.position : transform.position;
             Vector3 direction = ApplySpread(SolveAimDirection(origin));
 
-            pool.Fire(origin, direction, projectileSpeed, damage, gameObject);
+            pool.Fire(origin, direction, speed, damage, gameObject, default(LayerMask),
+                definition.projectileLifetime, definition.projectileRadius);
+
+            if (status != null && definition.firingSpeedMultiplier < 1f)
+            {
+                status.ApplyFiringSlow(definition.firingSpeedMultiplier, definition.firingSlowDuration);
+            }
+
             ShotsFired++;
         }
 
@@ -78,10 +162,14 @@ namespace HeroShooter.Weapons
                 return transform.forward;
             }
 
-            Ray ray = aimCamera.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f));
-            Vector3 aimPoint = ray.GetPoint(maxAimDistance);
+            float maxDistance = definition != null
+                ? Mathf.Max(30f, definition.projectileSpeed * definition.projectileLifetime)
+                : 200f;
 
-            if (Physics.Raycast(ray, out RaycastHit hit, maxAimDistance, ~0, QueryTriggerInteraction.Ignore))
+            Ray ray = aimCamera.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f));
+            Vector3 aimPoint = ray.GetPoint(maxDistance);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, ~0, QueryTriggerInteraction.Ignore))
             {
                 aimPoint = hit.point;
             }
@@ -91,13 +179,15 @@ namespace HeroShooter.Weapons
 
         Vector3 ApplySpread(Vector3 direction)
         {
-            if (spreadDegrees <= 0f)
+            float spread = definition != null ? definition.spreadDegrees : 0f;
+
+            if (spread <= 0f)
             {
                 return direction;
             }
 
-            float yaw = Random.Range(-spreadDegrees, spreadDegrees);
-            float pitch = Random.Range(-spreadDegrees, spreadDegrees);
+            float yaw = Random.Range(-spread, spread);
+            float pitch = Random.Range(-spread, spread);
             return Quaternion.Euler(pitch, yaw, 0f) * direction;
         }
     }

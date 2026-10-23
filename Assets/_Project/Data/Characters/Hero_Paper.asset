@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4513bd575f5bdb60aa00940ecb03c94, type: 3}
+  m_Name: Hero_Paper
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Data.CharacterDefinition
+  displayName: Paper
+  pitch: 'Sniper: charge on aim, fragile up close, no movement ability'
+  bodyScale: 0.9
+  color: {r: 0.55, g: 0.75, b: 0.95, a: 1}
+  maxHealth: 90
+  moveSpeed: 5.2
+  sprintMultiplier: 1.6
+  weapon: {fileID: 11400000, guid: 646588d95fb8418e9959766e9becab06, type: 2}
+  abilityPrimary: {fileID: 11400000, guid: d511f9e99cc4381fda0acb8c29ca5ec1, type: 2}
+  abilitySecondary: {fileID: 11400000, guid: a7826c531a0db34b2b24e7a039bd6929, type: 2}

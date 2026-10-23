@@ -34,6 +34,7 @@ namespace HeroShooter.Enemies
         float _nextFleeTime;
         float _nextAllyCallTime;
         bool _isDead;
+        Vector3 _knockback;
 
         public EnemyStats Stats => stats;
         public StateMachine Machine => _machine;
@@ -43,6 +44,9 @@ namespace HeroShooter.Enemies
         public Transform Target => spyglass != null ? spyglass.Target : null;
         public Vector3 SpawnPoint => _spawnPoint;
         public bool HasTarget => spyglass != null && spyglass.HasTarget;
+
+        /// <summary>Multiplier on every agent speed the states ask for (Paper's Snare drives this to 0.25).</summary>
+        public float SpeedMultiplier { get; set; } = 1f;
         public float DistanceToTarget => spyglass != null ? spyglass.DistanceToTarget : float.PositiveInfinity;
         public float TimeInState => _machine.TimeInState;
 
@@ -111,6 +115,12 @@ namespace HeroShooter.Enemies
             spyglass.Refresh(stats.sightRange);
             _machine.Tick(Time.deltaTime);
             EvaluateTransitions();
+
+            if (_knockback.sqrMagnitude > 0.01f)
+            {
+                _agent.Move(_knockback * Time.deltaTime);
+                _knockback = Vector3.Lerp(_knockback, Vector3.zero, 8f * Time.deltaTime);
+            }
         }
 
         /// <summary>
@@ -178,9 +188,16 @@ namespace HeroShooter.Enemies
 
         public void MoveTo(Vector3 worldPosition, float speed)
         {
-            _agent.speed = speed;
+            _agent.speed = speed * SpeedMultiplier;
             _agent.isStopped = false;
             _agent.SetDestination(worldPosition);
+        }
+
+        /// <summary>Impulse away from a hit (Rock's Ground Slam). Decays in Update and works with the agent.</summary>
+        public void Push(Vector3 direction, float force)
+        {
+            direction.y = 0f;
+            _knockback = direction.normalized * force;
         }
 
         public void HoldPosition()

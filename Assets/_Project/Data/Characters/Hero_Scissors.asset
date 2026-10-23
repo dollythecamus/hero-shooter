@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4513bd575f5bdb60aa00940ecb03c94, type: 3}
+  m_Name: Hero_Scissors
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Data.CharacterDefinition
+  displayName: Scissors
+  pitch: 'Skirmisher: fast fire, wall climb, burst speed'
+  bodyScale: 0.95
+  color: {r: 0.4, g: 0.85, b: 0.45, a: 1}
+  maxHealth: 130
+  moveSpeed: 6.8
+  sprintMultiplier: 1.7
+  weapon: {fileID: 11400000, guid: ecf62cc0747f125de801beaf26fc0c22, type: 2}
+  abilityPrimary: {fileID: 11400000, guid: 1bfff9acca5c2007199dd07be6a36d41, type: 2}
+  abilitySecondary: {fileID: 11400000, guid: b0d0b78fb2775b3f1ba66fa0d1d98b48, type: 2}
