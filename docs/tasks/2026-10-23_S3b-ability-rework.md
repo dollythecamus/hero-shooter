@@ -33,14 +33,66 @@ what must change from the S3 code.
 5. **Bulwark's meter is a first-class resource**, not a status effect: it persists between fights, refills,
    and gates activation. Model it in a `BulwarkMeter` component owned by the player, exposed to the HUD.
 
-## Order of work
+## Planned implementation (design only — **nothing here is built**)
 
-1. Input: press/hold/release for Q and E (`InputReader` + `PlayerAbilities` lifecycle).
-2. Bulwark meter (self-contained, testable in isolation).
-3. Slam three-phase (depends on the vertical-motion decision).
-4. Climb passive (depends on wall detection; test on the arena walls).
-5. Mark / Snare feedback hooks (they already work; only visuals and durations to display).
-6. Overclock visuals (cheapest, do it while testing 1–5).
+Written 2026-10-23 so the next execution pass is mechanical. All values come from `docs/HERO_ROSTER.md`.
+
+### Three ability shapes
+
+`AbilityDefinition.kind` decides which shape a slot is; `PlayerAbilities` is the only router.
+
+| Shape | Slots | Owner | Lifecycle |
+|---|---|---|---|
+| **instant** | Slam, Mark, Snare, Overclock | the ability class (`IAbility.Activate`) | press → activate → cooldown clocked by `PlayerAbilities` |
+| **channelled** | Bulwark | `BulwarkShield` component | press → begin; release → end; the component owns the reservoir *and* both cooldowns |
+| **passive** | Wall Climb | `WallClimbPassive` component | no button, no cooldown; the HUD labels the slot "passive" |
+
+This keeps the assignment's "2 abilities per character" intact without pretending a passive traversal trait is a
+button.
+
+### Files to add / change
+
+| File | Change |
+|---|---|
+| `Player/InputReader.cs` | add `Ability1Held/Released`, `Ability2Held/Released`, `AimHeld`, `JumpHeld` (today only `wasPressedThisFrame` exists) |
+| `Player/PlayerAbilities.cs` | route press/hold/release per slot; expose `CooldownRatio` and `MeterNormalized` for the HUD; mark passive/channelled slots |
+| `Player/PlayerStatus.cs` | keep timed effects, add **held** multipliers for channelled abilities (a dictionary cleared when the channel ends) |
+| `Player/BulwarkShield.cs` | **new**: 5 s reservoir, ×0.4 damage, ×0.75 speed, 0.5 s short / 8 s depleted cooldowns, refill 1/s after 1 s, blocks firing |
+| `Player/WallClimbPassive.cs` | **new**: Structure wall probe, 3 m/s climb, 6 m cap, exit jump wall-normal + up, mantle over a wall top below the cap, reset on floor |
+| `Player/SlamDriver.cs` | **new**: Rise → Fall → Impact phases, 4 m jump, 2.5× gravity descent, 5 m / 40 damage AoE + knockback + outward particles; refused while airborne |
+| `Player/PlayerMotor.cs` | `MovementSuspended` + `Launch(velocity)` so exactly one component moves the controller at a time |
+| `Player/PlayerCombat.cs` | refuse to fire while the shield is up (drop any charge) |
+| `Weapons/Weapon.cs` | `CancelCharge()`; spread ×0.5 while aiming |
+| `Player/ThirdPersonCameraRig.cs` | aim state: FOV 60→42, offset +0.55 right / −0.20 down, blend 8/s |
+| `Enemies/EnemyBrain.cs` | knockback owns the body: `Push` clears the path and stops the agent, `MoveTo` returns early while knocked back |
+
+### The one-mover rule
+
+Two components must never call `CharacterController.Move` in the same frame. Slam and the wall climb therefore
+set `PlayerMotor.MovementSuspended = true`, drive the controller themselves, and release it when they finish.
+That rule is also what made the earlier knockback bug possible on the enemy side: the FSM re-pathed every frame
+and cancelled the impulse.
+
+### Verification per ability (the gate)
+
+| Ability | What must be measured |
+|---|---|
+| Slam | apex ≈ 4 m, descent faster than a free fall, 40 damage inside 5 m, enemy body actually displaced, particles outward |
+| Bulwark | reservoir drains 1 unit/s while held, ×0.4 damage observed, firing blocked, early release leaves the remainder and refills, depletion gives 8 s |
+| Mark | target `IncomingDamageMultiplier == 1.35` for 6 s, marker + HUD chip visible, no through-wall marker |
+| Snare | target `SpeedMultiplier == 0.25` for 3 s, same feedback |
+| Climb | climbs at 3 m/s to 6 m, jumping out at the cap, mantle over a 2 m wall, reset only on floor |
+| Overclock | fire rate ×1.8, speed ×1.25, green bullets/trails for exactly 3 s |
+
+### History — a head start that was thrown away
+
+An implementation pass was started on 2026-10-23 around 18:10 and **reverted at Chloe's instruction before any
+compile verification**. It touched `InputReader`, `PlayerStatus`, `PlayerAbilities`, `PlayerCombat`,
+`PlayerMotor`, `Weapon`, `AbilityFactory`, `GroundSlam`, `EnemyBrain`, deleted `Bulwark.cs` and `WallClimb.cs`,
+and added `BulwarkShield.cs` + `WallClimbPassive.cs`. None of it survives; the tree is exactly the docs commit
+`dced7ba`. Do not assume any of the above table is already applied.
+
+
 
 ## Gates
 

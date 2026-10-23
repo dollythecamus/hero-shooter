@@ -18,21 +18,21 @@ A buildable Unity 6 third-person hero shooter that satisfies all 11 minimum mech
 
 ## Status
 
-**Paused for documentation, 2026-10-23 ~16:xx** (Chloe: "halt for now, writing docs and updating plans").
-Code state: S1 + S2 closed and verified; S3 code + wiring complete and selection verified end to end
-(`CharacterSelect` authored prefab, commit `56c3b31`). The six ability effects are **written but not measured**,
-and the ability designs have since been revised — the old S3 ability gate is superseded by S3b.
-Tree clean, 13 commits.
+**Docs only, 2026-10-23.** Code is exactly at `dced7ba`: S1 + S2 closed and verified, S3 code + wiring complete
+(with the authored character select), S3's six ability *effects* never measured. The ability rework is planned in
+`docs/tasks/2026-10-23_S3b-ability-rework.md` and **not built** — an implementation pass was started at ~18:10
+and reverted at Chloe's instruction before any compile verification. Tree clean, working tree == `dced7ba`.
 
 ## Next action
 
-**Blocked on design answers** (asked 2026-10-23, listed under *Open questions*). Once answered, the next
-code block is S3b (ability rework) + S4 (HUD + game feel), which run together:
-`docs/tasks/2026-10-23_S3b-ability-rework.md` and `docs/tasks/2026-10-23_S4-hud-and-feel.md`.
+**Waiting for Chloe's explicit go.** The next code block is S3b (ability rework) + S4 (HUD + game feel), in this
+order, per the *Planned implementation* table in `docs/tasks/2026-10-23_S3b-ability-rework.md`:
+input hold/release → `BulwarkShield` → `SlamDriver` → `WallClimbPassive` → aiming → authored HUD → enemy bars →
+VFX.
 
-**Stopping point:** the S3b gate rows (Bulwark meter, Slam knockback, passive Climb) and the S4 gate rows
-(authored HUD showing cooldowns/meters, enemy bars below max, aiming FOV/offset, ability VFX, Paper tracer) are
-each observed in play mode, not inferred.
+**Stopping point:** the per-ability verification table in that file, measured in play mode rather than inferred,
+plus the S4 gates. Nothing is declared closed on the strength of "it compiles".
+
 
 ## Open questions
 
@@ -57,6 +57,14 @@ Still open:
 
 
 ## Decisions
+
+- 2026-10-23 — **A "halt" stops every write, including code that looks like the obvious next step.** Chloe's
+  "halt for now, writing docs and updating plans" meant docs only; the agent read the docs phase as permission to
+  start the rework and had to revert an unverified implementation pass. From here: one explicit go per phase.
+- 2026-10-23 — Ability shapes: instant (Slam, Mark, Snare, Overclock), channelled (Bulwark), passive (Wall Climb).
+  `AbilityDefinition.kind` decides; the assignment's "2 habilidades" stays satisfied with a passive slot.
+- 2026-10-23 — One-mover rule: only one component may call `CharacterController.Move` in a frame. Slam and the
+  wall climb suspend `PlayerMotor` while they drive the controller.
 
 - 2026-10-23 — Unity 6000.6.3f1 + URP — only editor installed; lets `shootshoot` code be reused.
 - 2026-10-23 — **no art assets**: ProBuilder primitives + URP Lit materials (textured/coloured).
@@ -127,5 +135,11 @@ none
   select (`Prefabs/UI/CharacterSelect.prefab`, commit `56c3b31`), and binding for the S4 HUD.
 - 2026-10-23 — Chloe: level geometry lives on **Structure** (layer 3); the `8` / `9` masks are intentional —
   `docs/LAYERS.md`.
+- 2026-10-23 18:1x (session 20261023_105517_ed63d44c) — Chloe halted execution after the docs pass; an
+  implementation pass had already started and was **reverted** at her instruction: working tree restored to
+  `dced7ba`, the two new components and the two deleted ability files undone, nothing verified or committed. The
+  rework is now documented as planned-only in `docs/tasks/2026-10-23_S3b-ability-rework.md` (shapes, file table,
+  one-mover rule, verification table).
+
 
 
