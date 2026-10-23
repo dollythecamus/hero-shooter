@@ -9,9 +9,18 @@ namespace HeroShooter.Player
     /// </summary>
     public class PlayerCombat : MonoBehaviour
     {
+        [Tooltip("Left empty, the Weapon on this same GameObject is used.")]
         [SerializeField] Weapon weapon;
 
         public Weapon Weapon => weapon;
+
+        void Awake()
+        {
+            if (weapon == null)
+            {
+                weapon = GetComponent<Weapon>();
+            }
+        }
 
         void Update()
         {

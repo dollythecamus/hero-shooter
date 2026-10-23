@@ -50,3 +50,24 @@ property path is the field itself: `so.FindProperty("hitMask").intValue = ~(1 <<
 **Always read the value back** (`new SerializedObject(...).FindProperty("hitMask").intValue`) instead of
 trusting that `ApplyModifiedProperties` did what the code intended.
 
+### Second pitfall — LMB did nothing (found by Chloe in the first manual play)
+
+`PlayerCombat.weapon` was **NULL** in the prefab: `AddComponent` in editor code never fills
+`[SerializeField]` object references, and the null-guard in `Update()` swallowed the whole fire path, so
+move/look worked while shooting silently did nothing. `Weapon.aimCamera` was null for a second, structural
+reason: **a prefab asset cannot hold a reference to a scene object**, so an assignment made on the instance
+is dropped when the prefab is saved.
+
+Rules that follow:
+
+- After any programmatic wiring, enumerate every component's serialized **object-reference** properties
+  and assert non-null; a null reference field plus a guard is indistinguishable from a broken feature.
+- Give same-GameObject collaborators a `GetComponent<T>()` fallback in `Awake` and scene lookups
+  (`Camera.main`) a lazy resolve at use, so a prefab stays self-sufficient.
+- Verify the real input path, not just the method call: inject device state in play mode and read the
+  resulting counters.
+  `InputSystem.QueueStateEvent<MouseState>(Mouse.current, new MouseState { buttons = 1 });`
+  then `InputSystem.Update()` — `InputReader.FireHeld` reads `true`, the weapon fires at its rate, and the
+  state reverts on the next system update, so sample within the same or the next second.
+
+

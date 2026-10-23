@@ -67,6 +67,12 @@ namespace HeroShooter.Weapons
         /// <summary>Aim at whatever the crosshair is over, then fire from the muzzle toward that point.</summary>
         Vector3 SolveAimDirection(Vector3 origin)
         {
+            // A prefab cannot hold a reference to a scene camera, so resolve it here if it was left empty.
+            if (aimCamera == null)
+            {
+                aimCamera = Camera.main;
+            }
+
             if (aimCamera == null)
             {
                 return transform.forward;
