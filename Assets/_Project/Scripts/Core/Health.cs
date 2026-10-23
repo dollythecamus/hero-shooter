@@ -29,6 +29,16 @@ namespace HeroShooter.Core
         /// <summary>Restores full health — used when an enemy is recycled from its pool.</summary>
         public void ResetHealth() => Current = maxHealth;
 
+        /// <summary>
+        /// Replaces the serialized maximum and refills. Lets an archetype ScriptableObject stay the single
+        /// source of truth for its health instead of duplicating the number in every prefab.
+        /// </summary>
+        public void ConfigureMaxHealth(float max)
+        {
+            maxHealth = Mathf.Max(1f, max);
+            Current = maxHealth;
+        }
+
         public void TakeDamage(in DamageInfo info)
         {
             if (!IsAlive || info.Amount <= 0f)

@@ -41,10 +41,11 @@ namespace HeroShooter.Weapons
         }
 
         /// <summary>Spawns one bullet at <paramref name="position"/> travelling along <paramref name="direction"/>.</summary>
-        public Projectile Fire(Vector3 position, Vector3 direction, float speed, float damage, GameObject owner)
+        public Projectile Fire(Vector3 position, Vector3 direction, float speed, float damage, GameObject owner,
+            LayerMask maskOverride = default(LayerMask))
         {
             Projectile projectile = Get(position, Quaternion.LookRotation(direction));
-            projectile.Launch(direction, speed, damage, owner);
+            projectile.Launch(direction, speed, damage, owner, maskOverride);
             return projectile;
         }
     }

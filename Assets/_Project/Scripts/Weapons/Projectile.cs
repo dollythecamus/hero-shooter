@@ -24,6 +24,7 @@ namespace HeroShooter.Weapons
         float _damage;
         float _age;
         GameObject _owner;
+        int _mask;
 
         /// <summary>Set by <see cref="ProjectilePool"/> when the instance is created.</summary>
         public ObjectPool<Projectile> Pool { get; set; }
@@ -31,6 +32,7 @@ namespace HeroShooter.Weapons
         public void OnSpawned()
         {
             _age = 0f;
+            _mask = hitMask.value;
         }
 
         public void OnDespawned()
@@ -39,14 +41,25 @@ namespace HeroShooter.Weapons
             _owner = null;
         }
 
-        /// <summary>Called by the weapon through the pool: give the bullet its flight parameters.</summary>
-        public void Launch(Vector3 direction, float speedOverride, float damageOverride, GameObject owner)
+        /// <summary>
+        /// Called by the weapon through the pool: give the bullet its flight parameters. A non-zero
+        /// <paramref name="maskOverride"/> replaces the prefab's hit mask, so the same bullet prefab can serve
+        /// a player weapon (hits enemies) and an enemy weapon (hits only the player).
+        /// </summary>
+        public void Launch(Vector3 direction, float speedOverride, float damageOverride, GameObject owner,
+            LayerMask maskOverride = default(LayerMask))
         {
             _direction = direction.normalized;
             _speed = speedOverride > 0f ? speedOverride : speed;
             _damage = damageOverride > 0f ? damageOverride : damage;
             _owner = owner;
             _age = 0f;
+
+            if (maskOverride.value != 0)
+            {
+                _mask = maskOverride.value;
+            }
+
             transform.rotation = Quaternion.LookRotation(_direction);
         }
 
@@ -55,7 +68,7 @@ namespace HeroShooter.Weapons
             float step = _speed * Time.deltaTime;
             Vector3 origin = transform.position;
 
-            if (Physics.SphereCast(origin, radius, _direction, out RaycastHit hit, step, hitMask,
+            if (Physics.SphereCast(origin, radius, _direction, out RaycastHit hit, step, _mask,
                     QueryTriggerInteraction.Ignore))
             {
                 Impact(hit.collider, hit.point, hit.normal);
