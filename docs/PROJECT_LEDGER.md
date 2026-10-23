@@ -18,19 +18,19 @@ A buildable Unity 6 third-person hero shooter that satisfies all 11 minimum mech
 
 ## Status
 
-project stands, no gameplay yet — Unity 6000.6.3f1 URP project imports clean (exit 0,
-`Logs/import-2.log`: `Exiting batchmode successfully now!`), 31 packages resolved incl.
-`com.unity.probuilder` + `com.unity.ai.navigation`, `Assets/_Project` folder tree created (26 metas),
-commit `caf7525`, tree clean.
+**S1 closed, gate passed** — player, third-person camera, generic `ObjectPool<T>`, pooled projectile and
+weapon are wired into `Assets/_Project/Scenes/90_TestArena.unity` and verified in play mode through the
+MCP bridge: `created=64 active=0 inactive=64` at start, 61 shots → `created=64`, `active=0` after
+settling, `[DamageLog] Target_2 hit for 20 → 40/60 … 0/60`, player unhurt. Commit `f82e489`, tree clean.
 
 ## Next action
 
-S1 of the sprint (13:20): write `PlayerMotor` + `ThirdPersonCameraRig` (ported from
-`~/projects/shootshoot/Assets/shootshoot/Scripts/PlayerControl.cs`), `ObjectPool<T>`,
-`ProjectilePool`, `Weapon`, `Projectile`; grey-box a test arena in ProBuilder.
+S2: write `EnemyBrain` + `IState`/`StateMachine` + the five states (`Search`, `Chase`, `Attack`, `Flee`,
+`CallAllies`), `Spyglass` perception, `RangedAttack`/`MeleeAttack` strategies, `AllyCall`, and the
+`RangedEnemy`/`MeleeEnemy` prefabs.
 
-**Stopping point:** after the S1 gate — 60 rounds fired, pool object count unchanged from warm-up,
-`grep -rn "Instantiate(" Assets/_Project/Scripts` showing warm-up only.
+**Stopping point:** both enemy types visit all five states in play mode with a state-transition log, and
+a called ally turns toward the caller's target.
 
 ## Open questions
 
@@ -57,25 +57,32 @@ S1 of the sprint (13:20): write `PlayerMotor` + `ThirdPersonCameraRig` (ported f
 
 - `docs/reference/assignment.jpeg` — the brief as received.
 - `docs/ASSIGNMENT.md` — verbatim pt-BR + translation + 11-row checklist.
-- `Logs/import-2.log` (gitignored) — import exit 0, 0 compiler errors.
-- `Packages/packages-lock.json` — 31 packages, probuilder 6.1.2, ai.navigation 2.0.12.
-- `~/projects/shootshoot/Assets/shootshoot/Scripts/{PlayerControl,ShootPool,Projectile}.cs` — reuse source (132 / 82 / 42 lines).
-- `ls /home/chloe/Unity/Hub/Editor/6000.6.3f1/Editor/Data/PlaybackEngines/` → `AndroidPlayer`, `LinuxStandaloneSupport` only — **no Windows support yet**; `unityhub install-modules --version 6000.6.3f1 -m windows-mono` started 13:00 (module id `windows-il2cpp` does not exist in this Hub).
-- A headless import had already run on this path at 11:17 (`Logs/first-import.log`) before this session
-  touched it — cause unknown; the tree was the same URP blank template, so nothing was lost.
+- `docs/tasks/2026-10-23_S1-player-shooting.md` — S1 file map, wiring actually performed, gate table.
+- `curl 127.0.0.1:8080/health` → `{"status":"healthy","version":"10.0.0"}` — MCP bridge live; agent drove
+  the editor for all wiring after this point (see `docs/features/editor-mcp-tooling.md`).
+- Play-mode probes through the bridge: pool `created=64` → 61 shots → `created=64`, `active=0`;
+  `[DamageLog] Target_2 hit for 20 → 40/60`, `… → 0/60`.
+- `Packages/packages-lock.json` — 32 packages incl. `com.coplaydev.unity-mcp`; ProBuilder 6.1.2.
+- `Assets/Scenes/Level.unity` — Chloe's own ProBuilder scene (cube + `ProBuilderMesh`), left untouched.
+- `~/projects/shootshoot/Assets/shootshoot/Scripts/{PlayerControl,ShootPool,Projectile}.cs` — reuse source.
+- `PlaybackEngines/` → `WindowsStandaloneSupport` (965 MB) installed 2026-10-23; `windows-il2cpp` does not
+  exist in this Hub, so Windows is Mono-backend.
+
 
 ## Uncommitted at last checkpoint
 
-none — `git status --short` empty at commit `caf7525`.
+none — `git status --short` empty at commit `f82e489`.
 
 ## Handoff
 
-Created the project directory, brief + plan + ledger (commit `d0c984e`); then, on approval, the Unity
-project itself: URP blank template extracted to editor version 6000.6.3f1, manifest trimmed plus
-ProBuilder, headless import run to completion, `Assets/_Project` skeleton in place (commit `caf7525`).
-Verified: import exit 0 with no compiler errors, packages resolved, git tree clean. NOT verified: the
-editor has not been opened interactively, no scene run, no build produced, and the Windows module
-download is still in flight. Next: S1 player + shooting code.
+S1 landed and was verified in a live play session, not by inspection. The editor bridge (MCP for Unity
+v10 over HTTP) did all wiring; `Assets/Scenes/Level.unity` — Chloe's ProBuilder scene — was restored as
+the active scene afterwards and is clean. Verified: pool warm-up 64, zero growth across 61 shots, every
+bullet returned to the pool, damage reached `Health`, no self-damage, console free of compile errors.
+NOT verified: real mouse/keyboard input path end to end (fire was driven by calling `Weapon.TryFire()`
+directly, and movement/jump through `InputReader` was never exercised), Windows build, and any visual
+check of the arena (the agent cannot see the Game view). Next: S2 enemy FSM.
+
 
 ## Dispatches
 
@@ -89,3 +96,7 @@ none
   characters decided when being built; no art, textured materials on simple shapes; ProBuilder levels;
   Windows + Linux builds; approve headless Unity project creation — `docs/PLAN.md` § 5–9, commit
   `caf7525`, project created.
+- 2026-10-23 — add Unity MCP (same package + pin as `UnityXR_3DMuseu`) and begin S1 — landed:
+  `com.coplaydev.unity-mcp` in `Packages/manifest.json`, `docs/features/editor-mcp-tooling.md`, S1 code
+  + wiring + gate, commits `c15a2bd` / `f82e489`.
+

@@ -21,38 +21,32 @@ while the editor holds them (use the MCP bridge once Auto-Connect is running).
 | `Player/PlayerCombat.cs` | fire input → `Weapon.TryFire()` (abilities land here in S3) |
 | `Systems/DamageLog.cs` | S1 verification helper: console line per hit (delete once the HUD exists) |
 
-## Wiring checklist
+## Wiring checklist — **done by the agent through the MCP bridge, 2026-10-23 13:32**
 
-1. **Layers** (*Project Settings → Tags and Layers*): add `Player` (6) and `Enemy` (7).
-2. **Projectile prefab** (`Assets/_Project/Prefabs/Projectiles/Projectile.prefab`): root = empty
-   `Projectile` GameObject with the `Projectile` component; child = sphere mesh scaled ~0.12 with an
-   emissive URP Lit material; **no collider needed** (the sweep does the collision). Set the
-   component's `hitMask` = `Default` + `Enemy`, leave `Player` out (no shooting yourself).
-3. **Pool** (`Assets/_Project/Prefabs/Projectiles/ProjectilePool.prefab` or a scene object):
-   `ProjectilePool` component, `prefab` = the projectile, `warmUpCount` = 64, `container` = itself.
-4. **Player** (`Assets/_Project/Prefabs/Player/Player.prefab`):
-   - root `Player` on layer `Player`: `CharacterController` (height 1.8, radius 0.35, centre y 0.9),
-     `PlayerMotor`, `PlayerCombat`, `Health` (maxHealth 100);
-   - child `Muzzle` (empty, at chest height, local +Z forward) — assign to `Weapon.muzzle`;
-   - child mesh for the body (capsule or ProBuilder block + coloured material);
-   - `Weapon` component on the root: `pool` = the pool, `muzzle` = the Muzzle child,
-     `aimCamera` = the main camera. `shotsPerSecond` 8, `projectileSpeed` 70, `damage` 20.
-5. **Camera**: the scene's `Main Camera` gets `ThirdPersonCameraRig`, `target` = Player root,
-   `distance` 4.5, `pivotOffset` (0, 1.6, 0), `collisionMask` = Default (not the Player layer).
-   `PlayerMotor.cameraTransform` = that camera transform.
-6. **Test arena** (`Assets/_Project/Scenes/90_TestArena.unity`, ProBuilder): floor 40×40, a few
-   blocks at 5–20 m for cover and for hitting, a directional light, one `ProjectilePool` in the scene.
-7. **Test target**: 3 cubes, each with `Health` (maxHealth 60) + `DamageLog`. Give them the `Enemy`
-   layer so the bullet's `hitMask` catches them.
-8. **Save the scene, add it to Build Settings**, then commit.
+Executed in the editor over MCP for Unity (v10, HTTP :8080), not by hand: layers, materials,
+`Projectile.prefab`, `ProjectilePool`, `Player.prefab` (CharacterController + motor + combat + health
++ weapon + Muzzle + body), camera rig, ProBuilder-free greybox arena, three damageable targets,
+scene saved to `Assets/_Project/Scenes/90_TestArena.unity` and added to Build Settings.
+`Assets/Scenes/Level.unity` is Chloe's own ProBuilder scene and was left untouched.
 
-## Gate (must pass before S2)
+## Gate — **passed 2026-10-23 13:47**
 
-- Play, hold LMB ~8 s at 8 shots/s → console shows `[DamageLog] ... hit for 20 → 40/60` on the cubes.
-- Stop play, select the `ProjectilePool`, context menu **Log pool stats** →
-  `created=64 active=0 inactive=64` — the count from before firing is unchanged.
-- `grep -rn "Instantiate(" Assets/_Project/Scripts` returns **only** `Core/ObjectPool.cs`
-  (warm-up). Nothing else in the project may create objects at runtime.
+| Check | Evidence |
+|---|---|
+| Pool warms up | `created=64 active=0 inactive=64` on entering play mode |
+| Weapon→pool path | `weapon.TryFire()` → `shotsFired=1 active=1 created=64` |
+| No runtime growth | 61 shots fired → `created=64 active=61`, then `active=0 inactive=64` after settling |
+| Damage lands | console: `[DamageLog] Target_2 hit for 20 → 40/60` … `Target_2 hit for 20 → 0/60` |
+| No self-damage | player `100/100` after firing through the crosshair path |
+| `Instantiate` only in warm-up | `Core/ObjectPool.cs` is the only file that calls it |
 
-If `created` grew past the warm-up count, the fire rate outran the pool: raise `warmUpCount`, do not
-add a second pool.
+### Pitfall found here (cost 20 minutes)
+
+A `LayerMask` field does **not** serialize as `hitMask.m_Bits` in Unity 6. `SerializedObject
+.FindProperty("hitMask.m_Bits")` returns **null**, the `if (prop != null)` guard silently skipped the
+write, the mask stayed `Nothing`, and every `Physics.SphereCast` in the projectile hit nothing — bullets
+flew 200 m and expired on lifetime, so the pool behaved perfectly while doing zero damage. The correct
+property path is the field itself: `so.FindProperty("hitMask").intValue = ~(1 << 6)`.
+**Always read the value back** (`new SerializedObject(...).FindProperty("hitMask").intValue`) instead of
+trusting that `ApplyModifiedProperties` did what the code intended.
+
