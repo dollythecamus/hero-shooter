@@ -35,10 +35,26 @@ docs). Starting the code block needs its own explicit go; a docs phase is not pe
 (decision below). Order she fixed: **ability rework → HUD → VFX last.** Working
 scope, in this order:
 
-1. ability rework (input press/hold/release, `BulwarkShield`, `SlamDriver`, `WallClimbPassive`, knockback fix)
-2. aiming (FOV/offset/spread/speed) + authored `HUD.prefab` (health, Q/E cooldowns, Bulwark meter, Mark/Snare
+1. **correctness fixes from the docs audit** (added 2026-10-23 at Chloe's instruction) — three code defects
+   found while documenting, each small and each currently misdocumented only because the code is wrong:
+   - `PlayerAbilities.CooldownRatio` (`PlayerAbilities.cs:36-46`) returns 1 right after use and 0 when ready;
+     its XML comment says the reverse. Fix the semantics *or* the comment — the HUD must not be built on the
+     wrong one.
+   - `WallClimb.Activate` (`WallClimb.cs:18`) passes a literal `1f`; pass `Magnitude` instead, or drop
+     `Ability_Scissors_Climb.magnitude = 6` as dead data. Superseded by `WallClimbPassive` if that lands first.
+   - `CallAlliesState` (`CallAlliesState.cs:22-33`) walks to the ally's own `Spyglass.Target`; pass the caller's
+     target from `EnemyBrain.OnAllyCallHeard` (`EnemyBrain.cs:237-254`) so the graded "chama amigos" actually
+     converges.
+   Done when: each change is observed in play mode (cooldown bar direction, climb height responds to the asset,
+   a called ally behind cover moves to the player), the docs match the new behaviour, and the three
+   `docs/features/*.md` notes that describe the defects are corrected.
+2. ability rework (input press/hold/release, `BulwarkShield`, `SlamDriver`, `WallClimbPassive`, knockback fix)
+3. aiming (FOV/offset/spread/speed) + authored `HUD.prefab` (health, Q/E cooldowns, Bulwark meter, Mark/Snare
    chips, crosshair/reticle, hit marker) + world-space enemy bars
-3. VFX last (impact sparks, Paper trails, Overclock green, ability particles)
+4. VFX last (impact sparks, Paper trails, Overclock green, ability particles)
+
+Ordered first because the cooldown-ratio fix decides what the HUD is allowed to draw, and the climb fix touches a
+file the ability rework rewrites. Nothing here is started: it is a code phase and needs its own explicit go.
 
 Deferred out of this block and recorded there: minimap + Tab frag board (both need systems that do not exist
 yet — `ScoreService`, a minimap mask/layer split), and the guns/projectiles rework (Chloe has not answered).
