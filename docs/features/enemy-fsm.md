@@ -109,7 +109,10 @@ static class AllyCall {
   `RequestAllyCall` throttles broadcasts to one per `allyCallCooldown` (12 s).
 - Hearing a call (`OnAllyCallHeard`) is ignored when: caller is self, brain is dead, distance to the caller
   exceeds `stats.allyCallRadius` (16 m), or the current state is already `Flee` or `Attack`. Otherwise the state
-  becomes `CallAllies`, which walks to the caller's target at `chaseSpeed` for `callAlliesDuration` (4 s).
+  becomes `CallAllies`. **The `target` argument is ignored**: `OnAllyCallHeard` uses the caller only for the
+  radius test, and `CallAlliesState` walks to the ally's *own* `Spyglass.Target` at `chaseSpeed` for
+  `callAlliesDuration` (4 s). An ally that has not spotted the player itself enters the state and stands still
+  for 4 s — see the limitations below.
 - Calls are broadcast from two places: `RangedAttack.TryAttack` (every shot attempt) and `MeleeAttack.Swing`
   after a landed swing. Both only *request*; the brain owns the cooldown.
 - Death (`OnDied`) sets `_isDead`, stops and disables the agent, and stops coroutines. The corpse stays in the
@@ -120,10 +123,11 @@ static class AllyCall {
 - `SearchState` wanders within 9 m of `SpawnPoint`, repathing every 4 s or on arrival, snapping each candidate
   through `NavMesh.SamplePosition` (4 m radius, all areas). It keeps moving even while it has a target: the
   brain only leaves Search when `HasTarget` is true, and `SearchState` is not target-aware.
-- `Spyglass` finds the target once by tag (`GameObject.FindGameObjectWithTag("Player")`) and re-checks line of
-  sight with one ray from eye height (1.4 m) to the target's chest (`+1 m`). `HasTarget` stays true for
-  `loseSightGrace` seconds after the last sighting. `Initialise` is only called from `EnemyBrain.Awake` and only
-  when `stats != null`; with no stats the grace stays 0 and only frame-exact sightings count.
+- `Spyglass` acquires the target by tag (`GameObject.FindGameObjectWithTag("Player")`) and **retries every
+  frame while `Target` is null** (`Refresh`), then re-checks line of sight with one ray from eye height (1.4 m)
+  to the target's chest (`+1 m`). `HasTarget` stays true for `loseSightGrace` seconds after the last sighting.
+  `Initialise` is called only from `EnemyBrain.Awake`, and only when `stats != null`: **an enemy with no
+  `EnemyStats` returns from `Update` before `Refresh`, so it perceives nothing at all** — not merely a zero grace.
 - `Attack` calls `HoldPosition()` on enter, `FaceTarget` + `TryAttack` per tick, and re-enables the agent on exit.
   Attack cooldown is owned by the strategy, not the state.
 - `MeleeAttack`: `range` 2.2, `hitRadius` 2.6, `windUp` 0.35. The cooldown is set to
@@ -132,7 +136,9 @@ static class AllyCall {
 - `RangedAttack`: `range` 14, `projectileSpeed` 45, aims at `target.position + up * 1`, fires with
   `targetMask` (prefab value 64 → Player only, so enemy fire cannot hit other enemies). It refuses to fire when
   `ProjectilePool.Instance` is null — a missing pool silently disables enemy shooting.
-- Knockback (`Push`) accumulates one decaying vector (`Lerp` to zero at 8/s) applied via `agent.Move` every frame.
+- Knockback (`Push`) stores one vector (`_knockback = direction.normalized * force`) — a second push in the
+  same frame **replaces** the first instead of adding to it — and decays it with `Lerp` toward zero at 8/s while
+  applying it through `agent.Move` every frame.
 - Transitions are logged (`[EnemyBrain] name: From → To (dist X)`) while `logTransitions` is true. That log is
   the S2 gate evidence and the cheapest way to confirm the FSM in a demo.
 
@@ -144,6 +150,10 @@ static class AllyCall {
   read the SO or the field must be deleted — do not "fix" one side only.
 - **Knockback does not move enemies in practice** (play-test 2026-10-23): the agent's next `SetDestination`
   cancels the `agent.Move` offset. The rework replaces the push with an agent-disabling impulse.
+- **"Calls friends" is only half-wired**: a called ally switches state and is ignored if it is already in
+  `Flee`/`Attack`, but it converges on its own target, not the caller's. With `Spyglass` needing line of sight,
+  a neighbour behind cover answers the call and then stands still for the full 4 s. Passing the caller's target
+  into `CallAlliesState` is the one-line fix, and it is what the demo needs to show.
 - No wave spawning, no corpse recycling, no pooled enemies, no score/kill events; four enemies are hand-placed
   in `90_TestArena.unity`.
 - No attack telegraph visual, no audio, no damage numbers, no ranged enemy strafing or backing off (the plan's

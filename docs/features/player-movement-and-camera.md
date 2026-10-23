@@ -38,9 +38,10 @@ class ThirdPersonCameraRig : MonoBehaviour {
     Camera Cam { get; }        // resolved in Awake with GetComponent<Camera>()
 }
 
+public enum StatusEffect { Speed, FireRate, DamageTaken, Climb }   // top-level, namespace HeroShooter.Player
+
 [RequireComponent(typeof(CharacterController))]
 class PlayerStatus : MonoBehaviour {
-    enum StatusEffect { Speed, FireRate, DamageTaken, Climb }
     void AddEffect(StatusEffect kind, float duration, float magnitude);
     void ApplyFiringSlow(float multiplier, float duration);
     bool IsClimbing { get; }
@@ -74,11 +75,12 @@ class PlayerStatus : MonoBehaviour {
   motor falls back to its own transform axes, which is wrong for a third-person camera — keep the reference set.
 - Vertical is separate: `_verticalVelocity` carries gravity and jump, planar velocity is `MoveTowards`'d at
   `acceleration`, and the two are combined into one `CharacterController.Move` per `Update`. While grounded
-  the vertical velocity is pinned to `-2` (a bias that keeps the controller glued to slopes and stairs).
+  **and moving downward** the vertical velocity is pinned to `-2` (a bias that keeps the controller glued to
+  slopes and stairs); an upward velocity while grounded is left untouched.
 - Jump impulse is `Mathf.Sqrt(jumpHeight * -2 * gravity)` — it follows from the gravity field, so changing
   `gravity` changes jump height unless `jumpHeight` is compensated.
-- Body rotation only turns toward the move direction when input length exceeds 0.01; standing still leaves the
-  last facing. There is no strafe/orbit mode — the aim work will need one.
+- Body rotation only turns toward the move direction when `desired.sqrMagnitude > 0.01`, i.e. input length
+  above **0.1** — standing still leaves the last facing. There is no strafe/orbit mode; the aim work needs one.
 - `ThirdPersonCameraRig` runs in `LateUpdate`: yaw/pitch from `InputReader.Look`, pitch clamped to
   `pitchLimits`, position exponentially smoothed with `1 - exp(-followSharpness * dt)`, and a sphere-cast
   pull-in along the boom that never comes closer than 0.2 m. `collisionMask` must contain the Structure layer

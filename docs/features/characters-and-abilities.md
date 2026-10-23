@@ -42,7 +42,7 @@ interface IAbility { float Cooldown { get; } void Activate(AbilityContext contex
 abstract class AbilityBase : IAbility {           // plain C#, not a MonoBehaviour
     protected readonly AbilityDefinition Definition;
     float Cooldown { get; }                       // definition.cooldown, or 5 if null/<=0
-    protected float Magnitude, Duration, Radius, Range;
+    protected float Magnitude, Duration, Radius, Range;   // properties over Definition, 0 when it is null
 }
 
 static class AbilityFactory { IAbility Create(AbilityDefinition definition); }   // null in → null out
@@ -51,7 +51,8 @@ class PlayerAbilities : MonoBehaviour {
     const int SlotCount = 2;
     AbilityDefinition[] Definitions { get; }
     bool IsReady(int slot);
-    float CooldownRatio(int slot);                // 1 = ready, 0 = just used
+    float CooldownRatio(int slot);                // fraction of cooldown REMAINING: 1 right after use,
+                                                  // 0 when ready — reverse of its XML doc comment
     void Configure(CharacterDefinition character);// builds both slots + context; also resets both cooldowns
     bool TryActivate(int slot);                   // false when not ready / no definition / no context
 }
@@ -106,6 +107,10 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
   not go on cooldown — nothing throws today.
 - `Cooldown` falls back to **5 s** when the definition is null or its `cooldown <= 0`; that fallback is the
   reason a mis-wired slot still blocks for 5 s instead of being free.
+- `CooldownRatio` returns `(_readyAt - now) / cooldown`: **1 immediately after use, decaying to 0 when ready.**
+  The XML doc comment on the method says the opposite ("1 = fully ready, 0 = just used"), so a HUD that trusts
+  the comment draws an inverted bar. Use `1 - CooldownRatio(slot)` for a fill that grows toward ready, and fix
+  the comment when the HUD lands.
 - Abilities are plain C# objects created once per selection (`AbilityFactory.Create`). They cannot use
   `StartCoroutine` themselves — `MarkTarget`, `Snare` (and the planned Slam driver) run coroutines on
   `context.Host`, i.e. `PlayerAbilities`.
@@ -131,7 +136,7 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
 | Rock E — Bulwark | `Bulwark` | cd 14, dur 4, mag 0.4 | one-shot buff: damage ×0.4 and speed ×0.75 for 4 s. **Shooting stays enabled; no meter.** |
 | Paper Q — Mark | `MarkTarget` | cd 10, dur 6, mag 1.35, range 70 | sets `Health.IncomingDamageMultiplier = 1.35`, restores the previous value after 6 s via coroutine |
 | Paper E — Snare | `Snare` | cd 12, dur 3, mag 0.25, range 14 | sets `EnemyBrain.SpeedMultiplier = 0.25`, restores after 3 s via coroutine |
-| Scissors Q — Climb | `WallClimb` | cd 3, dur 0.9, mag 6 | adds the `Climb` status effect → `PlayerStatus` moves the controller up 7 m/s for 0.9 s. **No wall contact test, no cap, no mantle.** |
+| Scissors Q — Climb | `WallClimb` | cd 3, dur 0.9, mag 6 (**ignored**) | adds the `Climb` status effect → `PlayerStatus` lifts the controller at its own hardcoded 7 m/s for 0.9 s. `WallClimb.Activate` passes a literal `1f` as the magnitude, so the asset's `magnitude = 6` is dead data. **No wall contact test, no cap, no mantle.** |
 | Scissors E — Overclock | `Overclock` | cd 12, dur 3, mag 1.8 | fire rate ×1.8 and speed ×1.25 for 3 s (no VFX yet) |
 
 Heroes as built: Rock 200 hp / 4.2 m/s / sprint ×1.35 / body ×1.25 orange; Paper 90 / 5.2 / ×1.6 / ×0.9 pale
@@ -160,6 +165,7 @@ Fixing these is the ability rework in `docs/tasks/2026-10-23_S3b-ability-rework.
 - No ability charges, no ultimate meter, no cancellation, no aiming prediction for moving targets.
 - Mark and Snare restore a single "previous" value, so stacking two casts of the same ability on one enemy
   corrupts the restore (see `damage-and-pooling.md`).
-- Abilities have no cost, no VFX and no range indicator; `AbilityDefinition.description` is only shown on the
-  character-select card.
+- Abilities have no cost, no VFX and no range indicator. `AbilityDefinition.description` is read by **nobody**
+  (`grep -rn description Assets/_Project/Scripts` → its declaration only): the select card renders
+  `displayName` + `cooldown` from `CharacterCardUI.AbilityLine`.
 - `MatchBootstrap` is the whole match flow: no map select, no scene loading, no restart.

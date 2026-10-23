@@ -76,9 +76,10 @@ class ProjectilePool : ObjectPool<Projectile> {
   held (that is also how automatic fire is implemented — the rate limiter, not the input, decides cadence).
 - A charge weapon loses its shot if the trigger is released before `_charging` was ever set (e.g. the
   `Definition` was null on the press frame); `EndTrigger` returns early when `!_charging`.
-- `Fire` returns early on a null definition, a null pool, or `Time.time < _nextShotTime`. `_nextShotTime`
-  advances by `1 / (shotsPerSecond * FireRateMultiplier)` **before** the shot resolves, so a failed pool
-  lookup still costs a cooldown slot.
+- `Fire` calls `ResolvePool()` first, then returns early on a null definition, a null pool or
+  `Time.time < _nextShotTime` — a missing pool therefore costs **nothing**, and a pool that woke up late is still
+  found. `_nextShotTime` advances by `1 / (shotsPerSecond * FireRateMultiplier)` after those guards and before
+  the projectile is requested, so a shot that fails later still consumes the rate slot.
 - Damage and speed lerp by charge ratio only for charge weapons; non-charge weapons ignore `chargedDamage`.
 - **Aim is solved at the screen centre**: a ray from `aimCamera` through `(Screen.width/2, Screen.height/2)`
   with `maxDistance = max(30, speed * lifetime)`; the first hit becomes the aim point, otherwise the far end of

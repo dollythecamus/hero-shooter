@@ -170,6 +170,17 @@ none
   in `Weapon.SolveAimDirection` uses mask `~0` and can hit the hero's own capsule; `InputReader.Ability1Pressed`
   binds RMB, which collides with the planned RMB aiming; `PLAN.md` § 3 lists ~16 files that do not exist;
   `Health.IncomingDamageMultiplier` / `EnemyBrain.SpeedMultiplier` restores are not stack-safe.
+- 2026-10-23 (same session, audit pass) — an independent subagent audited the eight docs against the sources
+  (~240 claims). **11 claims were wrong or misleading and are corrected in the docs** (commit follows the
+  retrofit): `CooldownRatio` is 1-immediately-after-use, not 1-when-ready; `Weapon.Fire` advances its rate only
+  after the null guards; `WallClimb` passes a literal magnitude `1f` so the asset's `magnitude = 6` is dead;
+  `Spyglass` retries acquisition every frame; `CallAlliesState` converges on the ally's own target, ignoring the
+  caller's; `Push` replaces rather than accumulates knockback; a brain with no `EnemyStats` perceives nothing;
+  plus three smaller precision fixes (`sqrMagnitude > 0.01` means length > 0.1; the `-2` grounded pin applies
+  only while descending; `StatusEffect` is a top-level enum and the `AbilityBase` numbers are properties).
+  Three of these are code defects, not doc defects, and belong to the rework block: the inverted
+  `CooldownRatio` XML comment (any HUD trusting it draws backwards), the ignored climb magnitude, and
+  "calls friends" allies walking to their own target instead of the caller's.
 
 
 
