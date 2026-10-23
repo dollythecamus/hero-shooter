@@ -15,7 +15,8 @@ namespace HeroShooter.Player.Abilities
 
         public override void Activate(AbilityContext context)
         {
-            context.Status.AddEffect(StatusEffect.Climb, Duration, 1f);
+            // Magnitude is the climb speed in m/s (PlayerStatus), so the asset owns the number.
+            context.Status.AddEffect(StatusEffect.Climb, Duration, Magnitude);
         }
     }
 }

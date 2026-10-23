@@ -42,6 +42,13 @@ namespace HeroShooter.Enemies
         public NavMeshAgent Agent => _agent;
         public IEnemyAttack Attack => _attack;
         public Transform Target => spyglass != null ? spyglass.Target : null;
+
+        /// <summary>
+        /// The target the last call we answered pointed at. Set on hearing a call, cleared when the
+        /// CallAllies state ends; <see cref="CallAlliesState"/> converges on it instead of on our own
+        /// Spyglass target, which an ally behind cover may never have seen.
+        /// </summary>
+        public Transform CallTarget { get; private set; }
         public Vector3 SpawnPoint => _spawnPoint;
         public bool HasTarget => spyglass != null && spyglass.HasTarget;
 
@@ -251,6 +258,7 @@ namespace HeroShooter.Enemies
                 return;
             }
 
+            CallTarget = target;
             _machine.ChangeState(EnemyState.CallAllies);
         }
 
@@ -266,6 +274,7 @@ namespace HeroShooter.Enemies
 
         public void EndCallAllies()
         {
+            CallTarget = null;
             _machine.ChangeState(HasTarget ? EnemyState.Chase : EnemyState.Search);
         }
 

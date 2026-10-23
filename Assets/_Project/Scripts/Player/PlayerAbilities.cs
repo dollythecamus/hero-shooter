@@ -32,7 +32,7 @@ namespace HeroShooter.Player
 
         public bool IsReady(int slot) => _abilities[slot] != null && Time.time >= _readyAt[slot];
 
-        /// <summary>1 = fully ready, 0 = just used. Drives the ability bar.</summary>
+        /// <summary>Fill amount for the ability bar: 1 = fully ready, 0 = just used.</summary>
         public float CooldownRatio(int slot)
         {
             if (_abilities[slot] == null)
@@ -41,7 +41,7 @@ namespace HeroShooter.Player
             }
 
             float cooldown = Mathf.Max(0.01f, _abilities[slot].Cooldown);
-            return Mathf.Clamp01((_readyAt[slot] - Time.time) / cooldown);
+            return 1f - Mathf.Clamp01((_readyAt[slot] - Time.time) / cooldown);
         }
 
         public void Configure(CharacterDefinition character)

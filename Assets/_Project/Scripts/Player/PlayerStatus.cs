@@ -27,6 +27,8 @@ namespace HeroShooter.Player
         }
 
         [SerializeField] Health health;
+
+        [Tooltip("Fallback climb speed (m/s) when an ability passes a non-positive magnitude.")]
         [SerializeField] float climbSpeed = 7f;
 
         readonly System.Collections.Generic.List<ActiveEffect> _active = new System.Collections.Generic.List<ActiveEffect>();
@@ -91,7 +93,8 @@ namespace HeroShooter.Player
                         damageTaken *= effect.Magnitude;
                         break;
                     case StatusEffect.Climb:
-                        climb = effect.Magnitude;
+                        // Climb is the one effect whose magnitude is a speed (m/s), not a multiplier.
+                        climb = effect.Magnitude > 0f ? effect.Magnitude : climbSpeed;
                         IsClimbing = true;
                         break;
                 }
@@ -109,7 +112,7 @@ namespace HeroShooter.Player
 
             if (IsClimbing)
             {
-                _controller.Move(Vector3.up * (climbSpeed * climb * Time.deltaTime));
+                _controller.Move(Vector3.up * (climb * Time.deltaTime));
             }
         }
     }

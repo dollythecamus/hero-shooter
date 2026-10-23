@@ -24,9 +24,13 @@ namespace HeroShooter.Enemies.States
 
         public void Tick(float deltaTime)
         {
-            if (_brain.Target != null)
+            // The caller's target, not our own: an ally that has not spotted the player itself would
+            // otherwise stand still for the whole call.
+            Transform destination = _brain.CallTarget != null ? _brain.CallTarget : _brain.Target;
+
+            if (destination != null)
             {
-                _brain.MoveTo(_brain.Target.position, _brain.Stats.chaseSpeed);
+                _brain.MoveTo(destination.position, _brain.Stats.chaseSpeed);
             }
 
             if (Time.time >= _endTime)
