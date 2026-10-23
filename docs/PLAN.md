@@ -106,11 +106,16 @@ Every block ends with its own verification gate; a block with no gate gets decla
 | **S1 13:20–15:10** | `PlayerMotor` + `ThirdPersonCameraRig` (ported), `ObjectPool`/`ProjectilePool`/`Weapon`/`Projectile`, damage + hit feedback, ProBuilder grey-box test arena | fire 60 rounds: pool count identical before/after; `grep -rn "Instantiate(" Assets/_Project/Scripts` returns warm-up only |
 | **S2 15:10–17:10** | `EnemyBrain` + 5 states, `Spyglass` perception, `RangedEnemy`, `MeleeEnemy`, `EnemyHealth`, `AllyCall`, NavMesh bake on the test arena | both enemy types visit all five states (transition log); a called ally turns to the caller's target |
 | **S3 17:10–18:10** | `CharacterDefinition` + 3 characters (designed here), `AbilityDefinition` + 6 abilities, character select | all six abilities fire from input, cooldowns tick, the choice carries into the map |
-| **S4 18:10–19:00** | HUD, `MinimapCamera` + RenderTexture, `FragBoardUI` (Tab), wave counter | minimap follows the player; holding Tab shows the counts |
-| **— 19:00–20:00** | break / food | — |
-| **S5 20:00–21:30** | Two ProBuilder maps + `MapSelectUI`/`MapDefinition`, tutorial scene with gated steps | tutorial completes from a fresh launch; both maps load from the menu |
-| **S6 21:30–22:30** | The three chosen mechanics (default A+B+E) | each demonstrable in under 30 s |
-| **S7 22:30–23:30** | Linux build, Windows build if the module has landed, `docs/CODE_DEFENSE.md` skeleton, commit + ledger close | a build runs from a clean folder; every defense block opens the file it names |
+| **S3b 18:10–20:00** | **Ability rework** (`docs/tasks/2026-10-23_S3b-ability-rework.md`): press/hold/release input, Bulwark meter (5 s drain, refill 1/s), Slam three-phase (jump → fast descent → AoE + working knockback), Climb becomes passive wall traversal (no cooldown, resets on floor) | every row of that file's gate section observed in play mode |
+| **S4 20:00–21:15** | **HUD + game feel** (`docs/tasks/2026-10-23_S4-hud-and-feel.md`): authored `HUD.prefab` (health, Q/E cooldowns, Bulwark meter), enemy health bars (below max only), RMB aiming (FOV + shoulder offset + crosshair, Paper sniper reticle), impact sparks + hit marker, Paper bullet trails, ability particles, minimap, `FragBoardUI` (Tab) | UI is authored, not runtime-built; each ability shows its own feedback; minimap follows the player; Tab shows the frag counts |
+| **— 21:15–21:45** | break / food | — |
+| **S5 21:45–22:45** | Two ProBuilder maps + `MapSelectUI`/`MapDefinition`, tutorial scene with gated steps | tutorial completes from a fresh launch; both maps load from the menu |
+| **S6 22:45–23:30** | The three chosen mechanics (default A+B+E) | each demonstrable in under 30 s |
+| **S7 23:30–00:30** | Linux build, Windows build, `docs/CODE_DEFENSE.md` skeleton, commit + ledger close | a build runs from a clean folder; every defense block opens the file it names |
+
+**Note (2026-10-23):** the S3 ability gate is **superseded** by S3b — the six abilities are being redesigned,
+so measuring the old behaviour is wasted work. S3 stays "code + wiring complete, selection verified".
+
 
 Anything unfinished at the end of its block goes to the **cut list** that night, never forward.
 

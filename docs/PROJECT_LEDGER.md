@@ -18,27 +18,38 @@ A buildable Unity 6 third-person hero shooter that satisfies all 11 minimum mech
 
 ## Status
 
-**S2 closed, gate passed** — one `EnemyBrain` + `StateMachine` drive both archetypes; a live play session
-logged all five states (`Search → Chase → Attack`, `Chase → Flee` at 20/90 hp, `Chase → CallAllies` from a
-neighbour's call). Player took damage from both archetypes; corpses freeze (`_isDead`, agent disabled).
-Wiring: player tag, `Stats_Ranged`/`Stats_Melee` SOs, `RangedEnemy`/`MeleeEnemy` prefabs, legacy NavMesh
-bake (116 verts / 52 tris), 2+2 spawned in `90_TestArena`. Evidence: `docs/tasks/2026-10-23_S2-enemy-fsm.md`.
+**Paused for documentation, 2026-10-23 ~16:xx** (Chloe: "halt for now, writing docs and updating plans").
+Code state: S1 + S2 closed and verified; S3 code + wiring complete and selection verified end to end
+(`CharacterSelect` authored prefab, commit `56c3b31`). The six ability effects are **written but not measured**,
+and the ability designs have since been revised — the old S3 ability gate is superseded by S3b.
+Tree clean, 13 commits.
 
 ## Next action
 
-Verify the six ability effects deterministically (S3 gate): Rock Slam damage + knockback, Bulwark's 0.4
-incoming-damage multiplier, Paper Mark's 1.35 on the target, Paper Snare's 0.25 enemy speed, Scissors Climb
-height, Overclock's fire-rate multiplier — plus `CooldownRatio > 0` right after each activation. Then S4.
+**Blocked on design answers** (asked 2026-10-23, listed under *Open questions*). Once answered, the next
+code block is S3b (ability rework) + S4 (HUD + game feel), which run together:
+`docs/tasks/2026-10-23_S3b-ability-rework.md` and `docs/tasks/2026-10-23_S4-hud-and-feel.md`.
 
-**Stopping point:** each row of the table at the end of `docs/tasks/2026-10-23_S3-characters.md` shows the
-measured value, not the intended one.
+**Stopping point:** the S3b gate rows (Bulwark meter, Slam knockback, passive Climb) and the S4 gate rows
+(authored HUD showing cooldowns/meters, enemy bars below max, aiming FOV/offset, ability VFX, Paper tracer) are
+each observed in play mode, not inferred.
 
 ## Open questions
 
-- Which 3 custom mechanics? decided at S6 (21:30); default A wave director + B ultimate meter + E pause menu
-- The 3 characters and their 2 abilities — decided at S3 (17:10), it is design work, not code
+Asked 2026-10-23 — every "open" line in `docs/HERO_ROSTER.md` maps to one of these.
+
+- **Aiming**: FOV values (hip → aim), shoulder offset amount, does aiming slow movement, does it tighten spread?
+- **Slam**: jump height, descent speed multiplier, radius/damage (5 m / 40 today), steering during the jump,
+  can it start mid-air?
+- **Bulwark**: damage reduction value while shielded, can Rock shoot while shielded, movement penalty, length of
+  the short cooldown after an early release, length of the longer cooldown after depletion, refill delay.
+- **Mark / Snare feedback**: world marker above the enemy + HUD chip with the remaining time — enough, or do you
+  want an outline/highlight through walls?
+- **Climb**: max height (6 m today), climb speed, direction of the exit jump, does it cost anything?
+- **Overclock**: bullet/trail colour for the active window.
+- **Guns and projectiles**: what specifically is unsatisfying (feel of the shot, tracer look, spread, rate,
+  hitscan vs projectile, sound) — design questions still to be asked in the chat, answers to be recorded here.
 - Git remote `dollythecamus/hero-shooter`: push or stay local? — Chloe
-- Is the 13:00 start holding, and does the sprint run to ~23:30? — Chloe
 
 ## Decisions
 
@@ -100,4 +111,16 @@ none
 - 2026-10-23 — add Unity MCP (same package + pin as `UnityXR_3DMuseu`) and begin S1 — landed:
   `com.coplaydev.unity-mcp` in `Packages/manifest.json`, `docs/features/editor-mcp-tooling.md`, S1 code
   + wiring + gate, commits `c15a2bd` / `f82e489`.
+- 2026-10-23 (session 20261023_105517_ed63d44c) — **halt code, docs only**. New sprint step: HUD *and* better
+  visual feedback (ability particles, bullet-hit feedback, enemy health bars below max, ability cooldown/meter
+  HUD) — `docs/tasks/2026-10-23_S4-hud-and-feel.md`. Ability specs revised in detail (Slam jump+descent+knockback,
+  Bulwark becomes a 5 s channelled meter, Climb becomes a passive wall traversal with no cooldown, Mark/Snare
+  need visible state, Overclock needs VFX) — `docs/HERO_ROSTER.md`, `docs/tasks/2026-10-23_S3b-ability-rework.md`.
+  RMB aiming for all characters (FOV + offset + crosshair, sniper reticle for Paper). Guns/projectiles rework
+  requested, design questions pending — `docs/PLAN.md` § 6 (S3b + S4 blocks).
+- 2026-10-23 — Chloe: **UI must be authored prefabs, never built at runtime** — applied to the character
+  select (`Prefabs/UI/CharacterSelect.prefab`, commit `56c3b31`), and binding for the S4 HUD.
+- 2026-10-23 — Chloe: level geometry lives on **Structure** (layer 3); the `8` / `9` masks are intentional —
+  `docs/LAYERS.md`.
+
 

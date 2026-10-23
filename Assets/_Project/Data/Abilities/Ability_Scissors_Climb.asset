@@ -15,7 +15,7 @@ MonoBehaviour:
   displayName: Scissors Climb
   kind: 30
   description: Climb straight up for under a second
-  cooldown: 8
+  cooldown: 3
   duration: 0.9
   magnitude: 6
   radius: 0
