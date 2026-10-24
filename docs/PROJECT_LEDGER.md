@@ -351,6 +351,13 @@ none
 
 ## Requirements log
 
+- 2026-10-24 14:0x (same session) — Chloe's two corrections to the v2 space: combat gets **its own category** (with
+  explicit abstentions, reskins like friendship-building, and inverted goals as peers of a duel), and
+  `medium-and-material` is bound to a **software-realizable** reading (material as interface/art direction, not
+  physical fabrication). Also recorded as a general rule: the roll is a **direction the designer interprets**, not a
+  to-the-letter build order — one line of "as software, this means" per rolled item, veto only when no software
+  realisation exists (study 10.3). The space is now 21 x 30 = 630 items, re-validated (0 duplicates, 0 over-length,
+  ASCII); TSV regenerated with the `physical` column kept as a sorting aid. Waiting on Chloe's cull.
 - 2026-10-24 13:4x (same session) — the first option space was **audited and rejected**: 26.2 % of its 600 items
   carry combat vocabulary, concentrated in the categories that decide the design (input 77 %, core loop 73 %,
   economy 50 %, player-verb 47 %, opposition 47 %, genre-lineage 40 %, and most of genre-lineage is "action genre

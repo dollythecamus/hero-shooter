@@ -239,6 +239,36 @@ keep	id	category	item	flags	physical
 1	conflict-and-stakes-28	conflict-and-stakes	your clone runs the same level one second behind and can win		0
 1	conflict-and-stakes-29	conflict-and-stakes	a monster under the floor eats one of your tools each night	forces: an unseen tenant with appetites	0
 1	conflict-and-stakes-30	conflict-and-stakes	the audience votes after each scene on whether you continue		0
+1	combat-system-01	combat-system	melee exchange: strike, block, punish the recovery		0
+1	combat-system-02	combat-system	ranged duel with cover, reload windows and sightlines		0
+1	combat-system-03	combat-system	area control: hold zones and deny routes, no direct damage		0
+1	combat-system-04	combat-system	stealth: takedowns, alert escalation, hiding the bodies		0
+1	combat-system-05	combat-system	one boss with telegraphed phases and a single weak point		0
+1	combat-system-06	combat-system	no combat at all; hostility is answered by leaving	forces: no damage system exists	0
+1	combat-system-07	combat-system	combat is replaced by a negotiation table with opening offers		1
+1	combat-system-08	combat-system	combat is replaced by gift-giving: the better present wins		0
+1	combat-system-09	combat-system	combat is replaced by an auction; the winner pays its price		0
+1	combat-system-10	combat-system	friendship building treated as combat: trust is the health bar	wild	0
+1	combat-system-11	combat-system	argument duel: claims attack, evidence blocks, concessions heal		0
+1	combat-system-12	combat-system	dance battle: steps are damage, missteps are the openings		0
+1	combat-system-13	combat-system	cooking duel: dishes are attacks, the judge is the health pool		0
+1	combat-system-14	combat-system	staring contest with stamina, blink recovery and sudden death		0
+1	combat-system-15	combat-system	prank war: set traps, spring them, deny the credit		0
+1	combat-system-16	combat-system	gossip campaign: spread claims through the village social graph		0
+1	combat-system-17	combat-system	courtroom combat: objections parry, testimony lands as damage		0
+1	combat-system-18	combat-system	gardening siege: your plants advance on their weeds each season		0
+1	combat-system-19	combat-system	combat where nobody can die, only be repositioned	forces: no death state, control is the win	1
+1	combat-system-20	combat-system	combat resolved by patience: whoever moves first in ten minutes loses	wild	0
+1	combat-system-21	combat-system	both sides spend one shared pool; aggression drains you both	forces: no separate health, only one resource	0
+1	combat-system-22	combat-system	you fight your own previous run, recorded and played back		0
+1	combat-system-23	combat-system	combat with no numbers: only relative speed, reach and mass	forces: no stats, only comparisons	0
+1	combat-system-24	combat-system	the enemy mirrors your last three inputs back at you		0
+1	combat-system-25	combat-system	combat is musical: hit on the beat or take the hit		0
+1	combat-system-26	combat-system	losing is the goal; winning ends the run early	wild	0
+1	combat-system-27	combat-system	combat as conversation where every insult costs a shared memory	wild	0
+1	combat-system-28	combat-system	your health is the map: damage deletes the terrain you stand on	wild	0
+1	combat-system-29	combat-system	mediation: the fight ends when both sides agree on one story	wild	0
+1	combat-system-30	combat-system	two systems fight; you only set the weather they fight in	wild	0
 1	time-model-01	time-model	one action per day, and the day ends when you say so		0
 1	time-model-02	time-model	real seconds pass while you think, and the shop shuts at six		0
 1	time-model-03	time-model	everyone plans at once, then all orders resolve together		0

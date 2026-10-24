@@ -220,7 +220,7 @@ Rules that came straight out of the corpus:
 | L8 | **resume probe**: a fresh subagent gets hot tier + ledger only and must emit the next action; mismatch with the ledger's next action = doc fault, block stops | **F3/F4** before a human sees it |
 | L9 | every non-negotiable in `docs/DESIGN.md` appears in the gate table of every block whose work touches it | design dilution (D1, § 10.7) |
 | L10 | `docs/DESIGN.md` exists — with its seed and ≥8 published rolls — before the first code commit | rationalised dice (D4, § 10.2) |
-| L11 | the generated option space passes the bias audit: combat vocabulary ≤ 10 % of items overall and ≤ 15 % in any decision-bearing category, ≥ 8 distinct game traditions named per category | genre prior smuggled in through the option space itself (§ 10.9) |
+| L11 | the generated option space passes the bias audit: combat vocabulary ≤ 10 % of items overall, ≥ 8 distinct game traditions named per category; the one `combat-system` category is exempt by design | genre prior smuggled in through the option space itself (§ 10.9) |
 
 Verified today: L1 (`0b20b2e` → S5–S7 missing; `HEAD` → clean), L4 (`error CS` shape: last
 `Tundra build success` at line 7399 of `Logs/Editor.log`, **0** error lines after it; the call-site
@@ -392,6 +392,13 @@ perspective score high; a colour palette scores ~0). Requirement: the chosen com
 the default plan for that genre+platform, which is cheap to state: the default plan is in `PLAN.md`, and
 it is the thing we are trying not to write again.
 
+**The roll is a direction, not a specification.** The designer interprets each rolled item and writes the design
+direction from it; it does not implement the item to the letter, and nor does the implementer. Binding rule: for
+every rolled item the designer writes **one line — "as software, this means …" — before scoring**, and an item is
+vetoed only if *no* software realisation exists. This is what makes a paper form a usable roll (a digital form
+styled and behaved as paper) without turning the space into a fiction, and it is the rule that stops a
+literal-minded implementer from putting a paper form on the screen and calling the design done.
+
 ### 10.4 The loop's aesthetic bias is measurability, and it needs a budget line
 
 Every gate in this project is a number: `fov=60.0 → 42.0`, `created=24` before and after, `4/4` agents on
@@ -498,15 +505,20 @@ The second generation passed the audit: **0.3 % combat vocabulary** (2 of 600, b
 0 duplicates, 0 length violations — while the categories that were never biased (art, theme, audio) came out
 unchanged, which is the check that the fix hit the cause and not the symptom.
 
-Two residual biases are recorded rather than quietly fixed, because both are decisions rather than defects:
+Two residual biases went to Chloe as decisions rather than being quietly fixed, and both came back with a
+better answer than a threshold:
 
-1. **Combat is now under-sampled** against the real games landscape — 0.3 % where a general space would be nearer
-   10–20 %. That is Chloe's taste respected, but a space that cannot reach a conflict-driven design is not
-   "general", it is taste-filtered, and the study should say so in those words.
-2. **22 of the 30 `medium-and-material` items are physical** (paper forms, receipts, a cassette, a scent jar,
-   wool and pins). An agent loop builds software, so most of that category dies at the feasibility veto. It is
-   the most inventive category in the file, which is exactly why the veto has to be visible before the roll rather
-   than after: the cull file carries a `physical` column so this is a sorting decision, not a surprise.
+1. **Combat was under-sampled** (0.3 %, against roughly 10–20 % in the real games landscape). Her call: give it
+   **its own category** — `combat-system` — where conventional combat is a minority and the alternatives are
+   peers: items 1–5 are the familiar shapes, 6–9 are explicit *abstentions* (no combat at all, negotiate, gift,
+   auction), 10–18 re-skin conflict as friendship building, argument, dance, cooking, gossip, court and gardening,
+   and 19–30 break the mechanics or invert the goal. A roll that abstains is as valid as one that duels, which is
+   what "general landscape" actually means; the audit exempts this one category by design.
+2. **`medium-and-material` read as literal physical objects.** Her correction: the material is an influence on
+   art direction and interaction *inside software* — a paper form is a digital form styled and behaved as paper, a
+   cassette is a tape-deck UI and its sound. The reading is now bound in the category's own `note`, and the
+   general form of the fix is § 10.3's rule that the roll is a direction the designer interprets, never a
+   to-the-letter build order. The TSV keeps a `physical` column, now as a sorting aid rather than a veto hint.
 
 ## 11. Playtest and self-play — the human interface (Chloe's answer, applied)
 
@@ -742,7 +754,7 @@ cheaper than discovering it at h9 of a jam.
 | E1 landing | **A rule, not a time**: build by h10, smoke test at h10, E1 at h10; h14 if either fails. `READY:E1` at h9:40 either way. |
 | Engine | **Both, as a pair** — Godot and BRUTAL — one per run, after the 2 h readiness gate of § 13.4 |
 | Scope of the first experiment | **E1-scoped**: each run stops when its h10 E1 completes. The full jam is a later decision (§ 15) |
-| Category table | 20 categories x 30 items generated for culling by Chloe (`docs/studies/categories/`); annotations (forbids / gate / cost) written only for the survivors, by me, with her review |
+| Category table | 21 categories x 30 items, de-biased and audited (`docs/studies/design-categories.yaml`); Chloe culls, then annotations (forbids / gate / cost) are written only for the survivors |
 | Everything else in the old list | judged non-critical by Chloe; carried as P0 work items, not as open questions |
 
 ## 15. The first experiment (decided): a pair, scoped to E1
