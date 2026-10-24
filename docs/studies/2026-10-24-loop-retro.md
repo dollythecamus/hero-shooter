@@ -3,8 +3,8 @@
 Written 2026-10-24 11:5x (-03) after the S5 block, from the session store, the git history and the
 docs as they stand at `aaa37e9`. This is not a feel-good retro: every claim below has the command
 that produced it. § 9 is the plan for a fully autonomous loop; § 10 (creative-designer role), § 11 (playtest and
-self-play) and § 12 (host messaging) are built from Chloe's answers; § 13 is the engine choice and § 14 is what is
-still open.
+self-play) and § 12 (host messaging) are built from Chloe's answers; § 13 is the engine choice, § 14 the decisions now closed and
+§ 15 the shape of the first experiment.
 
 Question being tested: **"the failures that needed my intervention were documentation failures;
 fixing documentation is what makes a fresh agent session able to continue."**
@@ -287,7 +287,7 @@ is not a control):
 - the human intervenes only for: sign-off items in `AGENTS.md`'s permission list, the spec
   interview, and the two playtest events (§ 11) — nothing else, and never mid-block.
 
-**P3 — jam-day shape** (48 h, parity):
+**P3 — jam-day shape** (48 h, parity) — **deferred: the first experiment stops at E1, see § 15**:
 
 | Hours | Loop |
 |---|---|
@@ -674,19 +674,71 @@ BRUTAL extra: window creation under this NVIDIA/Wayland host. Godot extra: PNG c
 renderer off (a virtual display is acceptable). Until an engine passes, the plan has no engine, and the 2 h is
 cheaper than discovering it at h9 of a jam.
 
-## 14. Open items
+## 14. Decisions closed (2026-10-24)
 
-1. **Non-negotiable vs feasibility veto at hour 0** — my default stands (the veto wins, the roll is re-drawn).
-   Say so if you want the designer to win once and the schedule absorb it.
-2. **E1 landing** — decided as a rule, not a time: build by h10, smoke test at h10, E1 at h10 if both pass and
-   at h14 if not. The `READY:E1` message goes out at h9:40 either way.
-3. **Engine** — answered in principle (Godot default, BRUTAL track, one per run); still needs the § 13.4 spike
-   on both, which is half a day and can run before any of P0.
-4. **Category table annotations** — the piece § 10 needs and nobody enjoys: five categories × 5–8 options, each
-   with *what it forbids · which gate observes it · cost in block units*. Owner: me, with your review. Half a
-   day, written once, reused for every jam. Without it `design_roll.py` degrades into an adjective generator.
-5. **Message rate limit** — 1/hour except `STUCK`/`DEAD` is my proposal; override if you want a quieter or
-   noisier channel.
-6. **Noise floor for the whole experiment** — this study is one project, one engine, two days, and the human
-   was present. A single jam run cannot prove the loop generalises; it can only fail to falsify it. Say whether
-   the goal is one run or a pair (Godot + BRUTAL), because that changes what "success" is allowed to mean.
+| Item | Decision |
+|---|---|
+| Non-negotiable vs feasibility veto at h0 | **My default stands**: the veto wins and the roll is re-drawn. An unbuildable vision is a schedule risk, not eccentricity. |
+| E1 landing | **A rule, not a time**: build by h10, smoke test at h10, E1 at h10; h14 if either fails. `READY:E1` at h9:40 either way. |
+| Engine | **Both, as a pair** — Godot and BRUTAL — one per run, after the 2 h readiness gate of § 13.4 |
+| Scope of the first experiment | **E1-scoped**: each run stops when its h10 E1 completes. The full jam is a later decision (§ 15) |
+| Category table | 20 categories x 30 items generated for culling by Chloe (`docs/studies/categories/`); annotations (forbids / gate / cost) written only for the survivors, by me, with her review |
+| Everything else in the old list | judged non-critical by Chloe; carried as P0 work items, not as open questions |
+
+## 15. The first experiment (decided): a pair, scoped to E1
+
+Two runs, one per engine, each **stopping when its h10 E1 completes**. No 24 h or 48 h run: the full jam comes
+only after the loop's remaining parts are built out of what the pair teaches.
+
+### 15.1 What one run is, exactly
+
+| Hour | Event |
+|---|---|
+| h0 | theme + rules card; the designer rolls **independently per run**, publishes seed + rolls, writes `DESIGN.md` |
+| h0-1 | the numbered design questions (max 20), answered in one message or defaulted; controller writes the schedule |
+| h1-9 | blocks to the vertical slice; `gates.sh` + `docs_lint` at every block close; eyes pass per block |
+| h9:40 | `READY:E1` — build path + the three gate lines that passed |
+| h10 | build smoke test, then **E1**: max 8 humans, 20 min play + 10 min form, no conversation, ingest, design-delta, **stop** |
+
+Deliverable of a run: `DESIGN.md` with its roll record, a runnable build, the E1 forms + report +
+design-delta, the ledger with its evidence, and a one-page run note.
+
+### 15.2 Why E1 is the right cut
+
+E1 is the first hour at which all four hard mechanisms run at once: the roll and the manifesto (design), the
+build without a human (engine), self-play and the eyes (measurement), the form (evidence). Everything after it
+is the same mechanisms plus content volume, so learning-per-hour collapses — and the parts of the plan that are
+still untested (E2, content blocks, submission) would be exercised at their most expensive. Cutting at E1 also
+keeps the loop's unproven half out of a 48 h run, which is the point of doing this first.
+
+### 15.3 What the pair is actually measuring
+
+| Measure | Comparable across engines? | What it tells us |
+|---|---|---|
+| time to first human-playable build | **yes** | the engine cost of the human-independent path |
+| minutes lost to build / run / screenshot / input friction | **yes** | § 13.4 in practice, not on paper |
+| non-negotiables alive at E1 divided by rolled | no (different designs) | dilution rate of the designer role |
+| `docs_lint` failures per 10 commits | no | doc discipline under a clock |
+| resets + host messages exchanged | no | where the loop leaks state |
+| E1 pulse answers vs self-play metrics | no | whether PT7 (silent disagreement) fires |
+| does the design-delta address the worst pulse item | no | whether taste survives translation |
+
+**The confound, stated rather than hidden:** different rolls mean different games, so only the first two rows
+are an engine A/B. Everything else measures *the loop*, and one pair cannot separate "the loop" from "these two
+games". A second pair would be needed for that, and it is not in scope.
+
+### 15.4 Validity and stop rules
+
+- an engine that fails § 13.4 does not run at all — no exceptions, no "we'll fix it during the run";
+- a run with no build by h14 is **recorded as failed**, not extended;
+- a run with fewer than 3 human answers still stops at E1; the event is marked failed and that is a logistics
+  finding, not a reason to run longer;
+- both runs use the same form *structure* and the same three pulse items, or the two E1s cannot be compared;
+- the category table, the metric set and the form structure are **frozen before run A**; run B may not edit
+  them. A mid-experiment edit destroys comparability, and it is the most likely way to waste the pair.
+
+### 15.5 After the pair
+
+Study both runs against § 15.3, close the remaining loop decisions, then decide the full 48 h run — with E1
+*and* E2, the content blocks, the build/submission path and the loop's own post-mortem. Nothing in § 9's P3
+runbook is exercised before that decision, and § 11's E2 protocol stays on the shelf until then.

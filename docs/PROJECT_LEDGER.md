@@ -351,6 +351,14 @@ none
 
 ## Requirements log
 
+- 2026-10-24 13:2x (same session) — Chloe closed the study's open items: the first experiment is a **pair** (one
+  Godot run, one BRUTAL run) and each **stops when its h10 E1 is done** — no 48 h jam until the loop is fleshed out
+  from what the pair teaches; feasibility veto over the designer's non-negotiable at h0 stands; a subagent
+  generation of **20 design categories x 30 items** is running for her to cull by hand, after which the
+  annotations are written only for the survivors. Recorded as study § 14 (decisions closed) and § 15 (the run's
+  hour-by-hour shape, why E1 is the right cut, the seven measures with the two engine-comparable ones named, the
+  confound stated, and the validity/stop rules including the freeze on category table, metric set and form
+  structure before run A).
 - 2026-10-24 13:0x (same session) — Chloe, on host logistics and engine: the loop needs a **messaging interface**
   in both directions (agents announce `READY:E1`, the host sends `T-1` warnings), on top of her owning the physical
   logistics; E1 may land at h10 or h14; engine preference is **Godot**, with BRUTAL (`~/projects/testing_BRUTAL`)
