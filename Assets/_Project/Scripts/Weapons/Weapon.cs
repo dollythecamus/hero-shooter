@@ -11,6 +11,9 @@ namespace HeroShooter.Weapons
     /// </summary>
     public class Weapon : MonoBehaviour
     {
+        /// <summary>Roster decision: aiming halves the spread for every hero. Not a per-weapon number.</summary>
+        const float AimSpreadMultiplier = 0.5f;
+
         [Header("Data")]
         [SerializeField] WeaponDefinition definition;
 
@@ -187,6 +190,11 @@ namespace HeroShooter.Weapons
         Vector3 ApplySpread(Vector3 direction)
         {
             float spread = definition != null ? definition.spreadDegrees : 0f;
+
+            if (InputReader.AimHeld)
+            {
+                spread *= AimSpreadMultiplier;
+            }
 
             if (spread <= 0f)
             {

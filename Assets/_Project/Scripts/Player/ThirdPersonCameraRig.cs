@@ -23,18 +23,39 @@ namespace HeroShooter.Player
         [SerializeField] LayerMask collisionMask = ~0;
         [SerializeField] float collisionRadius = 0.25f;
 
+        [Header("Aim (roster: hip 60 → 42, blend 8/s, +0.55 right / −0.20 down)")]
+        [Tooltip("Field of view while RMB is held.")]
+        [SerializeField] float aimFov = 42f;
+        [Tooltip("Exponential blend rate toward the aim state, per second.")]
+        [SerializeField] float aimBlendPerSecond = 8f;
+        [Tooltip("Shoulder offset applied in camera space while aiming.")]
+        [SerializeField] Vector3 aimOffset = new Vector3(0.55f, -0.20f, 0f);
+
         [Header("Cursor")]
         [SerializeField] bool lockCursor = true;
 
         float _yaw;
         float _pitch;
+        float _aimBlend;
+        float _hipFov = 60f;
 
         /// <summary>The camera this rig drives (weapon aim uses it).</summary>
         public Camera Cam { get; private set; }
 
+        /// <summary>0 at the hip, 1 fully aiming. The HUD swaps crosshairs on this, not on the raw button.</summary>
+        public float AimBlend => _aimBlend;
+
+        public bool IsAiming => _aimBlend > 0.5f;
+
         void Awake()
         {
             Cam = GetComponent<Camera>();
+
+            // The scene's camera value is the hip FOV: authoring it once beats two numbers that can disagree.
+            if (Cam != null)
+            {
+                _hipFov = Cam.fieldOfView;
+            }
 
             if (target != null)
             {
@@ -61,13 +82,21 @@ namespace HeroShooter.Player
             _yaw += look.x * mouseSensitivity;
             _pitch = Mathf.Clamp(_pitch - look.y * mouseSensitivity, pitchLimits.x, pitchLimits.y);
 
+            _aimBlend = Mathf.Lerp(_aimBlend, InputReader.AimHeld ? 1f : 0f,
+                1f - Mathf.Exp(-aimBlendPerSecond * Time.deltaTime));
+
             Quaternion orbit = Quaternion.Euler(_pitch, _yaw, 0f);
-            Vector3 pivot = target.position + pivotOffset;
+            Vector3 pivot = target.position + pivotOffset + orbit * (aimOffset * _aimBlend);
             Vector3 desiredPosition = pivot - orbit * Vector3.forward * distance;
 
             transform.position = Vector3.Lerp(transform.position, ResolveCollision(pivot, desiredPosition),
                 1f - Mathf.Exp(-followSharpness * Time.deltaTime));
             transform.rotation = orbit;
+
+            if (Cam != null)
+            {
+                Cam.fieldOfView = Mathf.Lerp(_hipFov, aimFov, _aimBlend);
+            }
         }
 
         /// <summary>Shorten the boom when something solid sits between the pivot and the wanted position.</summary>

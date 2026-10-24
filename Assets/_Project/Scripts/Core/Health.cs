@@ -30,7 +30,34 @@ namespace HeroShooter.Core
         /// </summary>
         public float IncomingDamageMultiplier { get; set; } = 1f;
 
+        float _damageMultiplierUntil;
+
+        /// <summary>Seconds of Mark left, 0 when not marked. The enemy bar and the HUD chip read this.</summary>
+        public float DamageMultiplierSecondsLeft => Mathf.Max(0f, _damageMultiplierUntil - Time.time);
+
+        public bool IsMarked => DamageMultiplierSecondsLeft > 0f;
+
+        /// <summary>
+        /// Paper's Mark. A deadline instead of a coroutine in the ability: a second Mark on the same
+        /// enemy refreshes the window instead of restoring the first one early (the old restore bug),
+        /// and the remaining time is readable, which a chip with a countdown needs.
+        /// </summary>
+        public void ApplyDamageMultiplier(float magnitude, float duration)
+        {
+            IncomingDamageMultiplier = magnitude;
+            _damageMultiplierUntil = Time.time + Mathf.Max(0.01f, duration);
+        }
+
         void Awake() => Current = maxHealth;
+
+        void Update()
+        {
+            if (_damageMultiplierUntil > 0f && Time.time >= _damageMultiplierUntil)
+            {
+                _damageMultiplierUntil = 0f;
+                IncomingDamageMultiplier = 1f;
+            }
+        }
 
         /// <summary>Restores full health — used when an enemy is recycled from its pool.</summary>
         public void ResetHealth() => Current = maxHealth;

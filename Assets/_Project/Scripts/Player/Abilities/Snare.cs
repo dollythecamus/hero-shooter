@@ -1,4 +1,3 @@
-using System.Collections;
 using HeroShooter.Data;
 using HeroShooter.Enemies;
 using UnityEngine;
@@ -29,20 +28,9 @@ namespace HeroShooter.Player.Abilities
                 return false;
             }
 
-            float previous = brain.SpeedMultiplier;
-            brain.SpeedMultiplier = Magnitude;
-            context.Host.StartCoroutine(Restore(brain, previous, Duration));
+            // The brain owns the countdown, for the same reason Mark's lives on Health.
+            brain.ApplySpeedMultiplier(Magnitude, Duration);
             return true;
-        }
-
-        static IEnumerator Restore(EnemyBrain brain, float previous, float duration)
-        {
-            yield return new WaitForSeconds(duration);
-
-            if (brain != null)
-            {
-                brain.SpeedMultiplier = previous;
-            }
         }
     }
 }

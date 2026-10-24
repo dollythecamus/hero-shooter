@@ -59,6 +59,21 @@ namespace HeroShooter.Enemies
 
         /// <summary>Multiplier on every agent speed the states ask for (Paper's Snare drives this to 0.25).</summary>
         public float SpeedMultiplier { get; set; } = 1f;
+
+        float _speedMultiplierUntil;
+
+        /// <summary>Seconds of Snare left, 0 when not snared. The enemy bar and the HUD chip read this.</summary>
+        public float SpeedMultiplierSecondsLeft => Mathf.Max(0f, _speedMultiplierUntil - Time.time);
+
+        public bool IsSnared => SpeedMultiplierSecondsLeft > 0f;
+
+        /// <summary>Paper's Snare, on the same deadline scheme as Mark — refreshable and readable.</summary>
+        public void ApplySpeedMultiplier(float magnitude, float duration)
+        {
+            SpeedMultiplier = magnitude;
+            _speedMultiplierUntil = Time.time + Mathf.Max(0.01f, duration);
+        }
+
         public float DistanceToTarget => spyglass != null ? spyglass.DistanceToTarget : float.PositiveInfinity;
         public float TimeInState => _machine.TimeInState;
 
@@ -125,6 +140,12 @@ namespace HeroShooter.Enemies
             if (_isDead || stats == null)
             {
                 return;
+            }
+
+            if (_speedMultiplierUntil > 0f && Time.time >= _speedMultiplierUntil)
+            {
+                _speedMultiplierUntil = 0f;
+                SpeedMultiplier = 1f;
             }
 
             spyglass.Refresh(stats.sightRange);

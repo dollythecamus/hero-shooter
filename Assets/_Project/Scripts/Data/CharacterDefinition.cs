@@ -22,6 +22,10 @@ namespace HeroShooter.Data
         public float maxHealth = 100f;
         public float moveSpeed = 6f;
         public float sprintMultiplier = 1.6f;
+        [Tooltip("Movement multiplier while RMB aiming (roster: 0.9 for every hero, 0.6 for Paper).")]
+        [Range(0.1f, 1f)] public float aimMoveMultiplier = 0.9f;
+        [Tooltip("Paper's aim crosshair is a sniper reticle, not the shared one.")]
+        public bool sniperReticle;
 
         [Header("Loadout")]
         public WeaponDefinition weapon;

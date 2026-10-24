@@ -1,4 +1,3 @@
-using System.Collections;
 using HeroShooter.Core;
 using HeroShooter.Data;
 using UnityEngine;
@@ -29,20 +28,9 @@ namespace HeroShooter.Player.Abilities
                 return false;
             }
 
-            float previous = health.IncomingDamageMultiplier;
-            health.IncomingDamageMultiplier = Magnitude;
-            context.Host.StartCoroutine(Restore(health, previous, Duration));
+            // Health owns the countdown, so a re-mark refreshes the window and the HUD can read the time left.
+            health.ApplyDamageMultiplier(Magnitude, Duration);
             return true;
-        }
-
-        static IEnumerator Restore(Health health, float previous, float duration)
-        {
-            yield return new WaitForSeconds(duration);
-
-            if (health != null)
-            {
-                health.IncomingDamageMultiplier = previous;
-            }
         }
     }
 }

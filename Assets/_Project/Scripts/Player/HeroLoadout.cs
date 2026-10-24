@@ -19,6 +19,12 @@ namespace HeroShooter.Player
 
         public CharacterDefinition Current { get; private set; }
 
+        // Read by the HUD: it pushes values into authored widgets, so it needs the parts, not a second lookup.
+        public Health Health => health;
+        public PlayerMotor Motor => motor;
+        public Weapons.Weapon Weapon => weapon;
+        public PlayerAbilities Abilities => abilities;
+
         void Awake()
         {
             if (health == null) health = GetComponent<Health>();
@@ -44,7 +50,7 @@ namespace HeroShooter.Player
 
             if (motor != null)
             {
-                motor.Configure(character.moveSpeed, character.sprintMultiplier);
+                motor.Configure(character.moveSpeed, character.sprintMultiplier, character.aimMoveMultiplier);
             }
 
             if (weapon != null)

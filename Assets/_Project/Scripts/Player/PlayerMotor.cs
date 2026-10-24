@@ -16,6 +16,10 @@ namespace HeroShooter.Player
         [SerializeField] float acceleration = 45f;
         [SerializeField] float rotationSpeed = 14f;
 
+        [Header("Aim")]
+        [Tooltip("Speed multiplier while RMB is held. The loadout overwrites it from the character.")]
+        [SerializeField] float aimSpeedMultiplier = 0.9f;
+
         [Header("Jump / gravity")]
         [SerializeField] float jumpHeight = 1.4f;
         [SerializeField] float gravity = -25f;
@@ -78,10 +82,11 @@ namespace HeroShooter.Player
         }
 
         /// <summary>Applied by the loadout when a character is selected.</summary>
-        public void Configure(float newWalkSpeed, float newSprintMultiplier)
+        public void Configure(float newWalkSpeed, float newSprintMultiplier, float newAimSpeedMultiplier = 0.9f)
         {
             walkSpeed = newWalkSpeed;
             sprintMultiplier = newSprintMultiplier;
+            aimSpeedMultiplier = Mathf.Clamp01(newAimSpeedMultiplier);
         }
 
         void Update()
@@ -101,7 +106,9 @@ namespace HeroShooter.Player
 
             IsSprinting = InputReader.SprintHeld;
             float statusMultiplier = status != null ? status.SpeedMultiplier : 1f;
-            Vector3 targetVelocity = desired * (walkSpeed * (IsSprinting ? sprintMultiplier : 1f) * statusMultiplier);
+            float aimMultiplier = InputReader.AimHeld ? aimSpeedMultiplier : 1f;
+            Vector3 targetVelocity = desired *
+                (walkSpeed * (IsSprinting ? sprintMultiplier : 1f) * statusMultiplier * aimMultiplier);
 
             bool steer = desired.sqrMagnitude > 0.01f;
 
