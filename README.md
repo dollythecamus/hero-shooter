@@ -21,15 +21,20 @@ waves of FSM-driven ranged and melee enemies with pooled projectiles and two abi
    `weapons-and-projectiles`, `enemy-fsm`, `characters-and-abilities`, `hud-aiming-and-feedback`,
    `editor-mcp-tooling`).
 9. `docs/tasks/` — one file per sprint block: what was built, what was verified, what was reverted.
+10. `docs/studies/` — process studies, not part of the game. `2026-10-24-loop-retro.md` is the doc-drift
+    post-mortem of this repo (23 human interventions, six documentation failure modes) plus the plan for a
+    fully autonomous agent loop; it is the reason `AGENTS.md`'s gates are shaped the way they now are.
 
 ## Status
 
 S1 (player + camera + pooled shooting), S2 (enemy FSM, both archetypes), S3 (3 characters, 6 abilities, authored
-character select), S3b (ability rework) and S4 (aiming, authored HUD, enemy bars, pooled VFX) are **landed and
-measured in play mode**. Still to build: **S5** (two ProBuilder maps + map select + tutorial), **S6** (the three
-self-chosen mechanics — default wave director, ultimate meter, pause menu) and **S7** (Linux + Windows builds,
-`docs/CODE_DEFENSE.md`, submission); the minimap and Tab frag board are deferred out of the sprint. Truth lives
-in `docs/PROJECT_LEDGER.md`; scope and gates per block in `docs/PLAN.md` § 6.
+character select), S3b (ability rework), S4 (aiming, authored HUD, enemy bars, pooled VFX) and S5 (boot menu →
+character select → map select, two ProBuilder maps, gated tutorial) are **landed and measured in play mode**.
+Still to build: **S6** (the three self-chosen mechanics — default wave director, ultimate meter, pause menu,
+blocked on Chloe's pick) and **S7** (Linux + Windows builds, `docs/CODE_DEFENSE.md`, submission); the minimap and
+Tab frag board are deferred out of the sprint. Nothing has been built or *looked at* yet — every gate is a
+play-mode measurement, not a judgement of how it looks. Truth lives in `docs/PROJECT_LEDGER.md`; scope and gates
+per block in `docs/PLAN.md` § 6.
 
 ## Layout
 

@@ -18,8 +18,11 @@ Everything below was run on this host on 2026-10-23 unless marked `UNVERIFIED`.
 #   while it is open, Temp/UnityLockfile exists and holds the project — nothing else may open it
 
 # Does the project compile? (no CLI compile has ever been run on this project)
-ls -l Library/ScriptAssemblies/Assembly-CSharp.dll   # fresh timestamp after a recompile
-grep -c "error CS" Logs/Editor.log                   # verified 0 → no compile errors in the current session
+ls -l Library/ScriptAssemblies/Assembly-CSharp.dll   # must be newer than the newest Assets/_Project/Scripts/**/*.cs
+last=$(grep -n 'Tundra build success' Logs/Editor.log | tail -1 | cut -d: -f1)
+awk -v L="$last" 'NR>L && /error CS/' Logs/Editor.log | wc -l   # verified 0; 7399 was the last build line on 2026-10-24
+#   do NOT use `grep -c "error CS"` as the gate: it is cumulative over the whole log (21 lines on 2026-10-24,
+#   all old CS0103 "Vfx" from the missing-Particle-System compile) and can never return to 0 again
 #   UNVERIFIED — headless compile:
 #   Unity -batchmode -quit -nographics -projectPath . -logFile -
 #   blocked because the GUI editor currently holds the project; quit the editor first
@@ -27,7 +30,8 @@ grep -c "error CS" Logs/Editor.log                   # verified 0 → no compile
 # Static done-criteria greps (the only automatable gates that exist)
 grep -rn "Instantiate(" Assets/_Project/Scripts    # must return ONLY Core/ObjectPool.cs:43
 grep -rn "attackRange" Assets/_Project/Scripts     # EnemyStats.attackRange is read by nobody — see enemy-fsm.md
-grep -rn "SceneManager.LoadScene" Assets/_Project/Scripts   # 3 sites, all in Systems/GameFlow.cs
+grep -rn "SceneManager.LoadScene(" Assets/_Project/Scripts  # 3 call sites, all in Systems/GameFlow.cs
+#   without the "(" it also matches a /// cref and a tooltip (5 lines on 2026-10-24): assert call sites, not text
 git diff --check                                   # verified clean; keep it clean in every commit
 
 # Editor bridge (how the agent wires prefabs/scenes/ProBuilder instead of editing YAML)
@@ -68,7 +72,8 @@ No test assembly exists. `com.unity.test-framework` is installed but unused: do 
 
 A task is complete when:
 
-- The static greps above still pass, and `grep -c "error CS" Logs/Editor.log` is 0 after a recompile.
+- The static greps above still pass, and the compile gate above returns 0 (no `error CS` line *after* the last
+  `Tundra build success` — the cumulative count is not the gate).
 - The behaviour named in the task's gate was **observed in play mode** and the observation is quoted
   (numbers, log lines), not summarised as "works".
 - `git diff` was read by Hermes, not only produced by the implementing model.
