@@ -2,8 +2,8 @@
 
 Written 2026-10-24 11:5x (-03) after the S5 block, from the session store, the git history and the
 docs as they stand at `aaa37e9`. This is not a feel-good retro: every claim below has the command
-that produced it. § 9 is the plan for a fully autonomous loop, § 10 is the creative-designer role built
-from Chloe's answer on design eccentricity, § 11 is what is still open.
+that produced it. § 9 is the plan for a fully autonomous loop, § 10 is the creative-designer role and § 11 the
+playtest/self-play interface, both built from Chloe's answers, and § 12 is what is still open.
 
 Question being tested: **"the failures that needed my intervention were documentation failures;
 fixing documentation is what makes a fresh agent session able to continue."**
@@ -163,7 +163,7 @@ treats them as two different controls instead of one vague "human in the loop".
 | Eyes | Screenshot → rubric → vision judge, per block, recorded in the task file |
 | Averaging (taste / design) | Forced-random constraint roll, published with its seed before design starts; a designer role that owns ≤3 non-negotiables in a written manifesto; `docs_lint` L9 fails a block whose gate table drops one → § 10 |
 | Taste / spec | Numbered design-question interview at every block that touches design; unanswered questions become recorded defaults, never silent choices |
-| Taste / feel | Deferred playtest window with a human, a self-play metric or a VLM rubric, recorded as a gap, never claimed as verified |
+| Taste / feel | Bot self-play on a frozen metric set (balance and function only) + **two** human events on a designer-written, conversation-free form, E1 vertical slice and E2 near-finished → § 11 |
 
 ## 7. The loop
 
@@ -245,6 +245,12 @@ the spec interview**.
    rolls and the scores into the ledger *before* the design is written.
 7. Templates: `docs/DESIGN.md` (manifesto + ≤3 non-negotiables + reference-game table) and the
    design-delta table used to turn playtest evidence into numbers.
+8. `tools/selfplay.py` — the self-play harness of § 11.1: scripted input through the same path a player uses
+   (proven here with `InputSystem.QueueStateEvent`), one telemetry JSON per run, a frozen metric set.
+9. `tools/formgen.py` + `docs/playtests/E1.form.yaml` — the designer's question spec → one offline HTML form
+   (works from a phone, no accounts, no network).
+10. `tools/playtest_ingest.py` — validate returned forms against the spec, write the distribution report,
+    flag contradictions, and only then hand the designer a bounded package (§ 11.2).
 
 **P1 — drills, before day 0** (prove the controls with injected faults; a drill that does not run
 is not a control):
@@ -260,6 +266,9 @@ is not a control):
 | D7 dilution | after block 2, force a gate failure on the non-negotiable | the design is re-negotiated *in writing*; the non-negotiable is still in the design and L9 still finds it in later gate tables |
 | D8 unfalsifiable vision | add a non-negotiable with no observation channel | the roll's veto rejects it at hour 0, before any code |
 | D9 role collapse | reset the designer's context between phases | its first output is "what does the vision forbid here?", and it matches the manifesto (this is the resume probe applied to taste) |
+| D10 dead telemetry | break a metric's source (e.g. no damage events) and run the harness | the run is marked invalid, not scored as "zero damage" |
+| D11 leading form | hand the ingest a set of answers that all say "fine" | the report shows the distribution and the designer trades nothing on one event |
+| D12 no build at E1 | delete the build output right before the vertical-slice event | the E1 build gate fires and the human event is cancelled, not run against a stale binary |
 
 **P2 — the loop's own success criteria**, measured per project, not per feeling:
 
@@ -269,7 +278,7 @@ is not a control):
   discipline the corpus is missing today: F3 and F6 both survived commits),
 - no block closed on "it compiles" — each gate row is a measurement,
 - the human intervenes only for: sign-off items in `AGENTS.md`'s permission list, the spec
-  interview, and the final playtest.
+  interview, and the two playtest events (§ 11) — nothing else, and never mid-block.
 
 **P3 — jam-day shape** (48 h, parity):
 
@@ -278,11 +287,13 @@ is not a control):
 | 0–1 | controller reads the theme + rules; writes the plan schedule, requirement map, and the numbered design questions (≤20) |
 | 1–2 | **the only human contact**: answers batched into one message; unanswered → recorded defaults |
 | 2–8 | blocks 1–2 (core loop playable) + eyes pass each block |
-| 8–10 | playtest proxy: self-play metrics + screenshots → rubric verdicts → balance patch as its own block with before/after numbers |
+| 8–10 | self-play harness + screenshots → rubric verdicts → balance patch as its own block with before/after numbers; **the vertical-slice build is produced here** (E1 needs a binary) |
+| 10–11 | **E1 — human playtest, vertical slice**: ≤8 humans, the designer's frozen form, 20 min play + 10 min form, no conversation; ingest → design-delta block |
 | 10–20 | blocks 3–5 (content, UI, maps) — implementer/verifier/scribe pipelined; audit at block 5 |
 | 20–24 | sleep window; nothing runs (the corpus shows no quality gain from the 21:48–10:15 gap and one revert from working past a halt) |
 | 24–40 | remaining blocks; every 5 blocks an audit |
-| 40–44 | builds, clean-folder run, submission doc, `CODE_DEFENSE`-equivalent README |
+| 40–42 | **E2 — human playtest, near-finished demo**: the same players if available, the same pulse questions plus the new ones; ingest → the last design-delta block |
+| 42–44 | builds, clean-folder run, submission doc, `CODE_DEFENSE`-equivalent README |
 | 44–46 | freeze + submission; the loop writes its own post-mortem with the same evidence standard |
 | 46–48 | buffer, and the ledger is closed with the unverified list |
 
@@ -290,9 +301,10 @@ is not a control):
 
 1. **The ledger is written by the agent that just finished the block.** L8 and the scribe split
    reduce it; nothing removes it.
-2. **The vision judge is a weak proxy for fun.** It can catch "HUD overlaps the crosshair"; it
-   cannot catch "this fight is boring". P3's playtest proxy is the weakest part of the plan and the
-   one most likely to need Chloe's idea.
+2. **Nothing in the loop generates a fun signal on its own.** The vision judge catches "HUD overlaps the
+   crosshair"; self-play catches "the second wave is unwinnable"; neither catches "this fight is boring".
+   That is what the two human events are for, and they are *two* — 30 answers at most over 48 h. § 11 is
+   the strongest part of the design and still the thinnest evidence stream in it.
 3. **Engine environments leak into the loop**: an editor that holds the project lock, a GUI-only
    build, a bridge that dies (recorded at 20:12 on 10-23). The loop needs a health check on the
    bridge at every block start and a documented recovery, or it will stall on infrastructure and
@@ -426,16 +438,139 @@ averaging has to happen in **implementation cost**, never in the design document
 | D6 ecc eats the schedule | blocks overrun defending the vision | cost per element at hour 0, fallback and cut order pre-agreed |
 | D7 role collapse | after two resets the designer writes like a planner | its first output each phase is "what does the vision forbid here?" — the resume probe, applied to taste (drill D9) |
 
-## 11. Still open
+## 11. Playtest and self-play — the human interface (Chloe's answer, applied)
+
+Her answer: yes to self-play driven by the design bot, **contingent on building the interface for it**; yes to
+human playtesting capped at **two events** — a vertical slice and a near-finished demo — where the designer
+writes a **form** and the humans only fill it in (never a chat), plus an interface to collect the forms and
+trigger the designer's analysis.
+
+Both halves need one thing this project never had: an artefact a human can hold, and a measurement path that
+does not depend on the builder's own report.
+
+### 11.1 Self-play decomposes into driving and reading — only one of them is about fun
+
+**Driving** is already proven in this repo: `KeyboardState`/`MouseState` through
+`InputSystem.QueueStateEvent` gave the S3b gate real input (22:4x), and the play-mode probe pattern
+(`EditorApplication.update` → `Debug.Log` → read `Logs/Editor.log`) produced every gate row since S1. A
+self-play harness is that method generalised, not new research — but it inherits its known limit: the editor
+overwrites injected device state each input update, so held-key behaviour has to be driven at the call site.
+
+**Reading** is where the honesty has to be explicit. What self-play can measure:
+
+| Valid | Invalid (do not claim) |
+|---|---|
+| does the mechanic function at all | whether it feels good |
+| throughput: time-to-first-kill, kills/min, clear time per wave | whether the player understands it |
+| balance: damage taken per wave, deaths, win rate per wave | whether the art reads |
+| degenerate strategies: one ability or weapon > 80 % of total damage | tension, pacing, surprise |
+| navigation health: stuck time, `onNavMesh` coverage | fun |
+
+A bot has no frustration curve and plays either optimally or randomly; both are unrepresentative. So every
+self-play claim is written as *balance and function*, and carries `not proven: human` until an E-event exists.
+Three rules keep it from becoming self-flattery, which is the obvious failure of a designer measuring its own
+design: **the metric set is frozen at hour 0** (before any implementation), **the analysis runs in a context
+that is not the designer's**, and **an invalid run is not a good run** (D10).
+
+**The capability boundary, stated plainly** (her "depends on being able to do that at all"): in this stack the
+harness can drive the *editor* session, because the bridge lives there. A built binary has no bridge, so
+self-play against the shipped artefact needs a **deterministic input-replay path inside the game** — a
+`--replay <log>` dev flag or a recorded-input mode that reads the same events `InputReader` would see. It is
+small, it belongs to block 1 (a game that cannot replay its own input cannot be measured), and without it the
+two human events are the only measurement of the thing that actually ships.
+
+One more split that this project makes unavoidable: **the harness measures the editor session; humans measure
+the built binary.** The loop therefore runs a build-vs-editor sanity run at each E-event, and any disagreement
+between the two is itself a finding — the exact gap this repo has, where no build has ever been produced and
+the ledger says so in three places.
+
+### 11.2 The two human events, and why a form is the right interface
+
+- **E1, vertical slice (~h10)**: does the core loop communicate itself — controls, goal, feedback — to someone
+  who has never seen it. This is also the first time the loop must produce a **runnable build**, which converts
+  the S7 risk (builds are GUI work discovered on the last day) into a day-one gate. Cheap insurance and, by
+  itself, worth the event.
+- **E2, near-finished demo (~h40)**: does the whole thing hold up, and has it moved since E1.
+
+The form beats a chat for four reasons: no agent in the room (her constraint), comparable across players and
+across events, machine-readable without transcription, and nothing for a player to be *talked into*.
+
+What it costs is discovery — closed questions cannot surprise you. Mitigation: every event carries
+
+- **3 fixed pulse items**, identical at E1 and E2 (did you know what to do · did the controls feel right ·
+  would you play another round), so **E1 → E2 convergence is measurable**;
+- **2 open fields** ("what did you not understand", "what would you change first") — these catch the tutorial
+  and HUD gaps that scales never ask about;
+- **event-specific items** aimed at the non-negotiables.
+
+And two rules that make the answers usable:
+
+**Pre-registration.** Before the event, the designer writes for each question *what a bad answer would
+change*. Without it, any result can be read as confirmation — a designer is the easiest auditor to fool.
+
+**No statistics at n = 3–10.** Report the distribution and the verbatim quotes, never a mean. And no
+non-negotiable is traded on one event (PT4).
+
+### 11.3 The two interfaces to build
+
+```
+docs/playtests/E1.form.yaml          the designer's question spec (the only thing it writes)
+   │  tools/formgen.py
+   ▼
+playtest/E1/form.html                one static file: offline, no accounts, phone-sized
+   │  humans play 20 min, fill the form 10 min, submit  (≥3 people, ≤8)
+   ▼
+playtest/E1/answers/<nick>.json      one file per human; no server required
+   │  tools/playtest_ingest.py E1
+   ▼
+docs/playtests/E1-report.md          per-question distribution + quotes + contradiction flags
+   │  (bounded package: DESIGN.md + frozen questions + pre-registration + this report)
+   ▼
+designer → design-delta table → implementer → verifier      (the § 10.6 loop)
+```
+
+The spec is small enough to show:
+
+```yaml
+event: E1
+pulse:                                     # identical at E1 and E2
+  - id: understood
+    type: scale                            # 1-5, both ends anchored
+    text: "I knew what to do without being told."
+    low: "no idea"   high: "obvious"
+    bad_answer_changes: "tutorial gating + first-30-seconds HUD"
+open:
+  - id: confusing
+    type: text
+    text: "What did you not understand?"
+nn_coverage: [NN1, NN2]                    # which non-negotiable each item can observe
+```
+
+Privacy and logistics are part of the spec, not an afterthought: no accounts, no network, no upload, nickname
+only, and the answers stay on the venue machine.
+
+### 11.4 Failure modes of the playtest layer
+
+| Mode | Symptom | Control |
+|---|---|---|
+| PT1 leading questions | the designer asks what it wants to hear | pre-registration + frozen spec before the event + a second context reviews the questions |
+| PT2 too few humans | n = 2 and a confident report | < 3 humans = *failed event*, free text still mined, no statistics claimed |
+| PT3 the build does not run | crash, stale binary, wrong scene | E1 build gate + a 5-minute launch checklist before any form is handed out (D12) |
+| PT4 over-fitting to one event | the vision is abandoned after E1 | a non-negotiable is traded only with written reason, and only on E2 or on a contradiction with self-play |
+| PT5 chat creep | someone in the room starts explaining the design | protocol says: no agent present, no conversation, the designer never talks to players |
+| PT6 self-play flattery | all-green numbers on a broken build | metric set frozen at hour 0, analyst ≠ designer, invalid ≠ green (D10, D11) |
+| PT7 silent disagreement | humans dislike what self-play loves | the ingest flags the contradiction explicitly — it is the single most valuable output of this layer |
+
+## 12. Still open
 
 1. ~~The taste idea~~ — answered, recorded in § 10. What is *not* settled inside it: who arbitrates when
    the designer's non-negotiable and the feasibility veto disagree at hour 0 (my default: the veto wins
    and the roll is re-drawn, because an unbuildable vision is not eccentricity, it is a schedule risk).
-2. **Which human contact points survive parity.** The spec interview is defensible (a solo jammer also
-   interrogates their own design), the mid-run playtest is not — a jammer's playtest is themselves. The
-   designer role makes this sharper, not softer: it can *convert* playtest evidence into design deltas,
-   but it cannot generate the evidence. Decide before the run whether the loop gets one playtest, one
-   VLM/self-play stand-in, or neither.
+2. ~~Which human contact points survive parity~~ — answered: two human events, form-based and
+   conversation-free, plus bot self-play. Open inside it: **who hosts and schedules the two events** (this is
+   physical logistics and the loop cannot do it), and **where E1 lands** — h10 assumes the loop has a
+   runnable vertical slice by then; if the core-loop block overruns, E1 moves to h14 and the first build
+   gate moves with it.
 3. **The engine target.** Unity's editor lock, GUI builds and the MCP bridge are three hard human
    dependencies in this project. Godot (headless export, `--headless` runs, scriptable scenes) removes all
    three and would make a cleaner experiment — but it is a weaker test of "can it survive a real

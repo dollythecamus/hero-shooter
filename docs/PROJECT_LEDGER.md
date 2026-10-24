@@ -351,6 +351,15 @@ none
 
 ## Requirements log
 
+- 2026-10-24 12:1x (same session) — Chloe, answering open question 2: yes to bot self-play (contingent on building
+  the interface), and yes to human playtesting capped at **two events** (vertical slice, near-finished demo), where
+  the designer writes a form and humans only fill it in — never a chat — plus an ingest/report interface that
+  triggers the designer's analysis. Recorded as study § 11: the self-play harness decomposition (driving vs
+  reading, frozen metric set, analyst ≠ designer, `invalid` ≠ `green`), the form protocol (3 pulse items
+  identical at E1/E2 so convergence is measurable, 2 open fields, pre-registration of what a bad answer
+  changes, no statistics at n<10), the two interfaces as P0 items 8–10, drills D10–D12, failure modes PT1–PT7,
+  and the consequence that **E1 forces a runnable build at ~h10** — which is the project's own greatest gap
+  (no build has ever been produced). Study only.
 - 2026-10-24 12:0x (same session) — Chloe, answering the study's open question 1: **a creative-designer bot** that
   roleplays a vision, fed by a forced-random roll over design categories (controls, perspective, genre, art style,
   platform, themes), scoring combinations on feasibility and eccentricity, plus a reference-game study. Recorded
