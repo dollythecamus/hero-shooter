@@ -36,7 +36,9 @@ Input System is installed but **no Input Actions asset is used** — `InputReade
   five states, and a swappable `IEnemyAttack` strategy (`RangedAttack` / `MeleeAttack`) plus an `EnemyStats` SO.
   "One brain, two bodies". → `enemy-fsm.md`
 - **Characters & abilities** — `CharacterDefinition` is the whole hero (stats, body, one weapon, two ability
-  SOs); `AbilityFactory` maps `AbilityKind` → a plain C# `IAbility`; cooldowns live in `PlayerAbilities`.
+  SOs); `AbilityShapes` maps `AbilityKind` → instant / channelled / passive; instant kinds are plain C#
+  `IAbility` classes from `AbilityFactory`, the three stateful ones are components (`SlamDriver`,
+  `BulwarkShield`, `WallClimbPassive`); `PlayerAbilities` routes Q/E and owns the instant cooldowns.
   → `characters-and-abilities.md`
 - **Match flow & UI** — `MatchBootstrap` holds the roster, freezes the hero, hands the pick to `HeroLoadout`.
   `CharacterSelectUI` / `CharacterCardUI` drive an **authored** prefab. → `characters-and-abilities.md`
@@ -77,8 +79,8 @@ and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is 
 |---|---|
 | `Assets/_Project/Scripts/Core/` | `Health`, `DamageInfo`/`IDamageable`, `IPooled`, `ObjectPool<T>` |
 | `Assets/_Project/Scripts/Data/` | `CharacterDefinition`, `WeaponDefinition`, `AbilityDefinition` (+ `AbilityKind`) |
-| `Assets/_Project/Scripts/Player/` | `InputReader`, `PlayerMotor`, `ThirdPersonCameraRig`, `PlayerCombat`, `PlayerStatus`, `PlayerAbilities`, `HeroLoadout`, `PlayerAppearance` |
-| `Assets/_Project/Scripts/Player/Abilities/` | `IAbility`/`AbilityContext`, `AbilityBase`, `AbilityFactory`, `AimRaycast`, 6 ability classes |
+| `Assets/_Project/Scripts/Player/` | `InputReader`, `PlayerMotor`, `ThirdPersonCameraRig`, `PlayerCombat`, `PlayerStatus`, `PlayerAbilities`, `AbilityShapes`, `SlamDriver`, `BulwarkShield`, `WallClimbPassive`, `HeroLoadout`, `PlayerAppearance` |
+| `Assets/_Project/Scripts/Player/Abilities/` | `IAbility`/`AbilityContext`, `AbilityBase`, `AbilityFactory`, `AimRaycast`, 3 instant ability classes (`MarkTarget`, `Snare`, `Overclock`) |
 | `Assets/_Project/Scripts/Weapons/` | `Weapon`, `Projectile`, `ProjectilePool` |
 | `Assets/_Project/Scripts/Enemies/` | `EnemyBrain`, `EnemyStats`, `Spyglass`, `AllyCall`, `IEnemyAttack`, `RangedAttack`, `MeleeAttack` |
 | `Assets/_Project/Scripts/Enemies/FSM/` | `EnemyState`, `IState`, `StateMachine` |

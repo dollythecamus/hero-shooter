@@ -3,9 +3,10 @@
 ## Purpose
 
 Turns "pick 1 of 3 characters, each with 2 abilities" into data: a `CharacterDefinition` holds the whole hero
-(stats, body, one weapon and two `AbilityDefinition` assets); `AbilityFactory` maps `AbilityDefinition.kind` to a
-plain C# `IAbility` class that runs on press; `PlayerAbilities` owns the two slots, the cooldown clocks and the
-ratios the HUD will read. Selecting a hero is one call to `HeroLoadout.Apply` — there is no per-character script.
+(stats, body, one weapon and two `AbilityDefinition` assets); `AbilityDefinition.kind` decides the slot's shape
+(instant / channelled / passive); instant kinds are plain C# `IAbility` classes built by `AbilityFactory`, the
+three stateful ones are components on the hero; `PlayerAbilities` is the only router and the only place that
+reads Q/E. Selecting a hero is one call to `HeroLoadout.Apply` — there is no per-character script.
 
 ## Interface
 
@@ -37,7 +38,8 @@ class AbilityContext {                            // everything an ability may t
     LayerMask EnemyMask, WorldMask;
 }
 
-interface IAbility { float Cooldown { get; } void Activate(AbilityContext context); }
+interface IAbility { float Cooldown { get; } bool Activate(AbilityContext context); }   // false = nothing happened,
+                                                                                        // so the cooldown is not spent
 
 abstract class AbilityBase : IAbility {           // plain C#, not a MonoBehaviour
     protected readonly AbilityDefinition Definition;
@@ -45,15 +47,42 @@ abstract class AbilityBase : IAbility {           // plain C#, not a MonoBehavio
     protected float Magnitude, Duration, Radius, Range;   // properties over Definition, 0 when it is null
 }
 
-static class AbilityFactory { IAbility Create(AbilityDefinition definition); }   // null in → null out
+enum AbilityShape { None, Instant, Channel, Passive }
+static class AbilityShapes { AbilityShape Of(AbilityKind kind); }   // GroundSlam → Instant (component),
+                                                                    // Bulwark → Channel, WallClimb → Passive,
+                                                                    // Mark/Snare/Overclock → Instant (class)
 
-class PlayerAbilities : MonoBehaviour {
-    const int SlotCount = 2;
+static class AbilityFactory { IAbility Create(AbilityDefinition definition); }   // instant kinds only;
+                                                                                // null in → null out
+
+class PlayerAbilities : MonoBehaviour {           // [DefaultExecutionOrder(-100)]: raises a shield before
+    const int SlotCount = 2;                      // PlayerCombat reads the fire button on the same frame
     AbilityDefinition[] Definitions { get; }
-    bool IsReady(int slot);
+    AbilityShape ShapeOf(int slot);
+    bool IsReady(int slot);                       // instant: own clock · channel: shield.CanRaise · passive: true
     float CooldownRatio(int slot);                // HUD fill amount: 0 right after use, rising to 1 when ready
-    void Configure(CharacterDefinition character);// builds both slots + context; also resets both cooldowns
-    bool TryActivate(int slot);                   // false when not ready / no definition / no context
+    float MeterNormalized(int slot);              // channel slot → Bulwark reservoir 0..1; otherwise 1
+    void Configure(CharacterDefinition character);// builds both slots + context, configures the components,
+                                                  // enables WallClimbPassive only for a hero that has it
+    bool TryActivate(int slot);                   // press path; channel slots delegate to BulwarkShield.TryRaise
+}
+
+class BulwarkShield : MonoBehaviour {             // Rock E, channelled
+    bool IsRaised { get; } bool CanRaise { get; }
+    float Meter { get; } float Normalized { get; } float CooldownRatio { get; }
+    void Configure(AbilityDefinition definition); // duration → reservoir (5 s), magnitude → damage ×
+    bool TryRaise(); void Release();
+}
+
+class SlamDriver : MonoBehaviour {                // Rock Q, three phases
+    bool IsActive { get; } float Radius { get; }
+    void Configure(AbilityDefinition definition); // radius + damage from the asset
+    bool TryStart();                              // false unless grounded and idle
+}
+
+class WallClimbPassive : MonoBehaviour {          // Scissors Q, passive trait
+    bool IsClimbing { get; } float Climbed { get; }
+    void Configure(AbilityDefinition definition); // magnitude → cap in metres (6)
 }
 
 class HeroLoadout : MonoBehaviour {
@@ -110,9 +139,21 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
   ready** — a uGUI `Image.fillAmount` / radial-fill value, so the HUD draws it as-is. (`IsReady` is the same
   clock as a bool.) Measured in play mode 2026-10-23 on Scissors' 3 s Climb: `0.000 / 0.107 / 0.312 / 0.520 /
   0.726 / 0.939 / 1.000`, with `IsReady` flipping true exactly at 1.000.
-- Abilities are plain C# objects created once per selection (`AbilityFactory.Create`). They cannot use
-  `StartCoroutine` themselves — `MarkTarget`, `Snare` (and the planned Slam driver) run coroutines on
-  `context.Host`, i.e. `PlayerAbilities`.
+- Abilities are plain C# objects created once per selection (`AbilityFactory.Create`) — but only the instant
+  ones. They cannot use `StartCoroutine` themselves, so `MarkTarget` and `Snare` run their restore coroutine on
+  `context.Host`, i.e. `PlayerAbilities`. Slam, Bulwark and Climb are MonoBehaviour components instead, because
+  they own per-frame state and, for Slam and Climb, the controller itself.
+- Input routing is one method per slot (`HandleSlot`): a press activates an instant slot or begins a channel, and
+  a release ends a channel. A passive slot is never read — `WallClimbPassive` asks `InputReader.JumpHeld`
+  directly, and `PlayerAbilities.Configure` enables that component only when the selected hero has a
+  `WallClimb` definition. RMB is not an ability button any more (`InputReader.AimHeld`), precisely so holding aim
+  cannot begin a channel.
+- An instant ability that finds nothing to do returns `false` and the cooldown is **not** spent (Mark or Snare
+  with nothing under the crosshair, Slam while airborne). A channel is not on the shared cooldown at all:
+  `BulwarkShield` owns the two cooldowns its own way (0.5 s after an early release, 8 s after depletion).
+- `PlayerAbilities` runs at `[DefaultExecutionOrder(-100)]` so a shield raised on the same frame as the fire
+  button blocks that shot; `WallClimbPassive` runs at `-50` so the jump key that starts a climb never fires the
+  motor's jump.
 - `HeroLoadout.Apply` order matters: health → motor → weapon → abilities → appearance. `PlayerAbilities.Configure`
   rebuilds the `AbilityContext`, which resolves `Camera.main` at that moment; if the camera is missing the
   context falls back to the player's own transform and every aim-based ability casts from the hero, not the
@@ -127,22 +168,20 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
   if it is on the Enemy layer, so a wall closer than the enemy means "no target". Both Mark and Snare share it,
   which is why they cannot disagree about what the crosshair is over.
 
-## Ability implementations as built (2026-10-23, after S3)
+## Ability implementations as built (2026-10-23, after the S3b rework)
 
-| Ability | Class | Asset values | What the code actually does |
-|---|---|---|---|
-| Rock Q — Slam | `GroundSlam` | cd 8, mag 40, radius 5 | `OverlapSphere` at the hero's feet: damage + `Push(away, 6)`. **No jump, no descent phase, no landing.** |
-| Rock E — Bulwark | `Bulwark` | cd 14, dur 4, mag 0.4 | one-shot buff: damage ×0.4 and speed ×0.75 for 4 s. **Shooting stays enabled; no meter.** |
-| Paper Q — Mark | `MarkTarget` | cd 10, dur 6, mag 1.35, range 70 | sets `Health.IncomingDamageMultiplier = 1.35`, restores the previous value after 6 s via coroutine |
-| Paper E — Snare | `Snare` | cd 12, dur 3, mag 0.25, range 14 | sets `EnemyBrain.SpeedMultiplier = 0.25`, restores after 3 s via coroutine |
-| Scissors Q — Climb | `WallClimb` | cd 3, dur 0.9, mag 6 (**m/s**) | adds the `Climb` status effect; `PlayerStatus` lifts the controller at `magnitude` m/s for `duration`. **No wall contact test, no cap, no mantle**, and the lift fights `PlayerMotor`'s gravity — see `player-movement-and-camera.md`. |
-| Scissors E — Overclock | `Overclock` | cd 12, dur 3, mag 1.8 | fire rate ×1.8 and speed ×1.25 for 3 s (no VFX yet) |
+| Ability | Shape | Owner | Asset values | Verified in play mode |
+|---|---|---|---|---|
+| Rock Q — Slam | instant, component | `SlamDriver` | cd 8, mag 40, radius 5 | apex **3.96 m** above take-off, flight 0.92 s (rise 0.57 s + fall **0.35 s** at 2.5× gravity); enemy 90 → **50 hp** and displaced **2.12 m**; refused while airborne (`slamActive=False`, Q still ready) |
+| Rock E — Bulwark | channelled | `BulwarkShield` | cd 0 (component owns), dur 5, mag 0.4 | raises on press (`meter 4.94`), drains **1/s** (3.99 after 1 s), damage 10 → **4**; firing blocked (shots 0 → 0 while held, 0 → 1 after lowering); early release at 2 s left `meter 3.00`, `canRaise=False` for the 0.5 s, refilled to 4.50 by 4.5 s; depletion at 5.34 s → `canRaise=False` at +1/+4/+6.5 s, **true at +8.6 s** |
+| Paper Q — Mark | instant, class | `MarkTarget` | cd 10, dur 6, mag 1.35, range 70 | `IncomingDamageMultiplier 1.35`, 10 damage landed as 13.5, back to 1.00 after the 6 s window |
+| Paper E — Snare | instant, class | `Snare` | cd 12, dur 3, mag 0.25, range 14 | `SpeedMultiplier 0.25`, back to 1.00 after 3 s |
+| Scissors Q — Climb | **passive**, component | `WallClimbPassive` | no cooldown, mag 6 = cap | climbing **3.0 m/s** (0.08 → 2.19 m in 0.7 s), cap reached at **6.04 m**, mantle onto a 2 m block ended at y **2.05** grounded, exit jump **+1.94 m** above the cap and **4.90 m** out along the wall normal |
+| Scissors E — Overclock | instant, class | `Overclock` | cd 12, dur 3, mag 1.8 | fire rate **1.80**, speed **1.25**, still active at 2.8 s, both back to 1.00 after the 3 s window |
 
-The `Climb` magnitude reaches `PlayerStatus` now: measured in play mode on 2026-10-23 with `PlayerMotor`
-suspended (one mover), a 0.9 s climb rises **5.260 m at `magnitude = 6`** and **2.376 m at `magnitude = 3`**
-(two runs, same asset otherwise), i.e. the asset owns the height. With the motor's gravity also running the
-apex is not reproducible in the 0.05–1.4 m band from run to run — that conflict, not the plumbing, is what
-the rework's one-mover rule removes.
+Two things the rework removed, which the S3 table used to describe as defects: `PlayerStatus` no longer touches
+the controller (no second `CharacterController.Move`, so gravity cannot cancel a climb), and the old climb's
+`magnitude`-as-speed experiment is gone with `WallClimb.cs`.
 
 Heroes as built: Rock 200 hp / 4.2 m/s / sprint ×1.35 / body ×1.25 orange; Paper 90 / 5.2 / ×1.6 / ×0.9 pale
 blue; Scissors 130 / 6.8 / ×1.7 / ×0.95 green. These match `docs/HERO_ROSTER.md` except that the roster's
@@ -150,24 +189,24 @@ per-hero aim multipliers do not exist.
 
 ## Drift against `docs/HERO_ROSTER.md` (roster wins; the code is wrong)
 
-Fixing these is the ability rework in `docs/tasks/2026-10-23_S3b-ability-rework.md`, not a bug hunt:
+Still open after the rework — the first two belong to the HUD/aim block, the rest to VFX:
 
-- Slam must become jump → forced 2.5× descent → landing AoE, grounded start only, no steering.
-- Bulwark must become a channelled 5 s meter (×0.4 damage, no shooting, ×0.75 speed, 0.5 s / 8 s cooldowns,
-  refill 1/s starting 1 s after release) instead of a 4 s buff on a 14 s cooldown.
-- Climb must become a passive wall traversal (6 m cap, 3 m/s, exit jump = wall normal + 2 m up, mantle over a
-  lower wall top, reset on floor) instead of a cooldown button.
 - RMB aiming (FOV 60→42, blend 8/s, +0.55 right / −0.20 down, ×0.9 move, Paper ×0.6, spread −50 %) is not built.
-- Mark/Snare/Overclock have no visible feedback yet (`docs/features/hud-aiming-and-feedback.md`).
-- **`InputReader.Ability1Pressed` includes `rightButton`**, which collides head-on with RMB aiming. The rework
-  must drop RMB from the ability binding before the aim state lands.
+  `InputReader.AimHeld` exists now and RMB is no longer bound to an ability; the camera and the weapon still
+  ignore it.
+- Mark/Snare/Overclock have no visible feedback yet — no marker above the enemy, no HUD chips, no green
+  bullets/trails (`docs/features/hud-aiming-and-feedback.md`).
+- Slam has no outward particles and Climb has no dust: both are VFX-block work.
+- The HUD has no meter to draw yet: `PlayerAbilities.MeterNormalized(slot)` is the value it will bind to.
 
 ## Known limitations / deliberately not handled
 
-- No passive/instant distinction in code: `AbilityKind` decides behaviour but every slot is a cooldown button,
-  so the roster's "passive" Climb has no representation yet (the ledger decision records instant / channelled /
-  passive as the intended three shapes).
-- No ability charges, no ultimate meter, no cancellation, no aiming prediction for moving targets.
+- No ability charges, no ultimate meter, no cancellation, no aiming prediction for moving targets. A channelled
+  Bulwark can be kept up until it empties; there is no manual "cancel" beyond releasing the key.
+- The passive slot has no UI story yet: `PlayerAbilities.ShapeOf(slot)` reports `Passive`, but nothing renders
+  it — the select card still prints the definition's `cooldown` (now 0) next to the name.
+- A climb's budget resets on floor contact, so mantling onto a wall top counts as landing and refunds it; there
+  is no notion of "the same wall" and no cooldown of any kind, per the roster.
 - Mark and Snare restore a single "previous" value, so stacking two casts of the same ability on one enemy
   corrupts the restore (see `damage-and-pooling.md`).
 - Abilities have no cost, no VFX and no range indicator. `AbilityDefinition.description` is read by **nobody**

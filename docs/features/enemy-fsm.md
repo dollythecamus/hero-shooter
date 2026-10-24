@@ -47,8 +47,9 @@ class EnemyBrain : MonoBehaviour {
     float DistanceToTarget { get; }
     float TimeInState { get; }
 
-    void MoveTo(Vector3 worldPosition, float speed);   // applies SpeedMultiplier
-    void Push(Vector3 direction, float force);         // knockback, decays in Update
+    void MoveTo(Vector3 worldPosition, float speed);   // applies SpeedMultiplier; no-op while knocked back
+    void Push(Vector3 direction, float force);         // impulse; clears the path, stops the agent, owns the body
+    bool IsKnockedBack { get; }                        // true for stats-free 0.3 s after a push
     void HoldPosition();                               // agent.isStopped = true
     void FaceTarget(Transform target);
     void RequestAllyCall();                            // self-throttled by stats.allyCallCooldown
@@ -139,9 +140,11 @@ static class AllyCall {
 - `RangedAttack`: `range` 14, `projectileSpeed` 45, aims at `target.position + up * 1`, fires with
   `targetMask` (prefab value 64 → Player only, so enemy fire cannot hit other enemies). It refuses to fire when
   `ProjectilePool.Instance` is null — a missing pool silently disables enemy shooting.
-- Knockback (`Push`) stores one vector (`_knockback = direction.normalized * force`) — a second push in the
-  same frame **replaces** the first instead of adding to it — and decays it with `Lerp` toward zero at 8/s while
-  applying it through `agent.Move` every frame.
+- Knockback (`Push`) **owns the body for `knockbackDuration` (0.3 s)**: it stores one vector, calls
+  `agent.ResetPath()` and `agent.isStopped = true`, applies the displacement with `agent.Move` every frame, and
+  `MoveTo` returns early for the whole window — so a state cannot re-path and cancel the impulse. A second push
+  in that window replaces the first rather than adding to it. Measured 2026-10-23: a Slam landing moved the
+  enemy **2.12 m** (`IsKnockedBack` was true at the moment of impact); the S2 build moved it nowhere.
 - Transitions are logged (`[EnemyBrain] name: From → To (dist X)`) while `logTransitions` is true. That log is
   the S2 gate evidence and the cheapest way to confirm the FSM in a demo.
 
@@ -151,8 +154,6 @@ static class AllyCall {
   `range` field (`MeleeAttack` 2.2, `RangedAttack` 14), so the SO's `attackRange` is read by nobody (verified
   by grep: only the declaration matches). Changing it in the inspector does nothing. Either the strategies must
   read the SO or the field must be deleted — do not "fix" one side only.
-- **Knockback does not move enemies in practice** (play-test 2026-10-23): the agent's next `SetDestination`
-  cancels the `agent.Move` offset. The rework replaces the push with an agent-disabling impulse.
 - **"Calls friends" is wired but blind outside its radius test.** A called ally converges on the caller's
   target, but the recall is only heard by enemies within `allyCallRadius` of the *caller*, and a called ally
   that is already in `Flee`/`Attack` ignores the call entirely. Nothing makes the caller pick a target worth

@@ -24,19 +24,20 @@ cooldowns and the Bulwark meter, the weapon charge, enemy health, the aiming sta
 |---|---|---|
 | health value + hit/death events | `Health.Current`, `.Normalized`, `.Damaged`, `.Died` | ready |
 | ability identity per slot | `PlayerAbilities.Definitions[slot]` (`displayName`, `slotLabel`, `cooldown`) | ready |
+| slot shape — instant / channelled / passive | `PlayerAbilities.ShapeOf(slot)` (`AbilityShape`) | ready — the passive slot has to render as "passive", not as a cooldown |
+| Bulwark reservoir | `PlayerAbilities.MeterNormalized(slot)` / `BulwarkShield.Meter`, `.Normalized`, `.IsRaised` | ready |
 | cooldown ratio — **0 = just used, 1 = ready** | `PlayerAbilities.CooldownRatio(slot)`, `.IsReady(slot)` | ready — bind straight to a fill amount |
 | charge progress | `Weapon.ChargeRatio`, `.IsCharging` | ready |
-| speed / fire-rate state | `PlayerStatus.SpeedMultiplier`, `.FireRateMultiplier`, `.IsClimbing` | ready |
+| speed / fire-rate state | `PlayerStatus.SpeedMultiplier`, `.FireRateMultiplier`, `.IncomingDamageMultiplier` | ready |
 | enemy "marked" | `Health.IncomingDamageMultiplier > 1` | partial — value only, no remaining time |
 | enemy "snared" | `EnemyBrain.SpeedMultiplier < 1` | partial — value only, no remaining time |
 | camera to hang a reticle/FOV on | `ThirdPersonCameraRig.Cam` | partial — no aim state exists |
 
 ## What must be added (do not assume it exists)
 
-- **An aim state**: `ThirdPersonCameraRig` has no FOV, shoulder-offset or aim mode, and `InputReader` has no
-  aim input — RMB is currently consumed by `Ability1Pressed`. Aiming therefore requires, in this order:
-  remove `rightButton` from `Ability1Pressed`, add `AimHeld` to `InputReader`, add FOV/offset/blend + aim flag
-  to the rig.
+- **An aim state**: `ThirdPersonCameraRig` has no FOV, shoulder-offset or aim mode, and nothing reads
+  `InputReader.AimHeld` yet. The ability collision is already gone: RMB no longer fires slot Q, so aiming only
+  needs the FOV/offset/blend + an aim flag on the rig (and `Weapon` reading `AimHeld` for the spread change).
 - **A hit signal**: nothing tells the HUD that *the player* landed a shot. `Projectile.Impact` delivers
   `DamageInfo` to the target and returns; `DamageInfo.Source` is the firing `GameObject`, so a hit marker can
   be derived by comparing `Source` to the hero, but an explicit event on `Weapon` is the cheaper contract.

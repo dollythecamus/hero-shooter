@@ -38,15 +38,16 @@ class ThirdPersonCameraRig : MonoBehaviour {
     Camera Cam { get; }        // resolved in Awake with GetComponent<Camera>()
 }
 
-public enum StatusEffect { Speed, FireRate, DamageTaken, Climb }   // top-level, namespace HeroShooter.Player
+public enum StatusEffect { Speed, FireRate, DamageTaken }   // top-level, namespace HeroShooter.Player
 
-[RequireComponent(typeof(CharacterController))]
-class PlayerStatus : MonoBehaviour {
+class PlayerStatus : MonoBehaviour {          // multiplies; never moves the controller
     void AddEffect(StatusEffect kind, float duration, float magnitude);
+    void BeginChannel(StatusEffect kind, float magnitude);   // lasts until EndChannel, for Bulwark
+    void EndChannel(StatusEffect kind);
     void ApplyFiringSlow(float multiplier, float duration);
-    bool IsClimbing { get; }
-    float SpeedMultiplier { get; }       // rebuild0..n each Update from live effects
+    float SpeedMultiplier { get; }       // rebuilt 0..n each Update from effects + channels
     float FireRateMultiplier { get; }
+    float IncomingDamageMultiplier { get; }   // what it pushes into Health
 }
 ```
 
@@ -89,23 +90,22 @@ class PlayerStatus : MonoBehaviour {
   `Update` by multiplying all live effects, then multiplies in the firing slow. Two slows stack
   multiplicatively (0.75 × 0.45 = 0.34) — this is intended, and the reason no ability may write the motor.
 - Effects are stored with an absolute end time and removed lazily on the next `Update`; an effect with
-  `duration <= 0` still lives until the next frame.
-- `Climb` is the **one effect whose magnitude is a speed (m/s), not a multiplier**: the case reads
-  `climb = magnitude`, falling back to the serialized `climbSpeed` (7) only when the ability passes a
-  non-positive value. Every other kind multiplies.
+  `duration <= 0` still lives until the next frame. **Channels** (`BeginChannel` / `EndChannel`) are the other
+  half: they have no clock and last until the ability ends them — that is how Bulwark's ×0.4 / ×0.75 hold while
+  the key is down.
+- **One mover.** `PlayerMotor.MovementSuspended` makes the motor's `Update` return before it touches the
+  controller, so exactly one component moves the hero: the motor normally, `SlamDriver` during Rise/Fall,
+  `WallClimbPassive` while climbing. `PlayerStatus` no longer moves anything (the old `Climb` effect did).
+- `Launch(velocity)` hands the motor a velocity and clears the suspension, and the impulse keeps its horizontal
+  momentum until the hero lands or the player steers: without that rule ground acceleration killed the impulse in
+  one frame and the wall climb's exit jump travelled **0.11 m** instead of 4.90 m.
 
 ## Known limitations / deliberately not handled
 
-- **Two movers (violates the one-mover rule).** `PlayerStatus.Update` calls `_controller.Move` directly for
-  the `Climb` effect, while `PlayerMotor.Update` also calls it in the same frame. The result is a climb that
-  fights gravity and rotation. The ability rework (`docs/tasks/2026-10-23_S3b-ability-rework.md`) replaces
-  this: `SlamDriver` / `WallClimbPassive` drive the controller and suspend `PlayerMotor`.
-- **Climb is not wall traversal.** Today it is a 0.9 s vertical boost launched from anywhere at the
-  definition's `magnitude` (6 m/s), with a 3 s cooldown. The roster specifies a passive wall climb: 6 m cap,
-  3 m/s, exit jump on cap, mantle over a lower wall top, reset only on floor contact.
-- **RMB is overloaded.** `Ability1Pressed` returns true for Q **and** right mouse button, while the roster
-  makes RMB the aim button for all three heroes. The rework must remove `rightButton` from `Ability1Pressed`
-  before aiming lands, or RMB will fire an ability and aim at once.
-- No aim state, no FOV change, no shoulder offset, no crouch, no ground/air control distinction, no wall-run.
-- `PlayerMotor` exposes no way to suspend itself, which is why the rework's movers need one.
+- **Wall traversal is a component, not a motor mode.** `WallClimbPassive` (Scissors only) suspends the motor,
+  probes the Structure layer, and owns the controller while climbing — see `characters-and-abilities.md`. The
+  motor knows nothing about walls.
+- **RMB does nothing yet.** `InputReader.AimHeld` exists and RMB no longer fires an ability, but no camera or
+  weapon code reads it — that is the aim block.
+- No crouch, no ground/air control distinction, no wall-run, no slope-slide tuning.
 - Death is unhandled: when the player's `Health` reaches 0 the controller keeps accepting input.

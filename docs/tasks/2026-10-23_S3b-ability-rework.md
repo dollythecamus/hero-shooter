@@ -33,9 +33,28 @@ what must change from the S3 code.
 5. **Bulwark's meter is a first-class resource**, not a status effect: it persists between fights, refills,
    and gates activation. Model it in a `BulwarkMeter` component owned by the player, exposed to the HUD.
 
-## Planned implementation (design only — **nothing here is built**)
+## Implementation — built 2026-10-23, verified in play mode
 
-Written 2026-10-23 so the next execution pass is mechanical. All values come from `docs/HERO_ROSTER.md`.
+Landed as planned, with two deviations found while probing:
+
+- `PlayerMotor` needed a **momentum** rule, not just `MovementSuspended`: `Launch` keeps the impulse's horizontal
+  velocity until landing or steering. Without it the exit jump travelled 0.11 m instead of 4.90 m, because the
+  motor's ground acceleration killed the impulse in one frame.
+- Two **execution-order** attributes were required: `PlayerAbilities` at `-100` (a shield raised on the same
+  frame as the fire button must block that shot — measured 0 shots while shielded) and `WallClimbPassive` at
+  `-50` (the jump key that starts a climb must not fire the motor's jump first, or the hero leaves the ground and
+  the climb refuses to start).
+
+Files: **new** `Player/AbilityShapes.cs`, `BulwarkShield.cs`, `SlamDriver.cs`, `WallClimbPassive.cs`; **deleted**
+`Abilities/Bulwark.cs`, `Abilities/WallClimb.cs`, `Abilities/GroundSlam.cs`; **changed** `InputReader`,
+`PlayerAbilities`, `PlayerStatus`, `PlayerMotor`, `PlayerCombat`, `Weapon`, `IAbility`, `AbilityBase`,
+`AbilityFactory`, `MarkTarget`, `Snare`, `Overclock`, `EnemyBrain`, the `Player.prefab` (three components added)
+and two ability assets (Bulwark `cooldown 0 / duration 5`; Climb `cooldown 0 / duration 0`, magnitude stays 6 as
+the cap).
+
+### Planned implementation (the design this followed)
+
+All values come from `docs/HERO_ROSTER.md`.
 
 ### Three ability shapes
 
@@ -73,24 +92,25 @@ set `PlayerMotor.MovementSuspended = true`, drive the controller themselves, and
 That rule is also what made the earlier knockback bug possible on the enemy side: the FSM re-pathed every frame
 and cancelled the impulse.
 
-### Verification per ability (the gate)
+### Verification per ability (the gate — all six measured 2026-10-23)
 
-| Ability | What must be measured |
-|---|---|
-| Slam | apex ≈ 4 m, descent faster than a free fall, 40 damage inside 5 m, enemy body actually displaced, particles outward |
-| Bulwark | reservoir drains 1 unit/s while held, ×0.4 damage observed, firing blocked, early release leaves the remainder and refills, depletion gives 8 s |
-| Mark | target `IncomingDamageMultiplier == 1.35` for 6 s, marker + HUD chip visible, no through-wall marker |
-| Snare | target `SpeedMultiplier == 0.25` for 3 s, same feedback |
-| Climb | climbs at 3 m/s to 6 m, jumping out at the cap, mantle over a 2 m wall, reset only on floor |
-| Overclock | fire rate ×1.8, speed ×1.25, green bullets/trails for exactly 3 s |
+| Ability | What must be measured | Result |
+|---|---|---|
+| Slam | apex ≈ 4 m, descent faster than a free fall, 40 damage inside 5 m, enemy body actually displaced, particles outward | apex **3.96 m**, flight 0.92 s (rise 0.57 s, fall **0.35 s** vs 0.57 s free fall), enemy 90 → **50**, displaced **2.12 m**; particles are VFX-block work |
+| Bulwark | reservoir drains 1 unit/s while held, ×0.4 damage observed, firing blocked, early release leaves the remainder and refills, depletion gives 8 s | meter 5 → 3.99 after 1 s; 10 raw damage landed as **4**; **0 shots** while raised (1 after lowering); release at 2 s left 3.00 → 4.50 by 4.5 s; depletion at 5.34 s, `canRaise` false at +1/+4/+6.5 s, true at **+8.6 s** |
+| Mark | target `IncomingDamageMultiplier == 1.35` for 6 s, marker + HUD chip visible, no through-wall marker | 1.35, 10 → **13.5** damage, restored at 6 s; marker/HUD are HUD-block work |
+| Snare | target `SpeedMultiplier == 0.25` for 3 s, same feedback | 0.25, restored at 3 s; feedback deferred with Mark |
+| Climb | climbs at 3 m/s to 6 m, jumping out at the cap, mantle over a 2 m wall, reset only on floor | **3.0 m/s**, cap at **6.04 m**, mantle onto Cover_A ended at y **2.05** grounded, exit jump **+1.94 m** and **4.90 m** outward |
+| Overclock | fire rate ×1.8, speed ×1.25, green bullets/trails for exactly 3 s | **1.80 / 1.25**, still up at 2.8 s, both 1.00 after the window; green tint is VFX-block work |
 
-### History — a head start that was thrown away
+### History — a head start that was thrown away (then rebuilt)
 
 An implementation pass was started on 2026-10-23 around 18:10 and **reverted at Chloe's instruction before any
 compile verification**. It touched `InputReader`, `PlayerStatus`, `PlayerAbilities`, `PlayerCombat`,
 `PlayerMotor`, `Weapon`, `AbilityFactory`, `GroundSlam`, `EnemyBrain`, deleted `Bulwark.cs` and `WallClimb.cs`,
-and added `BulwarkShield.cs` + `WallClimbPassive.cs`. None of it survives; the tree is exactly the docs commit
-`dced7ba`. Do not assume any of the above table is already applied.
+and added `BulwarkShield.cs` + `WallClimbPassive.cs`. None of it survived; the tree was left exactly at the docs
+commit `dced7ba`. The rework was built fresh on 2026-10-23 ~21:0x with Chloe's go, and this time every gate row
+above was measured before anything was declared done.
 
 
 

@@ -1,6 +1,6 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-10-23 20:10 (-03) · session 20261023_1941… · owner default profile
+Updated: 2026-10-23 21:25 (-03) · session 20261023_1941… · owner default profile
 Sprint: **one long block today from 13:00**, then 10-24 → 10-29 as buffer (plan § 6–7).
 
 ## Goal
@@ -32,15 +32,19 @@ docs audit turned up are fixed and each one was measured in play mode, not infer
 `PlayerAbilities.CooldownRatio` (now 0 = just used → 1 = ready), `WallClimb` (asset `magnitude` is now the climb
 speed in m/s, `PlayerStatus` reads it), `EnemyBrain.CallTarget` + `CallAlliesState` (a called ally converges on
 the caller's target). Five files under `Assets/_Project/Scripts/`, no prefab, scene or data asset touched.
-Still open in this block: the ability rework, the HUD, and VFX (items 2–4).
+Still open in this block: the HUD and VFX (items 3–4).
+
+**Ability rework landed 2026-10-23 ~21:2x** (item 2, Chloe's go at 20:40 "mcp is on now, go for 2"): the three
+shapes are in, the six abilities were re-measured in play mode against the gate table (numbers in
+`docs/tasks/2026-10-23_S3b-ability-rework.md`), RMB is no longer an ability button, and enemy knockback now
+moves the body. That closes the S3b block; the HUD/aiming block (item 3) is next and needs its own go.
 
 ## Next action
 
-**Item 1 (the three audit fixes) is DONE and verified** — see Status and Evidence. **Item 2, the ability rework, is
-next and needs its own explicit go** (a halt/stop still stops every write; finishing one item is not permission
-for the next). Order Chloe fixed: **ability rework → HUD → VFX last.**
+**Items 1 and 2 are DONE and verified.** **Item 3 (aiming + HUD) is next and needs its own explicit go.** Order
+Chloe fixed: **ability rework → HUD → VFX last.**
 
-1. ~~**correctness fixes from the docs audit**~~ — **landed 2026-10-23 ~20:05**, gate results in Evidence:
+1. ~~**correctness fixes from the docs audit**~~ — **landed 2026-10-23 ~20:05**, gate results in Evidence.
    - `PlayerAbilities.CooldownRatio` — semantics fixed, not the comment: it now returns the HUD fill amount
      (0 right after use → 1 when ready). The HUD can bind it directly; `IsReady` is the same clock as a bool.
    - `WallClimb.Activate` — passes `Magnitude` instead of a literal, and `PlayerStatus` reads the `Climb` effect's
@@ -50,13 +54,16 @@ for the next). Order Chloe fixed: **ability rework → HUD → VFX last.**
      with no reproducible relation to the magnitude.
    - `CallAlliesState` — `EnemyBrain` now stores the caller's target in `CallTarget` on hearing a call; the state
      paths to it, falling back to its own `Spyglass.Target` only when null. Cleared by `EndCallAllies`.
-2. **ability rework** (input press/hold/release, `BulwarkShield`, `SlamDriver`, `WallClimbPassive`, knockback fix)
-   — `docs/tasks/2026-10-23_S3b-ability-rework.md`. `WallClimbPassive` replaces `WallClimb`/the `Climb` status
-   effect, so the climb plumbing above is deliberately disposable; the input/aim binding work must also drop
-   `rightButton` from `Ability1Pressed`.
-3. aiming (FOV/offset/spread/speed) + authored `HUD.prefab` (health, Q/E cooldowns, Bulwark meter, Mark/Snare
-   chips, crosshair/reticle, hit marker) + world-space enemy bars
-4. VFX last (impact sparks, Paper trails, Overclock green, ability particles)
+2. ~~**ability rework**~~ — **landed 2026-10-23 ~21:2x** (`docs/tasks/2026-10-23_S3b-ability-rework.md`): three
+   shapes (`AbilityShapes`), `SlamDriver` / `BulwarkShield` / `WallClimbPassive` as components, the three instant
+   classes kept, RMB unbound (`InputReader.AimHeld`), one-mover rule in `PlayerMotor` (`MovementSuspended` +
+   `Launch` with preserved momentum), knockback that owns the enemy body. All six gate rows measured — the table
+   with the numbers is in the task file. Not built here by design: HUD chips, markers, particles, green bullets.
+3. **aiming + HUD** (next): RMB aim state on `ThirdPersonCameraRig` (FOV 60→42, blend 8/s, +0.55 right / −0.20
+   down), `Weapon` spread ×0.5 while aiming, authored `HUD.prefab` (health, Q/E, **passive slot labelled
+   passive**, Bulwark meter from `PlayerAbilities.MeterNormalized`, Mark/Snare chips, crosshair/reticle for
+   Paper, hit marker), world-space enemy bars.
+4. VFX last (impact sparks, Paper trails, Overclock green, ability particles, Slam/Climb dust).
 
 Item 1 went first because the cooldown-ratio fix decides what the HUD is allowed to draw and the climb fix touches
 a file the ability rework rewrites.
@@ -114,6 +121,27 @@ Still open:
 
 ## Evidence
 
+- **Ability-rework gate, 2026-10-23 ~20:45–21:20** — play mode, with the *real* input path: `KeyboardState` /
+  `MouseState` injected through `InputSystem.QueueStateEvent`, so `InputReader` saw Q/E/Space/LMB exactly as it
+  would from the keyboard. Full table with every number is in `docs/tasks/2026-10-23_S3b-ability-rework.md`;
+  the load-bearing ones:
+  - Slam: `apexAboveTakeOff=3.96`, `IMPACT t=59.140 ... enemyHp=50 enemyMoved=2.12 knocked=True` (90 hp enemy,
+    40 damage, body displaced) and `airborne press Q: ... slamActive=False Q-ready=True` (no cooldown spent).
+  - Bulwark: `raised=True meter=4.94 dmgMult=0.40`, `damage-while-raised: hp 180 -> 176 (10 raw)`,
+    `same-frame E+fire held 1 s: raised=True shots 0 -> 0`, `shield down, fired 1 s: shots 0 -> 1`,
+    `depleted after 5.34 s ... canRaise=False cooldownRatio=0.00` then `+8.6 s ... canRaise=True`.
+  - Mark / Snare: `IncomingDamageMultiplier=1.35` (10 damage landed as 13.5, restored at 6 s),
+    `SpeedMultiplier=0.25` (restored at 3 s).
+  - Climb: `climbing 0.08 -> 2.19 m in 0.7 s` (3.0 m/s), `mantle result: finalY=2.05 grounded=True`,
+    `exit jump: climbed=6.04`, `apexAfterExit=8.06 riseAboveCap=1.94 outward=4.90`.
+  - Overclock: `fireRate=1.80 speed=1.25` still up at 2.8 s, `1.00 / 1.00` after the window.
+  - Two defects the probes caught and the code now carries fixes for: a same-frame E+LMB leak (fixed with
+    `[DefaultExecutionOrder(-100)]` on `PlayerAbilities` — re-measured 0 shots) and an exit jump that travelled
+    0.11 m because `PlayerMotor`'s ground acceleration ate the impulse (fixed with the `_launched` momentum rule —
+    re-measured 4.90 m).
+  - Compile after the last edit: `Assembly-CSharp.dll` 21:12:30, and the 9 `error CS` lines in `Logs/Editor.log`
+    are all `CS2001` from the moment the three deleted ability files left the generated `.csproj` before the
+    asset refresh — **0 errors after the last of them** (checked by line number, not by count).
 - **Audit-fix gate, 2026-10-23 19:5x–20:0x** — play-mode probes through the MCP bridge. Method: register an
   `UnityEditor.EditorApplication.update` callback that samples and `Debug.Log`s, let it run, then read
   `Logs/Editor.log` from disk (`grep -a '\[Probe\]'`). Sleeping in the shell does **not** advance game time here —
@@ -245,6 +273,14 @@ none
   (`CallTarget`). Verified in play mode with the quoted probe lines in Evidence, docs corrected in the same pass
   (`characters-and-abilities.md`, `enemy-fsm.md`, `hud-aiming-and-feedback.md`, `player-movement-and-camera.md`,
   `editor-mcp-tooling.md`), scene/prefab/ProjectSettings churn produced by play mode reverted.
+- 2026-10-23 20:40–21:25 (same session) — Chloe: **"mcp is on now, go for 2"** → the ability rework (S3b) built and
+  verified. Four new files (`AbilityShapes`, `BulwarkShield`, `SlamDriver`, `WallClimbPassive`), three deleted
+  (`Abilities/Bulwark`, `WallClimb`, `GroundSlam`), eleven changed scripts, `Player.prefab` gained the three
+  components, two ability assets aligned to the roster (Bulwark `duration 5` / `cooldown 0`; Climb `cooldown 0` /
+  `duration 0`, `magnitude 6` = cap). All six gate rows measured with injected real input; the two defects the
+  probes found (execution order for shield-vs-fire, launch momentum for the exit jump) are fixed and re-measured.
+  Docs updated from the diff: `characters-and-abilities.md`, `player-movement-and-camera.md`, `enemy-fsm.md`,
+  `hud-aiming-and-feedback.md`, the S3b task file, `ARCHITECTURE.md` and this ledger.
 
 
 
