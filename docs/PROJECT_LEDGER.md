@@ -1,6 +1,6 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-10-23 21:25 (-03) · session 20261023_1941… · owner default profile
+Updated: 2026-10-23 23:05 (-03) · session 20261023_1941… · owner default profile
 Sprint: **one long block today from 13:00**, then 10-24 → 10-29 as buffer (plan § 6–7).
 
 ## Goal
@@ -39,34 +39,27 @@ shapes are in, the six abilities were re-measured in play mode against the gate 
 `docs/tasks/2026-10-23_S3b-ability-rework.md`), RMB is no longer an ability button, and enemy knockback now
 moves the body. That closes the S3b block; the HUD/aiming block (item 3) is next and needs its own go.
 
+**HUD/aiming/bars landed 2026-10-23 ~22:5x** (item 3, Chloe's go at 21:30): RMB aiming on the camera rig,
+`PlayerMotor` aim speed from `CharacterDefinition`, `Weapon` spread halving, authored `HUD.prefab` +
+`EnemyHealthBar.prefab` with `HudController` / `AbilitySlotUI` / `EnemyHealthBar` / `EnemyHealthBarPool` /
+`EnemyBarBinder`, and Mark/Snare moved to deadline-based multipliers on `Health` / `EnemyBrain`. Every gate row
+was measured in play mode (numbers in the S4 task file) and the block is committed as **`5c40a99`** (code,
+prefabs, scene, `Hero_Paper` asset). VFX (item 4) is not started.
+
 ## Next action
 
-**Items 1 and 2 are DONE and verified.** **Item 3 (aiming + HUD) is next and needs its own explicit go.** Order
-Chloe fixed: **ability rework → HUD → VFX last.**
+**The HUD/aiming/bars block is committed (`5c40a99`).** What is left of S4:
 
-1. ~~**correctness fixes from the docs audit**~~ — **landed 2026-10-23 ~20:05**, gate results in Evidence.
-   - `PlayerAbilities.CooldownRatio` — semantics fixed, not the comment: it now returns the HUD fill amount
-     (0 right after use → 1 when ready). The HUD can bind it directly; `IsReady` is the same clock as a bool.
-   - `WallClimb.Activate` — passes `Magnitude` instead of a literal, and `PlayerStatus` reads the `Climb` effect's
-     magnitude as **m/s** (`climbSpeed` 7 is now only the fallback for a non-positive value). The asset's
-     `magnitude = 6` is live data. **Not fixed here:** the motor's gravity still cancels most of the lift (two
-     movers) — that is the rework's one-mover job, and the measured apex with the motor running was 0.05–1.4 m
-     with no reproducible relation to the magnitude.
-   - `CallAlliesState` — `EnemyBrain` now stores the caller's target in `CallTarget` on hearing a call; the state
-     paths to it, falling back to its own `Spyglass.Target` only when null. Cleared by `EndCallAllies`.
-2. ~~**ability rework**~~ — **landed 2026-10-23 ~21:2x** (`docs/tasks/2026-10-23_S3b-ability-rework.md`): three
-   shapes (`AbilityShapes`), `SlamDriver` / `BulwarkShield` / `WallClimbPassive` as components, the three instant
-   classes kept, RMB unbound (`InputReader.AimHeld`), one-mover rule in `PlayerMotor` (`MovementSuspended` +
-   `Launch` with preserved momentum), knockback that owns the enemy body. All six gate rows measured — the table
-   with the numbers is in the task file. Not built here by design: HUD chips, markers, particles, green bullets.
-3. **aiming + HUD** (next): RMB aim state on `ThirdPersonCameraRig` (FOV 60→42, blend 8/s, +0.55 right / −0.20
-   down), `Weapon` spread ×0.5 while aiming, authored `HUD.prefab` (health, Q/E, **passive slot labelled
-   passive**, Bulwark meter from `PlayerAbilities.MeterNormalized`, Mark/Snare chips, crosshair/reticle for
-   Paper, hit marker), world-space enemy bars.
-4. VFX last (impact sparks, Paper trails, Overclock green, ability particles, Slam/Climb dust).
-
-Item 1 went first because the cooldown-ratio fix decides what the HUD is allowed to draw and the climb fix touches
-a file the ability rework rewrites.
+1. ~~correctness fixes from the docs audit~~ — landed 2026-10-23 ~20:05 (Evidence).
+2. ~~ability rework (S3b)~~ — landed 2026-10-23 ~21:2x.
+3. ~~aiming + HUD + enemy bars~~ — landed and committed `5c40a99`; docs-from-diff done in the same pass
+   (`player-movement-and-camera`, `weapons-and-projectiles`, `characters-and-abilities`,
+   `damage-and-pooling`, `LAYERS`, `ARCHITECTURE`, the S4 task file, this ledger).
+4. **VFX (the rest of S4), in progress 2026-10-23 23:xx** — impact sparks on every hit, Paper's muzzle-to-impact
+   tracer with a ~0.15 s fade, green Overclock bullets/trails, Slam impact burst, Climb dust, Bulwark shield
+   tint; all pooled (`Prefabs/VFX/` is empty and no VFX pool exists). Then the Scissors fire-rate-window
+   readout if room remains, and `DamageLog` deleted once VFX replaces it (needs sign-off — referenced from the
+   enemy prefabs).
 
 Deferred out of this block and recorded there: minimap + Tab frag board (both need systems that do not exist
 yet — `ScoreService`, a minimap mask/layer split), and the guns/projectiles rework (Chloe has not answered).
@@ -121,6 +114,32 @@ Still open:
 
 ## Evidence
 
+- **HUD / aiming / enemy-bar gate, 2026-10-23 22:2x–22:5x** — play mode through the MCP bridge, same injected-input
+  method as the ability gate; every number is a probe line and the full table is in
+  `docs/tasks/2026-10-23_S4-hud-and-feel.md` § *Landed*. Load-bearing ones:
+  - Aiming: `fov=60.0 → fov@0.2s=45.7 → fov@0.6s=42.2 → fov@1.2s=42.0`, release `59.9`; Paper while aiming
+    `hip=False aim=False sniper=True`, after release `hip=True aim=False sniper=False`.
+  - HUD: Rock `health='200 / 200' Q='Rock Slam' E='Rock Bulwark' meterRootE=True meterFillE=1.00`, shield raised
+    → `meterE=0.74`; Paper `Q='Paper Mark' E='Paper Snare' chargeRoot=True passiveQ=False`; Scissors
+    `key='passive' passiveQ=True cdRootQ=False`.
+  - Bars: full health `vis=False`; hurt `vis=True fill=0.60 rgb=(0.85,0.20,0.20)`; marked
+    `rgb=(1.00,0.72,0.20) st='MARK 5.5' → 'MARK 4.6'`; snared `rgb=(0.55,0.66,0.78) st='SNARE 2.4'`; a wall
+    between camera and bar → `vis=False`, wall removed → `vis=True`.
+  - Mark / Snare through the real abilities: `markOk=True dmgMult=1.35 left=6.0`, `SNARE ok=True speedMult=0.25`,
+    chip `'SNARE 2.5s' → 'SNARE 1.5s'`.
+  - Hit marker: `hitMarkerAlpha=1.00` on a hit whose `DamageInfo.Source` is the hero (window patched to 1.5 s in
+    the probe only; authored 0.12 s).
+  - Static gates: `grep -rn "Instantiate("` → one hit (`Core/ObjectPool.cs:43`); `attackRange` → declaration
+    only; `Assembly-CSharp.dll` 21:34 and no `error CS` after line 18251 (the 9 `CS2001` are the older
+    deleted-file lines).
+  - **`git diff --check` is not clean any more** (superseded 2026-10-23): it reports 9 trailing-space lines, all
+    Unity serializer output in the saved arena (`m_Name: ` / `value: ` for empty strings). Engine artifact, the
+    same class as the prefab note below; not hand-editable while the editor holds the project.
+  - Two defects the pass introduced and then fixed: a stale `m_IsActive: 0` override on the `CharacterSelect`
+    prefab instance (inherited from the previous session's in-memory play state) was written into the scene by
+    the wiring save, so the select screen would not have appeared — restored to `m_IsActive: 1`; and
+    `ProjectSettings/TimeManager.asset` was re-serialized by a probe's `Time.maximumDeltaTime` write — reverted
+    with `git checkout --`.
 - **Ability-rework gate, 2026-10-23 ~20:45–21:20** — play mode, with the *real* input path: `KeyboardState` /
   `MouseState` injected through `InputSystem.QueueStateEvent`, so `InputReader` saw Q/E/Space/LMB exactly as it
   would from the keyboard. Full table with every number is in `docs/tasks/2026-10-23_S3b-ability-rework.md`;
@@ -200,13 +219,42 @@ Still open:
 
 ## Uncommitted at last checkpoint
 
-none — `git status --short` empty after the S3b rework, which landed as `1960b0a` (scripts, `Player.prefab`,
-two ability assets, three deleted classes) plus `aad17ae` (feature docs, the S3b task file, `ARCHITECTURE.md`
-and this ledger). No scene or `ProjectSettings/**` change: play mode did not write the arena this time, and the
-`git diff --check` warning left on the prefab is Unity's own serializer (`m_Name: ` with a trailing space in the
-three new MonoBehaviour blocks) — not code, and not hand-editable while the editor holds the file.
+**Everything from the HUD/aiming block, 2026-10-23 22:5x — 16 modified, 14 untracked** (`git status --porcelain
+-uall`; the untracked count includes this ledger's own dirs, so re-check after committing):
+
+- Code (11): `Core/Health.cs`, `Data/CharacterDefinition.cs`, `Enemies/EnemyBrain.cs`,
+  `Player/Abilities/MarkTarget.cs`, `Player/Abilities/Snare.cs`, `Player/HeroLoadout.cs`, `Player/PlayerMotor.cs`,
+  `Player/ThirdPersonCameraRig.cs`, `Weapons/Weapon.cs` — plus new `UI/{HudController,AbilitySlotUI,
+  EnemyHealthBar,EnemyHealthBarPool,EnemyBarBinder}.cs` with their `.meta` files.
+- Assets: `Data/Characters/Hero_Paper.asset` (`aimMoveMultiplier: 0.6`, `sniperReticle: 1`),
+  `Scenes/90_TestArena.unity` (HUD instance + `EnemyBars` object + wiring + the rig's aim fields),
+  new `Prefabs/UI/HUD.prefab` and `Prefabs/UI/EnemyHealthBar.prefab`.
+- Chloe's own edit, carried along as instructed: `Prefabs/Projectiles/Projectile.prefab` (`radius 0.12 → 0.14`,
+  `hitMask 4294967231 → 191`, mesh scale `0.12 → 0.08`).
+- Docs: this ledger, `docs/tasks/2026-10-23_S4-hud-and-feel.md`, `docs/features/hud-aiming-and-feedback.md`.
+
+`ProjectSettings/TimeManager.asset` was written by a probe and has been reverted; `git status` shows no
+`ProjectSettings/**`, `Library/`, `Temp/` or `Logs/` churn.
 
 ## Handoff
+
+**Where the project stands (2026-10-23 23:0x).** Items 1–3 of the sprint block are landed and measured in play
+mode: the audit fixes, the S3b ability rework, and now aiming + HUD + enemy bars. **Nothing from this last block
+is committed** — the commit is the first next action. The arena scene on disk is the good state: HUD prefab
+instance with `hero` / `cameraRig` / `enemyBars` wired, `EnemyBars` object with the pool + binder + 4 serialized
+enemies, the camera rig carrying `aimFov 42 / aimBlendPerSecond 8 / aimOffset (0.55, −0.20)`, and the
+`CharacterSelect` instance back to `m_IsActive: 1` (a stale override from the previous session's play state had
+been captured by the wiring save and would have hidden the select screen).
+
+**Not verified.** No visual check of the HUD layout or the world-space bars — the agent cannot see the Game view,
+so "the numbers reach the widgets" is measured but "it looks right at 1080p" is not; that needs one human play
+session. The hit marker's authored 0.12 s window was measured with the window temporarily widened in the probe.
+Windows/Linux builds are still unbuilt and unrun. VFX does not exist yet.
+
+**Next.** Commit. Then the four feature docs listed in *Next action* item 4 (plus `docs/LAYERS.md`'s stale
+`hitMask` line), then VFX as item 5.
+
+## Handoff (earlier, S1)
 
 S1 landed and was verified in a live play session, not by inspection. The editor bridge (MCP for Unity
 v10 over HTTP) did all wiring; `Assets/Scenes/Level.unity` — Chloe's ProBuilder scene — was restored as
@@ -223,6 +271,16 @@ none
 
 ## Requirements log
 
+- 2026-10-23 22:5x (same session) — Chloe: **"interrupt and write the next steps you didn't complete in docs"**.
+  Verification had finished (all S4 gate rows measured, static gates green apart from the engine's serializer
+  whitespace); the interrupt stopped the docs-from-diff pass and the commit. Written down here and in
+  `docs/tasks/2026-10-23_S4-hud-and-feel.md` § *Landed*: leaving the block uncommitted, item 4 (four feature
+  docs + `LAYERS.md`) and item 5 (VFX) are the next session's work.
+- 2026-10-23 21:30 (session `20261023_1941…`, this TUI session) — Chloe: **"let's continue executing next
+  actions"** + explicit **go for item 3** (aiming + full authored HUD + enemy bars), and: her uncommitted
+  `Projectile.prefab` edit (radius 0.14, hitMask 191, mesh scale 0.08) is **hers — keep it and commit it with
+  this block**. Note for the docs pass: `docs/LAYERS.md` still states `Projectile.hitMask = -65`; the prefab on
+  disk is now `191` (layers 0–5 + 7, i.e. everything except Player and the UI layers) — doc drift to correct.
 - 2026-10-23 (session 20261023_105517_ed63d44c) — read the assignment image, translate it to English,
   create the project directory, write the plan — `docs/ASSIGNMENT.md`, `docs/PLAN.md`, this ledger.
 - 2026-10-23 — revision: one sprint today from 13:00; mechanics decided when the mandatory work stands;

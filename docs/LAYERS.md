@@ -12,7 +12,9 @@ asks "is this a wall?" must use that layer instead of `Default`.
 
 Mask values that follow from this, as serialized numbers (`1 << index`):
 
-- `Projectile.hitMask` = `-(1 << 6) - 1` = **-65** → everything except Player (one bullet prefab serves both sides)
+- `Projectile.hitMask` = **191** (layers 0–5 and 7 — everything except Player and the UI layers). Chloe narrowed
+  it from `-65` on 2026-10-23 while tuning the projectile; the effect is the same (enemy fire passes an explicit
+  `maskOverride` of Player).
 - `RangedAttack.targetMask` = **64** → Player only (enemy fire cannot hit other enemies)
 - `PlayerAbilities.enemyMask` = **128** → Enemy
 - `PlayerAbilities.worldMask` = **9** → Default + Structure

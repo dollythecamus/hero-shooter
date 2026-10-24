@@ -42,11 +42,16 @@ Input System is installed but **no Input Actions asset is used** — `InputReade
   → `characters-and-abilities.md`
 - **Match flow & UI** — `MatchBootstrap` holds the roster, freezes the hero, hands the pick to `HeroLoadout`.
   `CharacterSelectUI` / `CharacterCardUI` drive an **authored** prefab. → `characters-and-abilities.md`
-- **Planned, not built** — HUD, enemy health bars, RMB aiming, VFX, wave director, scoring, minimap, map select,
-  tutorial. → `hud-aiming-and-feedback.md`, `docs/tasks/`
+- **HUD, aiming & enemy bars** — `ThirdPersonCameraRig` owns the RMB aim state (FOV/offset/blend),
+  `HudController` pushes health, both ability slots, chips, crosshairs and the hit marker into the authored
+  `HUD.prefab`; `EnemyBarBinder` gives every enemy a pooled world-space `EnemyHealthBar`.
+  → `hud-aiming-and-feedback.md`
+- **Planned, not built** — VFX (sparks, tracers, particles), wave director, scoring, minimap, map select,
+  tutorial. → `docs/tasks/`
 
 Scene reality: `Assets/_Project/Scenes/90_TestArena.unity` holds the ProBuilder arena, the `ProjectilePool`
-object, the `Match` bootstrap, the camera rig, the authored `CharacterSelect` canvas, 3 static test targets,
+object, the `Match` bootstrap, the camera rig, the authored `CharacterSelect` canvas, the authored `HUD`
+prefab instance, the `EnemyBars` object (bar pool + binder), 3 static test targets,
 and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is no runtime spawner.
 
 ## Core conventions
@@ -86,7 +91,7 @@ and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is 
 | `Assets/_Project/Scripts/Enemies/FSM/` | `EnemyState`, `IState`, `StateMachine` |
 | `Assets/_Project/Scripts/Enemies/States/` | `Search`, `Chase`, `Attack`, `Flee`, `CallAllies` states |
 | `Assets/_Project/Scripts/Systems/` | `MatchBootstrap`, `DamageLog` (S1 console probe, delete when the HUD lands) |
-| `Assets/_Project/Scripts/UI/` | `CharacterSelectUI`, `CharacterCardUI` (controllers for the authored prefab) |
+| `Assets/_Project/Scripts/UI/` | `CharacterSelectUI`, `CharacterCardUI`, `HudController`, `AbilitySlotUI`, `EnemyHealthBar`(+Pool), `EnemyBarBinder` (controllers for authored prefabs) |
 | `Assets/_Project/Data/` | the SO instances: `Characters/`, `Weapons/`, `Abilities/`, `Enemies/` |
 | `Assets/_Project/Prefabs/` | `Player/`, `Enemies/`, `Projectiles/`, `UI/` (`VFX/` is empty) |
 | `Assets/_Project/Scenes/` | `90_TestArena.unity` — the only gameplay scene; NavMesh baked into it |
@@ -102,7 +107,7 @@ and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is 
 | Weapons & projectiles | `docs/features/weapons-and-projectiles.md` | `Weapon`, `WeaponDefinition`, `Projectile`, `ProjectilePool` |
 | Enemy FSM | `docs/features/enemy-fsm.md` | `EnemyBrain`, states, `Spyglass`, `AllyCall`, attack strategies, `EnemyStats` |
 | Characters & abilities | `docs/features/characters-and-abilities.md` | `CharacterDefinition`, `AbilityDefinition`, 6 abilities, `PlayerAbilities`, `HeroLoadout`, `MatchBootstrap`, select UI |
-| HUD, aiming & feedback | `docs/features/hud-aiming-and-feedback.md` | **planned only** — design note, no code |
+| HUD, aiming & feedback | `docs/features/hud-aiming-and-feedback.md` | `ThirdPersonCameraRig` aim state, `HudController`, `AbilitySlotUI`, `EnemyHealthBar`/pool/binder — VFX still planned |
 | Editor bridge | `docs/features/editor-mcp-tooling.md` | MCP for Unity v10 setup and pitfalls |
 
 ## Not built yet (listed here so it is not mistaken for existing code)

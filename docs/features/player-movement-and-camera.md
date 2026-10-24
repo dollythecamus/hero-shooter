@@ -15,9 +15,10 @@ static class InputReader {                    // the only file allowed to touch 
     Vector2 Look;            // mouse delta in pixels + right stick * 12
     bool FireHeld, FirePressed;              // LMB
     bool SprintHeld;                         // LShift / L3
-    bool JumpPressed;                        // Space / buttonSouth
-    bool Ability1Pressed;                    // Q  OR  RMB  ← see the RMB collision below
-    bool Ability2Pressed;                    // E  OR  MMB
+    bool JumpPressed, JumpHeld;              // Space / buttonSouth (JumpHeld drives the wall climb)
+    bool Ability1Pressed/Held/Released;      // Q  (RMB is NOT an ability button any more)
+    bool Ability2Pressed/Held/Released;      // E
+    bool AimHeld;                            // RMB / left trigger — the camera, the motor and the weapon read it
     bool FragsHeld;                          // Tab
     bool PausePressed;                       // Esc
     static void SetCursorLocked(bool locked);
@@ -26,16 +27,21 @@ static class InputReader {                    // the only file allowed to touch 
 [RequireComponent(typeof(CharacterController))]
 class PlayerMotor : MonoBehaviour {
     // serialized: walkSpeed 6, sprintMultiplier 1.6, acceleration 45, rotationSpeed 14,
-    //             jumpHeight 1.4, gravity -25, cameraTransform, status
+    //             aimSpeedMultiplier 0.9, jumpHeight 1.4, gravity -25, cameraTransform, status
     bool IsSprinting { get; }
     float PlanarSpeed { get; }
-    void Configure(float newWalkSpeed, float newSprintMultiplier);   // called by HeroLoadout
+    bool MovementSuspended { get; set; }     // the one-mover rule: another component owns the controller
+    void Launch(Vector3 velocity);           // hands momentum back to the motor (climb exit jump)
+    void Configure(float newWalkSpeed, float newSprintMultiplier, float newAimSpeedMultiplier);
 }
 
 class ThirdPersonCameraRig : MonoBehaviour {
     // serialized: target, pivotOffset (0,1.6,0), distance 4.5, mouseSensitivity 0.12,
-    //             pitchLimits (-35,70), followSharpness 20, collisionMask, collisionRadius 0.25, lockCursor
+    //             pitchLimits (-35,70), followSharpness 20, collisionMask, collisionRadius 0.25,
+    //             aimFov 42, aimBlendPerSecond 8, aimOffset (0.55,-0.20,0), lockCursor
     Camera Cam { get; }        // resolved in Awake with GetComponent<Camera>()
+    float AimBlend { get; }    // 0 = hip, 1 = fully aiming; exponential toward InputReader.AimHeld
+    bool IsAiming { get; }     // AimBlend > 0.5 — the HUD swaps crosshairs on this, not on the button
 }
 
 public enum StatusEffect { Speed, FireRate, DamageTaken }   // top-level, namespace HeroShooter.Player
@@ -63,8 +69,9 @@ class PlayerStatus : MonoBehaviour {          // multiplies; never moves the con
   `PlayerAbilities.Configure` (which reads `Camera.main` for the ability context); four of the six abilities
   are expressed purely as `PlayerStatus.AddEffect` calls; `MatchBootstrap` disables the rig and the hero
   while the select screen is up.
-- `hud-aiming-and-feedback.md` — the HUD is meant to read `Weapon.ChargeRatio`, `PlayerAbilities.CooldownRatio`
-  and `PlayerStatus`; RMB aiming will change this file (FOV, shoulder offset, aim state, crosshair).
+- `hud-aiming-and-feedback.md` — the HUD reads `Weapon.ChargeRatio`, `PlayerAbilities.CooldownRatio`,
+  `PlayerStatus` and `ThirdPersonCameraRig.IsAiming`; the aim state that line 72 used to promise as future
+  work now lives in the rig (see the aiming note in *Behavior notes*).
 
 ## Behavior notes
 
@@ -99,13 +106,22 @@ class PlayerStatus : MonoBehaviour {          // multiplies; never moves the con
 - `Launch(velocity)` hands the motor a velocity and clears the suspension, and the impulse keeps its horizontal
   momentum until the hero lands or the player steers: without that rule ground acceleration killed the impulse in
   one frame and the wall climb's exit jump travelled **0.11 m** instead of 4.90 m.
+- **Aiming** is one state read by three files. The rig blends `_aimBlend` toward `InputReader.AimHeld` with
+  `1 - exp(-aimBlendPerSecond * dt)` (8/s), sets `Cam.fieldOfView = Lerp(hipFov, aimFov, blend)` and adds
+  `orbit * (aimOffset * blend)` to the pivot, so the shoulder offset is in camera space and rotates with the
+  view. `hipFov` is read from the scene camera in `Awake` — author the hip FOV on the camera, not here, or the
+  two numbers disagree. `PlayerMotor` multiplies the walk speed by `aimSpeedMultiplier` while the button is
+  down (the loadout overwrites it from `CharacterDefinition.aimMoveMultiplier`: 0.9, Paper 0.6), and `Weapon`
+  halves its spread on the same flag. Measured 60 → 42 with a 8/s exponential, back to 60 on release.
 
 ## Known limitations / deliberately not handled
 
 - **Wall traversal is a component, not a motor mode.** `WallClimbPassive` (Scissors only) suspends the motor,
   probes the Structure layer, and owns the controller while climbing — see `characters-and-abilities.md`. The
   motor knows nothing about walls.
-- **RMB does nothing yet.** `InputReader.AimHeld` exists and RMB no longer fires an ability, but no camera or
-  weapon code reads it — that is the aim block.
+- **RMB aiming** is built (see the aiming note above): the rig owns the state, the motor and the weapon read
+  `InputReader.AimHeld` directly rather than the rig's `IsAiming`, so a hero with the camera rig disabled
+  (the select screen) still respects the speed multiplier. There is no per-hero aim sensitivity and no FOV
+  setting exposed to the player.
 - No crouch, no ground/air control distinction, no wall-run, no slope-slide tuning.
 - Death is unhandled: when the player's `Health` reaches 0 the controller keeps accepting input.

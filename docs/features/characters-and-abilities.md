@@ -15,6 +15,8 @@ class CharacterDefinition : ScriptableObject {    // menu: Hero Shooter/Characte
     string displayName; string pitch;
     float bodyScale; Color color;
     float maxHealth, moveSpeed, sprintMultiplier;
+    float aimMoveMultiplier;                      // speed × while RMB aiming: 0.9 everywhere, Paper 0.6
+    bool sniperReticle;                           // true on Paper only: fine aim crosshair instead of the shared one
     WeaponDefinition weapon;
     AbilityDefinition abilityPrimary, abilitySecondary;   // index 0 = Q, 1 = E
     AbilityDefinition AbilityAt(int index);               // index 0 → primary, anything else → secondary
@@ -174,8 +176,8 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
 |---|---|---|---|---|
 | Rock Q — Slam | instant, component | `SlamDriver` | cd 8, mag 40, radius 5 | apex **3.96 m** above take-off, flight 0.92 s (rise 0.57 s + fall **0.35 s** at 2.5× gravity); enemy 90 → **50 hp** and displaced **2.12 m**; refused while airborne (`slamActive=False`, Q still ready) |
 | Rock E — Bulwark | channelled | `BulwarkShield` | cd 0 (component owns), dur 5, mag 0.4 | raises on press (`meter 4.94`), drains **1/s** (3.99 after 1 s), damage 10 → **4**; firing blocked (shots 0 → 0 while held, 0 → 1 after lowering); early release at 2 s left `meter 3.00`, `canRaise=False` for the 0.5 s, refilled to 4.50 by 4.5 s; depletion at 5.34 s → `canRaise=False` at +1/+4/+6.5 s, **true at +8.6 s** |
-| Paper Q — Mark | instant, class | `MarkTarget` | cd 10, dur 6, mag 1.35, range 70 | `IncomingDamageMultiplier 1.35`, 10 damage landed as 13.5, back to 1.00 after the 6 s window |
-| Paper E — Snare | instant, class | `Snare` | cd 12, dur 3, mag 0.25, range 14 | `SpeedMultiplier 0.25`, back to 1.00 after 3 s |
+| Paper Q — Mark | instant, class | `MarkTarget` | cd 10, dur 6, mag 1.35, range 70 | `markOk=True dmgMult=1.35 left=6.0`; bar turns amber `rgb=(1.00,0.72,0.20) st='MARK 5.5 → 4.6'`; `Health.Update` restores 1.00 when the deadline lapses |
+| Paper E — Snare | instant, class | `Snare` | cd 12, dur 3, mag 0.25, range 14 | `SNARE ok=True speedMult=0.25 left=2.4`; bar turns blue-grey `rgb=(0.55,0.66,0.78) st='SNARE 2.4'`; HUD chip `'SNARE 2.5s' → '1.5s'` |
 | Scissors Q — Climb | **passive**, component | `WallClimbPassive` | no cooldown, mag 6 = cap | climbing **3.0 m/s** (0.08 → 2.19 m in 0.7 s), cap reached at **6.04 m**, mantle onto a 2 m block ended at y **2.05** grounded, exit jump **+1.94 m** above the cap and **4.90 m** out along the wall normal |
 | Scissors E — Overclock | instant, class | `Overclock` | cd 12, dur 3, mag 1.8 | fire rate **1.80**, speed **1.25**, still active at 2.8 s, both back to 1.00 after the 3 s window |
 
@@ -184,31 +186,35 @@ the controller (no second `CharacterController.Move`, so gravity cannot cancel a
 `magnitude`-as-speed experiment is gone with `WallClimb.cs`.
 
 Heroes as built: Rock 200 hp / 4.2 m/s / sprint ×1.35 / body ×1.25 orange; Paper 90 / 5.2 / ×1.6 / ×0.9 pale
-blue; Scissors 130 / 6.8 / ×1.7 / ×0.95 green. These match `docs/HERO_ROSTER.md` except that the roster's
-per-hero aim multipliers do not exist.
+blue; Scissors 130 / 6.8 / ×1.7 / ×0.95 green. These match `docs/HERO_ROSTER.md`, including the per-hero aim
+multipliers (`aimMoveMultiplier` 0.9 / 0.6 / 0.9) and Paper's `sniperReticle`.
 
 ## Drift against `docs/HERO_ROSTER.md` (roster wins; the code is wrong)
 
-Still open after the rework — the first two belong to the HUD/aim block, the rest to VFX:
+What is left is the VFX half of the roster's feedback inventory:
 
-- RMB aiming (FOV 60→42, blend 8/s, +0.55 right / −0.20 down, ×0.9 move, Paper ×0.6, spread −50 %) is not built.
-  `InputReader.AimHeld` exists now and RMB is no longer bound to an ability; the camera and the weapon still
-  ignore it.
-- Mark/Snare/Overclock have no visible feedback yet — no marker above the enemy, no HUD chips, no green
-  bullets/trails (`docs/features/hud-aiming-and-feedback.md`).
+- Mark/Snare/Overclock now have HUD chips, an amber / blue-grey enemy bar and (for the two Paper abilities) a
+  countdown above the enemy. Still missing: **Overclock's green bullets/trails and its particles**, and the
+  stand-alone body effects (Snare's root, Bulwark's shield tint).
 - Slam has no outward particles and Climb has no dust: both are VFX-block work.
-- The HUD has no meter to draw yet: `PlayerAbilities.MeterNormalized(slot)` is the value it will bind to.
+- Bullet impacts have no spark yet, and Paper's bullets have no tracer.
+
+Built since this table was written: RMB aiming (FOV 60→42, 8/s, +0.55/−0.20, ×0.9 move, Paper ×0.6, spread
+−50 %), the HUD (health, both slots, Bulwark meter, passive label, chips, crosshairs, hit marker) and the
+world-space enemy bars.
 
 ## Known limitations / deliberately not handled
 
 - No ability charges, no ultimate meter, no cancellation, no aiming prediction for moving targets. A channelled
   Bulwark can be kept up until it empties; there is no manual "cancel" beyond releasing the key.
-- The passive slot has no UI story yet: `PlayerAbilities.ShapeOf(slot)` reports `Passive`, but nothing renders
-  it — the select card still prints the definition's `cooldown` (now 0) next to the name.
+- The passive slot has no *button*, and the HUD renders it as one: `AbilitySlotUI.Bind` swaps the cooldown bar
+  for the `passive` label and the "always on, no cooldown" line when `ShapeOf(slot) == Passive`, and the key hint
+  reads `passive` instead of `Q`. The character-select card still prints the definition's `cooldown` (0).
 - A climb's budget resets on floor contact, so mantling onto a wall top counts as landing and refunds it; there
   is no notion of "the same wall" and no cooldown of any kind, per the roster.
-- Mark and Snare restore a single "previous" value, so stacking two casts of the same ability on one enemy
-  corrupts the restore (see `damage-and-pooling.md`).
+- Mark and Snare write a deadline instead of restoring a captured value, so re-casting on the same enemy
+  refreshes the window; what is not supported is *layering* two vulnerability sources on one enemy
+  (see `damage-and-pooling.md`).
 - Abilities have no cost, no VFX and no range indicator. `AbilityDefinition.description` is read by **nobody**
   (`grep -rn description Assets/_Project/Scripts` → its declaration only): the select card renders
   `displayName` + `cooldown` from `CharacterCardUI.AbilityLine`.

@@ -33,6 +33,9 @@ class Health : MonoBehaviour, IDamageable {
     float Normalized { get; }                    // 0..1 of max; 0 when maxHealth <= 0
     bool IsAlive { get; }                        // Current > 0
     float IncomingDamageMultiplier { get; set; } // default 1; <1 armour, >1 vulnerability
+    bool IsMarked { get; }                       // DamageMultiplierSecondsLeft > 0
+    float DamageMultiplierSecondsLeft { get; }   // 0 when not marked; the HUD/bar countdown reads this
+    void ApplyDamageMultiplier(float magnitude, float duration);   // Paper's Mark: a deadline, not a restore
     void ResetHealth();                          // Current = max (pool recycling)
     void ConfigureMaxHealth(float max);          // replaces maxHealth and refills; clamps to >= 1
     void TakeDamage(DamageInfo info);
@@ -64,10 +67,10 @@ Nothing. This is the root of the graph.
   hits land as `DamageInfo` on `IDamageable`, and `Weapon` reads `PlayerStatus`, not `Health`.
 - `enemy-fsm.md` — `EnemyBrain` requires `Health`, sets it from `EnemyStats.maxHealth`, listens to `Died`,
   and uses `Normalized` for the flee threshold.
-- `characters-and-abilities.md` — `GroundSlam` deals `DamageInfo` in a radius, `MarkTarget` writes
-  `Health.IncomingDamageMultiplier`, `HeroLoadout` calls `ConfigureMaxHealth`.
-- `hud-aiming-and-feedback.md` — the HUD is meant to bind to `Health.Damaged` / `Health.Died` and
-  `Normalized`; enemy bars to `Normalized`.
+- `characters-and-abilities.md` — `GroundSlam` deals `DamageInfo` in a radius, `MarkTarget` calls
+  `Health.ApplyDamageMultiplier`, `HeroLoadout` calls `ConfigureMaxHealth`.
+- `hud-aiming-and-feedback.md` — the HUD reads `Health.Normalized` / `Damaged` for the health bar and the hit
+  marker; the world-space enemy bars read `Normalized`, `IsMarked` and `DamageMultiplierSecondsLeft`.
 
 ## Behavior notes
 
@@ -91,15 +94,20 @@ Nothing. This is the root of the graph.
 - `Get` does not parent or reparent; parenting is fixed at `CreateInstance` time from `container`.
 - `Instantiate` appears in exactly one place (`Core/ObjectPool.cs:43`), which is the assignment's whole
   "object pooling, no instantiate" claim. Keep `grep -rn "Instantiate(" Assets/_Project/Scripts` at one hit.
+- `ApplyDamageMultiplier(magnitude, duration)` is the **only** supported way to apply a timed vulnerability: it
+  stores a deadline in `_damageMultiplierUntil` and `Update` resets the multiplier to 1 when it lapses. A second
+  cast inside the window therefore refreshes the deadline instead of restoring the first one early — the old
+  coroutine restore was not stack-safe. `PlayerStatus` still writes `IncomingDamageMultiplier` directly every
+  frame for the *player*; that path leaves the deadline at 0, so the two never fight (a player is never marked).
 
 ## Known limitations / deliberately not handled
 
 - No damage types, resistances, armour curves, crit maths (`IsCritical` is always false) and no healing API.
 - No hit cooldown / invulnerability window: a shotgun-style multi-collider target can be hit several times
   in one frame.
-- `IncomingDamageMultiplier` is a single settable float, so it cannot be layered. Two `MarkTarget` casts on
-  the same enemy overlap badly: the second stores the first's 1.35 as "previous", so whichever coroutine
-  restores last wins and the other is either cancelled early or left permanently applied. One caster per
-  enemy is the current assumption.
+- `IncomingDamageMultiplier` is a single settable float, so it cannot be layered: two vulnerability sources on
+  the same enemy would overwrite each other rather than multiply. That is fine today — only Paper's Mark writes
+  it on enemies — and the re-mark case (the old bug: the second cast's restore reinstated the first, so a
+  re-cast was either cut short or left permanently applied) is fixed by the deadline scheme.
 - `Health` owns no visuals and no death flow by design; kill counting, corpse recycling and respawn belong to
   the wave/score systems that do not exist yet.

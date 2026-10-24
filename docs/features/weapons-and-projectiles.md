@@ -15,7 +15,7 @@ class WeaponDefinition : ScriptableObject {      // menu: Hero Shooter/Weapon De
     float shotsPerSecond;        // 4
     float damage;                // 12
     float projectileSpeed;       // 70
-    float spreadDegrees;         // 0.6  → ± this yaw and pitch, per shot
+    float spreadDegrees;         // 0.6  → ± this yaw and pitch, per shot; halved while RMB aiming
     float projectileLifetime;    // 3    → this * speed is the weapon's effective range
     float projectileRadius;      // 0.12 → swept-cast radius
     float chargeTime;            // 0 = instant fire, > 0 = seconds to full charge
@@ -40,7 +40,7 @@ class Weapon : MonoBehaviour {
 
 class Projectile : MonoBehaviour, IPooled {
     ObjectPool<Projectile> Pool { get; set; }   // set by ProjectilePool on creation
-    // serialized: speed 70, damage 20, maxLifetime 3, radius 0.12, hitMask (prefab value = -65)
+    // serialized: speed 70, damage 20, maxLifetime 3, radius 0.14, hitMask (prefab value = 191)
     void Launch(Vector3 direction, float speedOverride, float damageOverride, GameObject owner,
                 LayerMask maskOverride = default, float lifetimeOverride = 0f, float radiusOverride = 0f);
     void OnSpawned(); void OnDespawned();
@@ -84,7 +84,9 @@ class ProjectilePool : ObjectPool<Projectile> {
 - **Aim is solved at the screen centre**: a ray from `aimCamera` through `(Screen.width/2, Screen.height/2)`
   with `maxDistance = max(30, speed * lifetime)`; the first hit becomes the aim point, otherwise the far end of
   the ray. The muzzle then fires at that point, so the bullet converges on the crosshair rather than on the
-  barrel axis. Spread (±`spreadDegrees` yaw/pitch) is applied *after* that solve.
+  barrel axis. Spread (±`spreadDegrees` yaw/pitch) is applied *after* that solve, and **halved while RMB is
+  held** (`Weapon.AimSpreadMultiplier = 0.5f`, a roster decision, so it is a const and not a per-weapon field —
+  every hero gets the same −50 %). The flag is `InputReader.AimHeld`, read directly, not the camera rig's state.
 - The aim ray uses `~0` — **everything**, including the Player layer. The camera looks at the hero, so the
   hero's own `CharacterController` capsule (layer 6, height 1.8, radius 0.35) is a candidate hit for that ray.
   It currently misses in practice because of the pivot offset, but any change to camera framing or pivot can

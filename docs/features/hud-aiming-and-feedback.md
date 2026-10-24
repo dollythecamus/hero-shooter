@@ -1,10 +1,10 @@
 # HUD, aiming & feedback
 
-## Design note (not built)
+## Status (2026-10-23 22:5x)
 
-**Status: planned, zero code.** This file exists so the seams are named before anyone writes the HUD. The
-specification is `docs/tasks/2026-10-23_S4-hud-and-feel.md`; the design decisions (numbers) are the tables in
-`docs/HERO_ROSTER.md`. Nothing below describes existing behaviour.
+**Aiming, the HUD and the enemy health bars are built and measured in play mode.** The VFX half (impact
+sparks, tracers, per-ability particles, green Overclock bullets) is **not** built. Numbers and probe lines:
+`docs/tasks/2026-10-23_S4-hud-and-feel.md` § *Landed*.
 
 Two rules govern the whole feature and come from Chloe:
 
@@ -33,35 +33,41 @@ cooldowns and the Bulwark meter, the weapon charge, enemy health, the aiming sta
 | enemy "snared" | `EnemyBrain.SpeedMultiplier < 1` | partial — value only, no remaining time |
 | camera to hang a reticle/FOV on | `ThirdPersonCameraRig.Cam` | partial — no aim state exists |
 
-## What must be added (do not assume it exists)
+## What exists now (2026-10-23) and what is still missing
 
-- **An aim state**: `ThirdPersonCameraRig` has no FOV, shoulder-offset or aim mode, and nothing reads
-  `InputReader.AimHeld` yet. The ability collision is already gone: RMB no longer fires slot Q, so aiming only
-  needs the FOV/offset/blend + an aim flag on the rig (and `Weapon` reading `AimHeld` for the spread change).
-- **A hit signal**: nothing tells the HUD that *the player* landed a shot. `Projectile.Impact` delivers
-  `DamageInfo` to the target and returns; `DamageInfo.Source` is the firing `GameObject`, so a hit marker can
-  be derived by comparing `Source` to the hero, but an explicit event on `Weapon` is the cheaper contract.
-- **Timed effect handles**: Mark and Snare write a raw multiplier and restore it from a coroutine. A HUD chip
-  that counts down seconds needs the remaining time exposed (an effect handle with an end time), not a bool.
-- **A Bulwark reservoir**: the channelled 5 s meter does not exist. Today Bulwark is a 4 s status effect with
-  no resource, so there is nothing to draw a meter from.
-- **Enemy health bars**: authored prefab + pool + per-enemy bind; hidden at full health; amber when marked,
-  blue-grey when snared. `Enemies/` prefabs carry `Health`, so the value exists; the bar prefab and the pool
-  do not.
-- **VFX pool**: `Prefabs/VFX/` is empty and there is no VFX pool. Impact sparks, ability particles and Paper's
-  tracer must go through the same no-runtime-`Instantiate` rule as bullets, i.e. a pooled prefab per effect.
-- **Minimap and Tab frag board**: deferred by the ledger — a minimap needs a dedicated layer/culling mask and a
-  second camera + `RenderTexture`; the frag board needs a `ScoreService` that does not exist and no kill events
-  are produced anywhere yet.
+- **Aim state** — `ThirdPersonCameraRig` owns it: `aimFov`, `aimBlendPerSecond`, `aimOffset` serialized,
+  `IsAiming` / `AimBlend` public, hip FOV taken from the scene camera at `Awake`. `PlayerMotor` applies
+  `CharacterDefinition.aimMoveMultiplier` while `InputReader.AimHeld`; `Weapon` halves `spreadDegrees` on the
+  same flag (`const AimSpreadMultiplier = 0.5f`).
+- **Hit signal** — no `Weapon` event was needed. `EnemyBarBinder` re-raises `Health.Damaged` for every bound
+  enemy and `HudController` flashes the hit marker when `DamageInfo.Source` is the hero or a child of it.
+- **Timed effect handles** — Mark now lives on `Health.ApplyDamageMultiplier(magnitude, duration)` with
+  `IsMarked` / `DamageMultiplierSecondsLeft`; Snare mirrors it on `EnemyBrain.ApplySpeedMultiplier`. Both are
+  deadlines, so a re-cast refreshes instead of restoring early, and a chip can count down.
+- **Bulwark reservoir** — already existed (`BulwarkShield.Meter`/`Normalized`), read through
+  `PlayerAbilities.MeterNormalized(slot)`.
+- **HUD** — authored `Prefabs/UI/HUD.prefab`, driven by `UI/HudController.cs` (reads `HeroLoadout`, pushes into
+  `UI/AbilitySlotUI.cs` widgets). Instanced in the arena scene with `hero`, `cameraRig` and `enemyBars` wired
+  as scene refs; the prefab itself holds the widget refs.
+- **Enemy bars** — `Prefabs/UI/EnemyHealthBar.prefab` (world-space canvas, 0.01 scale) + `UI/EnemyHealthBar.cs`
+  (`IPooled`, billboards, hides at full health, hides behind `blockerMask` = 9, tints amber/blue-grey),
+  `UI/EnemyHealthBarPool.cs`, `UI/EnemyBarBinder.cs` on the scene object `EnemyBars` (4 enemies serialized,
+  `FindObjectsByType` fallback).
+- **Still missing** — the whole VFX half: `Prefabs/VFX/` is empty, there is no VFX pool, so impact sparks,
+  Paper's tracer, green Overclock bullets and the per-ability particles do not exist. Also missing: the
+  Scissors fire-rate-window readout (only Paper's charge bar is drawn), and the minimap / Tab frag board stay
+  deferred with the reasons below.
 
-## Interface (proposed — settle before building)
+## Interface (as built)
 
 ```csharp
-class HudController : MonoBehaviour {       // one per scene, references the authored HUD.prefab widgets
-    void Bind(Health health, PlayerAbilities abilities, Weapon weapon, PlayerStatus status);
-}
-static class InputReader { bool AimHeld; }                  // RMB, replaces its ability binding
-class ThirdPersonCameraRig { bool IsAiming { get; } void SetAim(float fov, Vector3 offset, float blendPerSecond); }
+class HudController : MonoBehaviour { /* hero, cameraRig, enemyBars + authored widget refs; pushed per frame */ }
+class AbilitySlotUI : MonoBehaviour { void Bind(AbilityDefinition, AbilityShape); void Push(float ratio, float meter, bool ready); }
+class EnemyBarBinder : MonoBehaviour { float MarkSecondsLeft; float SnareSecondsLeft; event Action<DamageInfo> EnemyDamaged; }
+class EnemyHealthBar : MonoBehaviour, IPooled { void Bind(Health, EnemyBrain); }
+class ThirdPersonCameraRig { float AimBlend; bool IsAiming; }
+class Health { void ApplyDamageMultiplier(float magnitude, float duration); bool IsMarked; float DamageMultiplierSecondsLeft; }
+class EnemyBrain { void ApplySpeedMultiplier(float magnitude, float duration); bool IsSnared; float SpeedMultiplierSecondsLeft; }
 ```
 
 ## Depends on
