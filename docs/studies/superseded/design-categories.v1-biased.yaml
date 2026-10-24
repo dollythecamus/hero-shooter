@@ -1,3 +1,11 @@
+# superseded: design-roll option space, version 1 -- REJECTED FOR BIAS, kept as evidence
+#
+# Measured after generation: 26.2% of the 600 items carry combat vocabulary, concentrated exactly in the
+# categories that decide the design -- input-and-controls 77%, core-loop 73%, resource-economy 50%,
+# player-verb 47%, opposition-and-ai 47%, genre-lineage 40% -- and genre-lineage is mostly
+# 'familiar action genre with a twist'. Version 2 replaces it; see ../design-categories.yaml and
+# study section 10.9 for the three causes (format examples, repo context, category set).
+#
 # design-categories.yaml - the design-roll option space for the agent-loop jam experiment
 #
 # Generated 2026-10-24 by three parallel subagents from one spec (20 categories x 30 items, <=14 words,

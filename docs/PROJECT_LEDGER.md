@@ -351,6 +351,14 @@ none
 
 ## Requirements log
 
+- 2026-10-24 13:4x (same session) — the first option space was **audited and rejected**: 26.2 % of its 600 items
+  carry combat vocabulary, concentrated in the categories that decide the design (input 77 %, core loop 73 %,
+  economy 50 %, player-verb 47 %, opposition 47 %, genre-lineage 40 %, and most of genre-lineage is "action genre
+  with a twist"). Chloe spotted it. Causes recorded in study § 10.9 (the brief's own examples, the repo as working
+  directory, and a category set built around camera-plus-enemy), the finding generalised ("a roll does not break
+  averaging if the space it draws from is averaged"), `L11` added as the space-level bias audit, and v1 moved to
+  `docs/studies/superseded/` as evidence. Second generation dispatched against a re-cut 20-category set, a neutral
+  working directory, non-combat examples and hard quotas.
 - 2026-10-24 13:2x (same session) — design-roll option space generated: three subagents wrote 20 categories x 30
   items, merged and validated here (600 items, 0 duplicates, 0 over 14 words, pure ASCII) into
   `docs/studies/design-categories.yaml` + `design-categories.tsv` (a `keep` column for culling in a spreadsheet).

@@ -220,6 +220,7 @@ Rules that came straight out of the corpus:
 | L8 | **resume probe**: a fresh subagent gets hot tier + ledger only and must emit the next action; mismatch with the ledger's next action = doc fault, block stops | **F3/F4** before a human sees it |
 | L9 | every non-negotiable in `docs/DESIGN.md` appears in the gate table of every block whose work touches it | design dilution (D1, § 10.7) |
 | L10 | `docs/DESIGN.md` exists — with its seed and ≥8 published rolls — before the first code commit | rationalised dice (D4, § 10.2) |
+| L11 | the generated option space passes the bias audit: combat vocabulary ≤ 10 % of items overall and ≤ 15 % in any decision-bearing category, ≥ 8 distinct game traditions named per category | genre prior smuggled in through the option space itself (§ 10.9) |
 
 Verified today: L1 (`0b20b2e` → S5–S7 missing; `HEAD` → clean), L4 (`error CS` shape: last
 `Tundra build success` at line 7399 of `Logs/Editor.log`, **0** error lines after it; the call-site
@@ -447,6 +448,51 @@ averaging has to happen in **implementation cost**, never in the design document
 | D5 cosmetic ecc | the weird thing is a colour | compression score; ≥2 mechanical consequences or re-roll |
 | D6 ecc eats the schedule | blocks overrun defending the vision | cost per element at hour 0, fallback and cut order pre-agreed |
 | D7 role collapse | after two resets the designer writes like a planner | its first output each phase is "what does the vision forbid here?" — the resume probe, applied to taste (drill D9) |
+
+### 10.9 The first option space came out shooter-shaped — a finding, not an accident
+
+The first generated space (600 items, 20 categories) was audited before use and rejected:
+
+| | share of items with combat vocabulary |
+|---|---|
+| whole space | **26.2 %** (157/600) |
+| input-and-controls | **77 %** |
+| core-loop | **73 %** |
+| resource-economy | 50 % |
+| player-verb | 47 % |
+| opposition-and-ai | 47 % |
+| genre-lineage | 40 % (and mostly "familiar action genre with a twist") |
+
+The concentration is the point: the bias sat in exactly the categories that decide what the game *is*, while
+art, theme and narrative were clean (0–3 %). Three causes, in the order I can verify them:
+
+1. **The brief's own examples.** The format examples I handed the generators were "WASD + mouse, standard
+   third-person", "souls-like", "tower defence". Models copy the register of an example as readily as its
+   format, so the examples were a prior with the status of a specification.
+2. **The working directory.** The generation ran inside this repo — a third-person hero shooter with 24 docs
+   about shooting. Whether the children opened any of them is unproven (I did not audit their transcripts for
+   reads), so this one stays "likely", not "established".
+3. **The category set itself.** `camera-and-perspective`, `opposition-and-ai`, `player-verb` and
+   `win-and-fail-states` presume a real-time avatar in space, opposed by something, with a kill condition. There
+   was no dimension for information, deduction, social structure, craft, or the medium itself — so even an
+   unbiased generator was filling genre-shaped slots.
+
+This refines Chloe's original idea in a way that matters: **the roll does not break averaging if the space it
+draws from is averaged.** A uniform draw over a genre-biased option space reproduces the bias faithfully and
+looks random while doing it. The correction is not a better sampler; it is an audited space.
+
+The second generation (v2) changed four things at once: a re-cut category set that starts from the medium and
+the information model instead of the camera and the enemy (`medium-and-material`, `input-grammar`,
+`view-and-framing`, `structure-of-space`, `core-activity`, `objective-and-success`, `information-model`,
+`conflict-and-stakes`, `time-model`, `system-domain`, `social-mode`, `resource-economy`,
+`constraint-and-forbidden`, `scope-and-scale`, `art-medium-and-style`, `audio-role`, `interface-and-text`,
+`narrative-delivery`, `theme-primary`, `theme-secondary`); a **neutral working directory**; an explicit "no
+project context exists" instruction; non-combat format examples; and hard quotas the generator must report back
+on (≤ 3 combat items per category, ≤ 2 "genre: variant" items, ≥ 10 traditions, ≤ 6 real-time-avatar items).
+The audit became **L11**, so this cannot pass silently again.
+
+The v1 files are kept under `docs/studies/superseded/`: the measurement is evidence, and it is also the cheapest
+possible illustration of why the option space is part of the design.
 
 ## 11. Playtest and self-play — the human interface (Chloe's answer, applied)
 
