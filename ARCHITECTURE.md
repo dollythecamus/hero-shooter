@@ -14,7 +14,9 @@ its § 3 file listing is partly aspirational (see *Not built yet*).
 - **Unity 6000.6.3f1** (`ProjectSettings/ProjectVersion.txt`), URP 17.6.0, PC renderer asset under `Assets/Settings/`
 - **C#**, single implicit assembly `Assembly-CSharp` — there are no `.asmdef` files; editing any script recompiles everything
 - Packages (`Packages/manifest.json`): Input System 1.19.0, AI Navigation 2.0.12, ProBuilder 6.1.2, uGUI 2.6.0,
-  Test Framework 1.8.0, Rider/VS IDE support, `com.coplaydev.unity-mcp` v10.0.0 (editor bridge)
+  Test Framework 1.8.0, Rider/VS IDE support, `com.coplaydev.unity-mcp` v10.0.0 (editor bridge), and the
+  **built-in Particle System module** (`com.unity.modules.particlesystem`, added 2026-10-24 — without it
+  `UnityEngine.ParticleSystem` does not compile at all)
 - Build targets: Linux x86_64 and Windows x86_64 (Windows module installed, Mono backend)
 - No imported art: ProBuilder geometry + URP Lit materials; a hero is a capsule scale plus a colour
 

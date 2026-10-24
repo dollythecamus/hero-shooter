@@ -1,6 +1,6 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-10-23 23:05 (-03) · session 20261023_1941… · owner default profile
+Updated: 2026-10-24 11:25 (-03) · session 20261023_1941… · owner default profile
 Sprint: **one long block today from 13:00**, then 10-24 → 10-29 as buffer (plan § 6–7).
 
 ## Goal
@@ -46,20 +46,27 @@ moves the body. That closes the S3b block; the HUD/aiming block (item 3) is next
 was measured in play mode (numbers in the S4 task file) and the block is committed as **`5c40a99`** (code,
 prefabs, scene, `Hero_Paper` asset). VFX (item 4) is not started.
 
+**VFX landed 2026-10-24 ~11:1x** (item 4, the last of S4): one pooled burst prefab (`Prefabs/VFX/Blast.prefab` +
+`VfxOneShot`/`VfxPool`), per-hit sparks from `Projectile.Impact`, Paper's tracer and Overclock's green through the
+projectile's `TrailRenderer` + material swap, the slam landing burst, climb dust, and the Bulwark shell on
+`Player.prefab`. All measured in play mode (probe lines in the S4 task file). It needed one manifest change:
+`com.unity.modules.particlesystem` — the project had no built-in modules enabled at all, so `ParticleSystem`
+did not compile; Chloe approved it.
+
 ## Next action
 
-**The HUD/aiming/bars block is committed (`5c40a99`).** What is left of S4:
+**S4 is closed.** What is left before the deadline is the submission work in `docs/PLAN.md` § 6–7:
 
-1. ~~correctness fixes from the docs audit~~ — landed 2026-10-23 ~20:05 (Evidence).
-2. ~~ability rework (S3b)~~ — landed 2026-10-23 ~21:2x.
-3. ~~aiming + HUD + enemy bars~~ — landed and committed `5c40a99`; docs-from-diff done in the same pass
-   (`player-movement-and-camera`, `weapons-and-projectiles`, `characters-and-abilities`,
-   `damage-and-pooling`, `LAYERS`, `ARCHITECTURE`, the S4 task file, this ledger).
-4. **VFX (the rest of S4), in progress 2026-10-23 23:xx** — impact sparks on every hit, Paper's muzzle-to-impact
-   tracer with a ~0.15 s fade, green Overclock bullets/trails, Slam impact burst, Climb dust, Bulwark shield
-   tint; all pooled (`Prefabs/VFX/` is empty and no VFX pool exists). Then the Scissors fire-rate-window
-   readout if room remains, and `DamageLog` deleted once VFX replaces it (needs sign-off — referenced from the
-   enemy prefabs).
+1. ~~correctness fixes from the docs audit~~ — landed 2026-10-23 ~20:05.
+2. ~~ability rework (S3b)~~ — landed 2026-10-23 ~21:2x, committed `1960b0a`/`aad17ae`.
+3. ~~aiming + HUD + enemy bars~~ — landed 2026-10-23, committed `5c40a99`/`5a115ba`.
+4. ~~VFX (rest of S4)~~ — landed and measured 2026-10-24 ~11:1x, committed with its docs.
+5. **Builds, next** — Linux x86_64 and Windows x86_64 from `File → Build Profiles`, then **run each from a clean
+   folder** and check the checklist in `docs/ASSIGNMENT.md` against the built game. This is GUI work in the
+   editor; the agent can drive the dialogs through the bridge but cannot verify a built binary's behaviour, so a
+   human run is required. No executeMethod build class exists (see `AGENTS.md`).
+6. **`docs/CODE_DEFENSE.md`** — one block per system, each verified by opening the named file, for the 20:20
+   walkthrough on 2026-10-30.
 
 Deferred out of this block and recorded there: minimap + Tab frag board (both need systems that do not exist
 yet — `ScoreService`, a minimap mask/layer split), and the guns/projectiles rework (Chloe has not answered).
@@ -114,6 +121,18 @@ Still open:
 
 ## Evidence
 
+- **VFX gate, 2026-10-24 10:5x–11:1x** — play mode, same bridge method; full table in the S4 task file. The
+  load-bearing lines: pool `created=24` at start and **still 24** after a shot, a slam, a Bulwark cycle and a
+  climb; Rock hip fire `emitting=False body='M_Projectile'`; Paper `emitting=True trailCol=(0.60,0.92,1.00,0.55)`;
+  impact `bullet=no-active-bullet bursts=[scale=1.00 playing=True pos=(2.3,0.0,-5.5)] created=24`; Overclock
+  `trailCol=(0.30,1.00,0.40,0.65) body='M_Projectile_Overclock'`; slam `[scale=2.25 playing=True]` at the feet;
+  Bulwark shell `enabled=False → True (1.43 @ meter 0.72) → False`; climb dust call sites `Stop() 0→1`,
+  `Climb() 1→2`. Not measured end-to-end: the dust stream during a held-key climb — the editor overwrites
+  injected keyboard state every input update, so the climb had to be driven at its call sites instead.
+- **Particle System module was missing** (found 2026-10-24): `Packages/manifest.json` carried no
+  `com.unity.modules.*` entries, so `UnityEngine.ParticleSystem` failed to compile (`error CS1069`). Adding
+  `"com.unity.modules.particlesystem": "1.0.0"` (Chloe's sign-off) fixed it; `TrailRenderer`/`LineRenderer` were
+  never affected (they live in `CoreModule`).
 - **HUD / aiming / enemy-bar gate, 2026-10-23 22:2x–22:5x** — play mode through the MCP bridge, same injected-input
   method as the ability gate; every number is a probe line and the full table is in
   `docs/tasks/2026-10-23_S4-hud-and-feel.md` § *Landed*. Load-bearing ones:
@@ -219,40 +238,30 @@ Still open:
 
 ## Uncommitted at last checkpoint
 
-**Everything from the HUD/aiming block, 2026-10-23 22:5x — 16 modified, 14 untracked** (`git status --porcelain
--uall`; the untracked count includes this ledger's own dirs, so re-check after committing):
+**none** — the VFX half landed as `4da3ef1` (3 new `Scripts/VFX` classes, 7 hooked scripts, the generated
+`T_Spark` + three materials, `Blast.prefab`, the projectile's trail/refs, the player's `ShieldVfx` shell, the
+scene's `Vfx` pool, and `com.unity.modules.particlesystem` in the manifest + lock). Its docs land in the commit
+that follows this line, which is the only reason the tree is not empty at the moment of writing.
 
-- Code (11): `Core/Health.cs`, `Data/CharacterDefinition.cs`, `Enemies/EnemyBrain.cs`,
-  `Player/Abilities/MarkTarget.cs`, `Player/Abilities/Snare.cs`, `Player/HeroLoadout.cs`, `Player/PlayerMotor.cs`,
-  `Player/ThirdPersonCameraRig.cs`, `Weapons/Weapon.cs` — plus new `UI/{HudController,AbilitySlotUI,
-  EnemyHealthBar,EnemyHealthBarPool,EnemyBarBinder}.cs` with their `.meta` files.
-- Assets: `Data/Characters/Hero_Paper.asset` (`aimMoveMultiplier: 0.6`, `sniperReticle: 1`),
-  `Scenes/90_TestArena.unity` (HUD instance + `EnemyBars` object + wiring + the rig's aim fields),
-  new `Prefabs/UI/HUD.prefab` and `Prefabs/UI/EnemyHealthBar.prefab`.
-- Chloe's own edit, carried along as instructed: `Prefabs/Projectiles/Projectile.prefab` (`radius 0.12 → 0.14`,
-  `hitMask 4294967231 → 191`, mesh scale `0.12 → 0.08`).
-- Docs: this ledger, `docs/tasks/2026-10-23_S4-hud-and-feel.md`, `docs/features/hud-aiming-and-feedback.md`.
-
-`ProjectSettings/TimeManager.asset` was written by a probe and has been reverted; `git status` shows no
-`ProjectSettings/**`, `Library/`, `Temp/` or `Logs/` churn.
+Earlier in this sprint: `5c40a99` (aiming + HUD + bars), `5a115ba` (their docs).
 
 ## Handoff
 
-**Where the project stands (2026-10-23 23:0x).** Items 1–3 of the sprint block are landed and measured in play
-mode: the audit fixes, the S3b ability rework, and now aiming + HUD + enemy bars. **Nothing from this last block
-is committed** — the commit is the first next action. The arena scene on disk is the good state: HUD prefab
-instance with `hero` / `cameraRig` / `enemyBars` wired, `EnemyBars` object with the pool + binder + 4 serialized
-enemies, the camera rig carrying `aimFov 42 / aimBlendPerSecond 8 / aimOffset (0.55, −0.20)`, and the
-`CharacterSelect` instance back to `m_IsActive: 1` (a stale override from the previous session's play state had
-been captured by the wiring save and would have hidden the select screen).
+**Where the project stands (2026-10-24 11:2x).** S4 is closed: aiming, the authored HUD, the enemy bars and the
+VFX layer are all built, measured in play mode and committed. `docs/ASSIGNMENT.md`'s 11 mechanics are covered by
+code that exists and runs in the editor. What has **not** been done is everything after the editor: no build has
+ever been produced, and there is no `docs/CODE_DEFENSE.md` yet.
 
-**Not verified.** No visual check of the HUD layout or the world-space bars — the agent cannot see the Game view,
-so "the numbers reach the widgets" is measured but "it looks right at 1080p" is not; that needs one human play
-session. The hit marker's authored 0.12 s window was measured with the window temporarily widened in the probe.
-Windows/Linux builds are still unbuilt and unrun. VFX does not exist yet.
+**Next.** Builds (Linux + Windows from `File → Build Profiles`) and a human run from a clean folder — the agent
+can drive the build dialogs through the bridge but cannot judge a built binary. Then the code-defense doc.
 
-**Next.** Commit. Then the four feature docs listed in *Next action* item 4 (plus `docs/LAYERS.md`'s stale
-`hitMask` line), then VFX as item 5.
+**Not verified anywhere in this sprint.** No one has looked at the Game view: HUD layout, world-space bars, VFX
+sizing and the Bulwark shell are all "the numbers reach the renderer", not "it looks right". One play session by
+Chloe covers it. The climb's dust stream likewise has never been seen while actually climbing.
+
+**Known gaps that are deliberate, not forgotten:** minimap and the Tab frag board (need `ScoreService` and a
+layer split), the guns/projectiles rework (Chloe has not answered), the Scissors fire-rate-window readout,
+`DamageLog` still in the scene, no automated tests, no pause menu, no wave spawning.
 
 ## Handoff (earlier, S1)
 
@@ -271,6 +280,15 @@ none
 
 ## Requirements log
 
+- 2026-10-24 10:25 (same session) — Chloe: **"editor ok"** → the VFX half finished: the block had actually been
+  failing on a disabled Particle System module (`error CS1069`), not a wedged editor. Asked for sign-off, she
+  approved adding `com.unity.modules.particlesystem` to `manifest.json`; after that the nine VFX scripts compiled
+  and every gate was measured (probe lines in the S4 task file). Code + assets committed as `4da3ef1`.
+- 2026-10-24 10:1x (same session) — Chloe: **"go for continuing your tasks finishing S4"**. Committed the
+  measured HUD/aiming block (`5c40a99`) and its docs (`5a115ba`), then started item 4 (VFX): the three
+  `Scripts/VFX/` classes and all seven gameplay hooks are written. **Blocked** — the editor's compile after the
+  10:10 restart never completed, so nothing from VFX is compiled or measured; the asset list and gates are in
+  `docs/tasks/2026-10-23_S4-hud-and-feel.md` § *VFX half*.
 - 2026-10-23 22:5x (same session) — Chloe: **"interrupt and write the next steps you didn't complete in docs"**.
   Verification had finished (all S4 gate rows measured, static gates green apart from the engine's serializer
   whitespace); the interrupt stopped the docs-from-diff pass and the commit. Written down here and in

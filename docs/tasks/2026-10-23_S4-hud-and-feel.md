@@ -110,3 +110,72 @@ VFX replaces it — deleting it needs sign-off because it is referenced from ene
 output in `90_TestArena.unity` (`m_Name: ` and `value: ` for empty strings) — same class as the note already
 recorded for `Player.prefab`; not hand-editable while the editor holds the project.
 
+---
+
+## VFX half — landed and measured 2026-10-24 10:2x–11:1x
+
+Blocked for a while by the project's disabled **Particle System module** (`error CS1069` on `ParticleSystem`;
+`Packages/manifest.json` had no `com.unity.modules.*` entries). Chloe approved adding
+`"com.unity.modules.particlesystem": "1.0.0"`; with it the nine VFX scripts compile. Nothing else in the block
+needed a manifest change.
+
+**New code (`Assets/_Project/Scripts/VFX/`)**
+
+- `VfxOneShot.cs` — one pooled burst (`IPooled`): plays its `ParticleSystem` on spawn, takes a per-burst colour
+  (`SetColor`), returns itself to the pool after `lifetime` (0.7 s default).
+- `VfxPool.cs` — `ObjectPool<VfxOneShot>` + static `Instance`; `VfxPool.Spawn(position, rotation, scale, color)`
+  and `Spawn(position, scale, color)` do nothing when the scene has no pool, so VFX can never break gameplay.
+- `BulwarkShieldVfx.cs` — authored shell renderer shown only while `BulwarkShield.IsRaised`, scaled
+  `Lerp(60 %, 100 %, meter)` and alpha `Lerp(0.25, 1, meter)` through a `MaterialPropertyBlock` (`_BaseColor`).
+
+**Hooks added**
+
+- `Projectile`: `trail`, `body`, `overclockMaterial`, `impactColor`, `impactBurstScale` fields; `Launch(...)`
+  and `ProjectilePool.Fire(...)` gained `Color trailColor` + `bool overclocked`; `ApplyVisuals` sets
+  `trail.emitting/startColor` and swaps `body.sharedMaterial` per launch; `Impact` spawns a burst at the hit
+  point on **every** hit, including walls.
+- `Weapon`: `TracerColor` (pale blue, used when the weapon `RequiresCharge` → Paper) and `OverclockGreen`
+  (overrides everything while overclocked).
+- `PlayerStatus`: `StatusEffect.Overclock` marker + `HasEffect(kind)`; `Apply` ignores it (no multiplier).
+- `Overclock`: applies the marker alongside FireRate/Speed.
+- `SlamDriver.Impact`: burst at the landing point, scale = `radius × burstRadiusFraction` (0.45 → 2.25 for a
+  5 m slam), orange.
+- `WallClimbPassive`: dust every `dustInterval` (0.22 s) while climbing, plus a puff in `Stop()` and in
+  `ExitJump()`.
+
+**Authored assets (all done)**
+
+1. `Art/VFX/T_Spark.png` — 64×64 radial alpha, generated procedurally, imported uncompressed with
+   `alphaIsTransparency`.
+2. `Art/Materials/M_Vfx.mat` — URP `Particles/Unlit`, transparent + additive blend, Base Map `T_Spark`.
+3. `Art/Materials/M_Projectile_Overclock.mat` — URP Lit, green `_BaseColor` + emission.
+4. `Art/Materials/M_Shield.mat` — URP `Particles/Unlit`, blue, `SrcAlpha`/`OneMinusSrcAlpha`.
+5. `Prefabs/VFX/Blast.prefab` — `ParticleSystem` (0.4 s, one 12-particle sphere burst, gravity 0.6,
+   colour-over-lifetime fade, size-over-life shrink, additive `M_Vfx`) + `VfxOneShot` (lifetime 0.7).
+6. Scene object `Vfx` → `VfxPool`, `prefab` = Blast, `warmUpCount` 24.
+7. `Prefabs/Projectiles/Projectile.prefab` — `TrailRenderer` (0.15 s, 0.06 wide, `M_Vfx`, emitting off) wired
+   as `trail`, plus `body` (the `Sphere` child's `MeshRenderer`) and `overclockMaterial`.
+8. `Player.prefab` — child `ShieldVfx` sphere at y 0.9, scale 1.6, `M_Shield`, `BulwarkShieldVfx`
+   (`fullScale` 1.6), collider stripped.
+
+**Measured in play mode (quoted probe lines)**
+
+- Pool: `A0 vfx created=24 active=0` at start; `A8 DONE vfxCreated=24` after a shot, a slam, a Bulwark cycle
+  and a climb — **the pool never grew**.
+- Rock hip fire: `emitting=False trailCol=RGBA(0.00, 0.00, 0.00, 0.00) body='M_Projectile'`.
+- Paper: `emitting=True trailCol=RGBA(0.60, 0.92, 1.00, 0.55)`.
+- Impact: `B1 after 0.3s: bullet=no-active-bullet bursts=[scale=1.00 playing=True pos=(2.3, 0.0, -5.5)]
+  created=24` — the bullet was consumed and exactly one burst appeared at the contact point; `B2` shows it
+  finished (`playing=False`).
+- Overclock: `B3 scissors overclock=True hasEffect=True` → `B4 overclock shot: emitting=True
+  trailCol=RGBA(0.30, 1.00, 0.40, 0.65) body='M_Projectile_Overclock'`.
+- Slam: `A3 slam start=True` → `A4 slam landing: vfx active=1 created=24 bursts=[scale=2.25 playing=True
+  pos=(0.0, 0.2, -6.0)] slamActive=False` (2.25 = 5 m radius × 0.45).
+- Bulwark shell: `A5 raised=True shellEnabled=False` (the shell's `Update` had not run yet in that frame) →
+  `A6 after 1.4s: shellEnabled=True shellScale=1.43 meter=0.72` (1.43 = Lerp(0.96, 1.6, 0.72)) →
+  `A7 released: shellEnabled=False`.
+- Climb dust: **not measurable end-to-end** — the editor will not hold a key across frames (`InputState.Change`
+  is overwritten by the real device each input update; queued `KeyboardState` events read back as not pressed),
+  so the two call sites were invoked directly: `after Stop()=1`, `after Climb() step=2`, `created=24`.
+- Static gate: `grep -rn "Instantiate(" Assets/_Project/Scripts` → still one hit (`Core/ObjectPool.cs:43`).
+

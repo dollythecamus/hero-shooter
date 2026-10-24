@@ -53,10 +53,12 @@ cooldowns and the Bulwark meter, the weapon charge, enemy health, the aiming sta
   (`IPooled`, billboards, hides at full health, hides behind `blockerMask` = 9, tints amber/blue-grey),
   `UI/EnemyHealthBarPool.cs`, `UI/EnemyBarBinder.cs` on the scene object `EnemyBars` (4 enemies serialized,
   `FindObjectsByType` fallback).
-- **Still missing** — the whole VFX half: `Prefabs/VFX/` is empty, there is no VFX pool, so impact sparks,
-  Paper's tracer, green Overclock bullets and the per-ability particles do not exist. Also missing: the
-  Scissors fire-rate-window readout (only Paper's charge bar is drawn), and the minimap / Tab frag board stay
-  deferred with the reasons below.
+- **VFX** (built 2026-10-24) — one pooled burst prefab (`Prefabs/VFX/Blast.prefab`) driven by
+  `Scripts/VFX/VfxOneShot.cs` + `VfxPool.cs`, per-hit sparks from `Projectile.Impact`, Paper's tracer and
+  Overclock's green through the projectile's `TrailRenderer` + a material swap, a landing burst from
+  `SlamDriver`, climb dust from `WallClimbPassive`, and the Bulwark shell (`BulwarkShieldVfx`). Details below.
+- **Still missing** — the Scissors fire-rate-window readout (only Paper's charge bar is drawn), and the minimap
+  / Tab frag board stay deferred with the reasons below.
 
 ## Interface (as built)
 
@@ -69,6 +71,44 @@ class ThirdPersonCameraRig { float AimBlend; bool IsAiming; }
 class Health { void ApplyDamageMultiplier(float magnitude, float duration); bool IsMarked; float DamageMultiplierSecondsLeft; }
 class EnemyBrain { void ApplySpeedMultiplier(float magnitude, float duration); bool IsSnared; float SpeedMultiplierSecondsLeft; }
 ```
+
+## VFX (built 2026-10-24)
+
+One pooled prefab covers the whole inventory: `Prefabs/VFX/Blast.prefab` — a non-looping `ParticleSystem`
+(0.4 s, one 12-particle sphere burst, gravity 0.6, colour-over-lifetime fade, additive `M_Vfx` on the generated
+radial `T_Spark`) plus `VfxOneShot`, which plays it, takes a per-burst colour and returns itself after 0.7 s.
+`VfxPool` (`ObjectPool<VfxOneShot>`, 24 warm-up, static `Instance`) is the only way to spawn; `VfxPool.Spawn`
+does nothing when there is no pool, so VFX can never break a shot. The scene object `Vfx` carries the pool.
+
+| Call site | Burst |
+|---|---|
+| `Projectile.Impact` | every hit, walls included, at the contact point oriented by the normal; scale `impactBurstScale` (1), colour `impactColor` |
+| `SlamDriver.Impact` | at the landing point, scale `radius × 0.45` (2.25 for the 5 m slam), orange |
+| `WallClimbPassive.Climb` | dust every `dustInterval` (0.22 s) while climbing |
+| `WallClimbPassive.Stop` / `ExitJump` | one puff at the end of a climb |
+
+Trails are **per launch, not per asset**: `Projectile.Launch(...)` takes a `trailColor` and an `overclocked`
+flag, sets `TrailRenderer.emitting`/`startColor` and swaps `body.sharedMaterial` between `M_Projectile` and
+`M_Projectile_Overclock`. `Weapon.Fire` decides: pale-blue `TracerColor` when the weapon `RequiresCharge`
+(Paper), green `OverclockGreen` while `PlayerStatus.HasEffect(StatusEffect.Overclock)`, nothing otherwise. The
+trail is 0.15 s and 0.06 wide, so it reads as a streak rather than a wire, and `Clear()` on launch stops the
+previous shot's segment bleeding into the next.
+
+`BulwarkShieldVfx` sits on the authored `ShieldVfx` sphere inside `Player.prefab`: hidden by default, shown only
+while `BulwarkShield.IsRaised`, scaled `Lerp(0.96, 1.6, meter)` and tinted through a `MaterialPropertyBlock`
+(`_BaseColor`) so the shell fades with the reservoir without touching the shared material.
+
+Measured in play mode (2026-10-24, probe lines in the S4 task file): pool `created=24` at start and `24` after
+every burst; Rock hip fire `emitting=False trailCol=(0,0,0,0) body='M_Projectile'`; Paper
+`emitting=True trailCol=(0.60,0.92,1.00,0.55)`; Overclock
+`trailCol=(0.30,1.00,0.40,0.65) body='M_Projectile_Overclock'` with `HasEffect(Overclock)=True`; slam burst
+`[scale=2.25 playing=True]` at the hero's feet; Bulwark shell `enabled=False → True (scale 1.43, meter 0.72) →
+False` on release; `Stop()` 0 → 1 burst and one `Climb()` step 1 → 2.
+
+**Not measured:** the dust stream during a real held-key climb — the editor cannot hold a key across frames
+(`InputState.Change` is overwritten by the real device each input update, and queued `KeyboardState` events are
+not enough), so the two dust call sites were invoked directly instead. The climb itself was measured earlier
+(see the S3b gate table).
 
 ## Depends on
 
