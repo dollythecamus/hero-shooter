@@ -2,8 +2,8 @@
 
 Written 2026-10-24 11:5x (-03) after the S5 block, from the session store, the git history and the
 docs as they stand at `aaa37e9`. This is not a feel-good retro: every claim below has the command
-that produced it. § 9 is the plan for a fully autonomous loop; § 10 is what I need from Chloe
-(the taste idea she said she has).
+that produced it. § 9 is the plan for a fully autonomous loop, § 10 is the creative-designer role built
+from Chloe's answer on design eccentricity, § 11 is what is still open.
 
 Question being tested: **"the failures that needed my intervention were documentation failures;
 fixing documentation is what makes a fresh agent session able to continue."**
@@ -146,7 +146,8 @@ the corpus, as one sentence inside #7: *"looks okay from simple testing, nothing
 definitely will go through more balance testing once we are done"*.
 
 So the taste gap decomposes: **spec completeness** (catchable, by forcing the interview at block
-start) and **feel** (not catchable by text; needs a player or a vision proxy). The loop plan below
+start) and **feel** (not catchable by text; needs a player or a vision proxy). There is a third piece the
+corpus makes visible without naming it — the agent's *defaults* — handled in § 10. The loop plan below
 treats them as two different controls instead of one vague "human in the loop".
 
 ## 6. Failure mode → control map
@@ -160,12 +161,13 @@ treats them as two different controls instead of one vague "human in the loop".
 | F5 boundary ambiguity | Permissions are a machine-readable list in `AGENTS.md`; anything not listed is a stop; a stop is a state in the ledger, not a sentence in chat |
 | F6 gate rot | `gates.sh` **executes** every command in `AGENTS.md` and compares *shape* (regex / call sites / after-last-build), never raw counts; a failing gate fails the commit |
 | Eyes | Screenshot → rubric → vision judge, per block, recorded in the task file |
+| Averaging (taste / design) | Forced-random constraint roll, published with its seed before design starts; a designer role that owns ≤3 non-negotiables in a written manifesto; `docs_lint` L9 fails a block whose gate table drops one → § 10 |
 | Taste / spec | Numbered design-question interview at every block that touches design; unanswered questions become recorded defaults, never silent choices |
-| Taste / feel | Deferred playtest window with a human or a self-play metric, recorded as a gap, never claimed as verified |
+| Taste / feel | Deferred playtest window with a human, a self-play metric or a VLM rubric, recorded as a gap, never claimed as verified |
 
 ## 7. The loop
 
-Six roles, each its own context (the 4.6 % error rate is what happens when one context both writes
+Seven roles, each its own context (the 4.6 % error rate is what happens when one context both writes
 and checks):
 
 | Role | Reads | Writes | Never |
@@ -174,14 +176,17 @@ and checks):
 | **Implementer** (`opencode`) | `AGENTS.md`, the one feature doc, the task file | source, wiring, commits | reads the ledger or other feature docs |
 | **Verifier** (subagent) | the diff, the gate table | a verdict | fixes anything |
 | **Scribe** (subagent) | the diff, the feature doc | feature doc + `ARCHITECTURE.md` line | trusts doc comments |
+| **Designer** (see § 10) | theme, the published roll, reference games, playtest/eyes evidence | `docs/DESIGN.md`: manifesto, ≤3 non-negotiables, design-delta tables | implements, or gates anything |
 | **Auditor** (subagent, every ~5 blocks) | docs + source | claim-level findings | edits code |
 | **Eyes** (vision) | screenshots from the build/editor | look findings vs rubric | judged in the same context that built the UI |
 
 Cycle per block:
 
 ```
-controller: pick block from plan schedule → write task file (gate table) → doc_lint
+designer (hour 0): roll N combos → publish seed+rolls → score → DESIGN.md (manifesto + ≤3 non-negotiables)
+controller: pick block from plan schedule → write task file (gate table) → doc_lint  [L9: non-negotiables appear]
 if block touches design: emit ≤20 numbered questions → answers or recorded defaults → write into task file
+after every playtest / eyes pass: designer writes the design-delta table → implementer executes → verifier measures
 implementer: build the block
 verifier: run every gate row → verdict
 eyes: screenshot set → rubric verdict
@@ -211,6 +216,8 @@ Rules that came straight out of the corpus:
 | L6 | ledger dates for logged events match the session store within 5 min, or the entry carries no time | **F6** timestamps |
 | L7 | every requirement row in the brief maps to a system *and* to a gate row in some task file | silent scope loss (S6 default mechanics, minimap, frag board) |
 | L8 | **resume probe**: a fresh subagent gets hot tier + ledger only and must emit the next action; mismatch with the ledger's next action = doc fault, block stops | **F3/F4** before a human sees it |
+| L9 | every non-negotiable in `docs/DESIGN.md` appears in the gate table of every block whose work touches it | design dilution (D1, § 10.7) |
+| L10 | `docs/DESIGN.md` exists — with its seed and ≥8 published rolls — before the first code commit | rationalised dice (D4, § 10.2) |
 
 Verified today: L1 (`0b20b2e` → S5–S7 missing; `HEAD` → clean), L4 (`error CS` shape: last
 `Tundra build success` at line 7399 of `Logs/Editor.log`, **0** error lines after it; the call-site
@@ -233,6 +240,11 @@ the spec interview**.
 4. Templates: ledger (goal, done-when, next-action-derived, decisions, open questions, evidence,
    requirements log), task file (gate table + landed evidence + resume command), feature doc.
 5. `docs/LOOP.md` — roles, permissions, stop conditions, escalation, kill switch.
+6. `tools/design_roll.py` — the constraint roll of § 10: sample N combinations across the category table,
+   each element carrying **what it forbids / which gate can observe it / block cost**; write the seed, the
+   rolls and the scores into the ledger *before* the design is written.
+7. Templates: `docs/DESIGN.md` (manifesto + ≤3 non-negotiables + reference-game table) and the
+   design-delta table used to turn playtest evidence into numbers.
 
 **P1 — drills, before day 0** (prove the controls with injected faults; a drill that does not run
 is not a control):
@@ -245,6 +257,9 @@ is not a control):
 | D4 resume | kill a session mid-block | L8 reconstructs the next action; ≤2 messages to a correct plan |
 | D5 eyes | break the HUD layout deliberately | the vision judge flags it against the rubric |
 | D6 boundary | issue "halt" mid-block | no write occurs; ledger shows state `halted` |
+| D7 dilution | after block 2, force a gate failure on the non-negotiable | the design is re-negotiated *in writing*; the non-negotiable is still in the design and L9 still finds it in later gate tables |
+| D8 unfalsifiable vision | add a non-negotiable with no observation channel | the roll's veto rejects it at hour 0, before any code |
+| D9 role collapse | reset the designer's context between phases | its first output is "what does the vision forbid here?", and it matches the manifesto (this is the resume probe applied to taste) |
 
 **P2 — the loop's own success criteria**, measured per project, not per feeling:
 
@@ -287,16 +302,145 @@ is not a control):
    are small; if the schedule slips, the docs are what get cut, and then F1–F4 come back within two
    blocks. The controller must protect the doc gate above any individual feature.
 
-## 10. What I need from Chloe
+## 10. Design eccentricity — the creative role (Chloe's answer, applied)
 
-1. **The taste idea** — she said she has one. The constraints it has to satisfy, from § 5: it must
-   either (a) turn feel into measurements a machine can take (self-play, telemetry, comparison
-   against a reference game), or (b) give the loop an evaluator that is not the builder. Text
-   rubrics alone cannot do it.
-2. **Which human contact points survive parity.** The spec interview is defensible (a solo jammer
-   also interrogates their own design), the mid-run playtest is not — a jammer's playtest is
-   themselves. Decide before the run whether the loop gets one playtest or none.
+**The problem she names is measurable in this repo.** The agent's own list of self-chosen mechanics was
+A wave director / B ultimate meter / C damage numbers / D destructible cover / E pause menu, ranked "by
+grade-per-hour" — five genre defaults, chosen by the criterion that minimises surprise. The only
+distinctive decision in the entire build (rock–paper–scissors heroes with a Team Fortress 2 lineage,
+`6548b33`) came from Chloe. The averaging is visible in the *plan document*, before any code exists.
+
+Her proposal: one **creative-designer** role that roleplays a vision, rolls forced randomness across
+design categories (controls, perspective, genre, art style, platform, themes), scores the combinations
+on feasibility and eccentricity, picks one, and studies reference games before writing the design.
+
+The idea is right and it needs four mechanisms to survive the loop. Each one comes from a failure this
+corpus already demonstrates.
+
+### 10.1 The roleplay is the sampling temperature; the manifesto is what survives the reset
+
+The lesson of the whole study is that **nothing not written in the repo survives a context reset** — the
+ledger exists because of exactly that. An eccentric *persona* evaporates on the first reset; the 10:42
+session has no memory of caring about anything. So the designer's first artifact is `docs/DESIGN.md`:
+
+- **the manifesto** (≤1 page): what this game is, in the designer's voice, unhedged;
+- **≤3 non-negotiables**: each one a claim about the player's experience that later roles may not
+  quietly drop;
+- for each non-negotiable: *the gate that observes it*, *the cheap implementation path*, *what it
+  forbids*, and *what the design becomes if it must be cut at 75 % of the budget*.
+
+Roleplay is how the designer generates the manifesto. The manifesto is how the designer still exists two
+contexts later. Without it the eccentricity is a mood, and moods lose to the first failing gate.
+
+### 10.2 The dice must be published, not narrated
+
+"Rolls three combinations and picks the best" is only *forced* randomness if the roll is published before
+the scoring. Otherwise the designer rolls, sees its own preferences, and rationalises — the same
+self-report problem the verifier role exists to solve.
+
+- the seed goes in the ledger (`date +%s`), the game and the rolls in `docs/DESIGN.md` § Roll;
+- all N rolls are published **before** any scoring text is written;
+- the scoring rubric is written before the rolls are read;
+- the roll is part of the record: an audit can replay it and check the pick.
+
+Three rolls is too few for a high-variance space (you get one survivable combination, not a good one).
+Sample **8–12**, then run a *coherence repair* pass (reject contradictions like VR + tabletop-ASCII), then
+score. Every element in the category table carries three annotations that turn an aesthetic list into an
+engineering artifact: **what it forbids · which gate can observe it · block cost**.
+
+### 10.3 Eccentricity only survives if it forbids something
+
+"Pick 2 art styles to combine" is a skin: the first implementer that has to build assets averages it back
+to "URP Lit, three colours", because nothing in the gate table defends it. "Only one button" is a
+constraint: it forbids aim, forbids strafing, and forces a whole different combat system — an implementer
+cannot average it away without deleting the game.
+
+So the score is not feasibility × eccentricity. It is:
+
+```
+veto:      element has no observation channel            → rejected before scoring
+score  =   design compression × distinction
+subject to block cost ≤ the block's budget (the controller's number, not the designer's)
+```
+
+*compression* = how many downstream decisions the element forces (a control scheme and a camera
+perspective score high; a colour palette scores ~0). Requirement: the chosen combination must generate
+**≥2 mechanical consequences**, not only cosmetic ones, or it is re-rolled. *distinction* = distance from
+the default plan for that genre+platform, which is cheap to state: the default plan is in `PLAN.md`, and
+it is the thing we are trying not to write again.
+
+### 10.4 The loop's aesthetic bias is measurability, and it needs a budget line
+
+Every gate in this project is a number: `fov=60.0 → 42.0`, `created=24` before and after, `4/4` agents on
+the NavMesh. That is what made 30+ gate rows trustworthy — and it is also a structural bias: a health bar
+is cheap to measure, a strange idea is not, so the loop will always prefer the health bar. An eccentric
+design evaluated only by cheap gates loses in round one.
+
+Rule: **at least one gate per project, and ~15 % of the block budget, belongs to a feature whose
+observation is a rubric judgement (screenshots + VLM, or a self-play metric), and it is protected from
+the cut list.** The designer proposes it; the controller reserves the time; the verifier may fail it but
+may not delete it.
+
+### 10.5 The reference study needs authority, not length
+
+"Study similar games" is right, and this repo shows what makes such a study load-bearing: `HERO_ROSTER.md`
+carries the line *"where it disagrees with the code, the roster wins"*, and it was written as decision
+tables with numbers. A reference study without authority is decoration. So `docs/DESIGN.md` carries a
+table — *game · what it does · copy · avoid · which of our gates would catch us failing* — and where it
+disagrees with an implementer's convenience, the table wins.
+
+### 10.6 Playtest → design delta, in the shape that already worked
+
+The corpus has the pattern: the agent asked **10 numbered design questions**, Chloe answered in **one
+message** (18:12), and the answers became a 6-row verification table a machine then measured. The designer
+role inherits exactly that shape after every playtest or eyes pass:
+
+| observed | from → to | the gate that will show it | cost |
+|---|---|---|---|
+| "knockback does nothing" | 0 m displaced → ≥1 m | `enemyMoved` in the probe | S |
+
+Feel fixes enter the loop as *numbers with a rationale and a gate*, never as "make it better". That is how
+five taste messages became three shipped fixes with quoted measurements.
+
+### 10.7 Where the other bots do the averaging — and where they must not
+
+Her framing is "the sensible bots average it out to a reasonable working project". Be precise: the
+averaging has to happen in **implementation cost**, never in the design document.
+
+- the verifier may fail the implementation and hand the failure back;
+- the implementer may propose a cheaper path for a non-negotiable, in writing, with the cost it buys;
+- **only the designer may trade a non-negotiable away**, in writing, with the reason and the fallback;
+- the controller may not trade it to make a schedule, and `docs_lint` **L9** enforces this: every block
+  whose gate table touches a non-negotiable must have a row naming it. A block that quietly serves
+  neither the vision nor a gate fails the lint.
+
+### 10.8 Failure modes of this role, each with its control
+
+| Mode | Symptom | Control |
+|---|---|---|
+| D1 dilution | the ecc becomes "a suggestion" by block 3 | manifesto + non-negotiables + **L9** + drill D7 |
+| D2 incoherence | VR + tabletop-ASCII | coherence repair pass + feasibility veto at the roll |
+| D3 unfalsifiable vision | "it should feel tense" | every non-negotiable names its observation channel or is rejected (drill D8) |
+| D4 rationalised dice | the pick always matches the designer's taste | seed + publish-before-score + audit of the roll |
+| D5 cosmetic ecc | the weird thing is a colour | compression score; ≥2 mechanical consequences or re-roll |
+| D6 ecc eats the schedule | blocks overrun defending the vision | cost per element at hour 0, fallback and cut order pre-agreed |
+| D7 role collapse | after two resets the designer writes like a planner | its first output each phase is "what does the vision forbid here?" — the resume probe, applied to taste (drill D9) |
+
+## 11. Still open
+
+1. ~~The taste idea~~ — answered, recorded in § 10. What is *not* settled inside it: who arbitrates when
+   the designer's non-negotiable and the feasibility veto disagree at hour 0 (my default: the veto wins
+   and the roll is re-drawn, because an unbuildable vision is not eccentricity, it is a schedule risk).
+2. **Which human contact points survive parity.** The spec interview is defensible (a solo jammer also
+   interrogates their own design), the mid-run playtest is not — a jammer's playtest is themselves. The
+   designer role makes this sharper, not softer: it can *convert* playtest evidence into design deltas,
+   but it cannot generate the evidence. Decide before the run whether the loop gets one playtest, one
+   VLM/self-play stand-in, or neither.
 3. **The engine target.** Unity's editor lock, GUI builds and the MCP bridge are three hard human
-   dependencies in this project. Godot (headless export, `--headless` runs, scriptable scenes)
-   removes all three and would make a cleaner experiment — but it is a weaker test of "can it
-   survive a real toolchain".
+   dependencies in this project. Godot (headless export, `--headless` runs, scriptable scenes) removes all
+   three and would make a cleaner experiment — but it is a weaker test of "can it survive a real
+   toolchain".
+4. **Category table ownership.** The six categories she listed are 5–8 options each; the *annotations*
+   (forbids / gate / cost) are the expensive part and are worth writing once, for the whole experiment,
+   rather than per jam. That is a half-day of work before P0 and it is the piece most likely to be
+   skipped.

@@ -351,6 +351,12 @@ none
 
 ## Requirements log
 
+- 2026-10-24 12:0x (same session) — Chloe, answering the study's open question 1: **a creative-designer bot** that
+  roleplays a vision, fed by a forced-random roll over design categories (controls, perspective, genre, art style,
+  platform, themes), scoring combinations on feasibility and eccentricity, plus a reference-game study. Recorded
+  as study § 10 with the four mechanisms it needs to survive the loop (manifesto + ≤3 non-negotiables, published
+  seed/rolls, compression scoring with an observation-channel veto, and a ~15 % budget for rubric-gated features),
+  and `docs_lint` L9/L10 + drills D7–D9 added to § 8–9. Study only — no code, no project work this session.
 - 2026-10-24 11:41 (session `local-6a40cc39a943…`, this TUI session) — Chloe: **"reflections on this hero-shooter
   project … do this study reflection now and write a plan to apply what we learn here in a fully autonomous
   loop"**. Result: `docs/studies/2026-10-24-loop-retro.md` — the 23 human messages classified, the six
