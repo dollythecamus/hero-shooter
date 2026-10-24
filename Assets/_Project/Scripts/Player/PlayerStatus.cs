@@ -7,7 +7,13 @@ namespace HeroShooter.Player
     {
         Speed,
         FireRate,
-        DamageTaken
+        DamageTaken,
+
+        /// <summary>
+        /// Not a multiplier: it marks the hero as overclocked so the weapon can tint bullets green.
+        /// <see cref="PlayerStatus.Apply"/> deliberately leaves the multipliers alone for it.
+        /// </summary>
+        Overclock
     }
 
     /// <summary>
@@ -80,6 +86,28 @@ namespace HeroShooter.Player
             _firingSlowUntil = Time.time + duration;
         }
 
+        /// <summary>True while an effect of this kind is live — the weapon asks this for `Overclock`.</summary>
+        public bool HasEffect(StatusEffect kind)
+        {
+            for (int i = 0; i < _active.Count; i++)
+            {
+                if (_active[i].Kind == kind && Time.time < _active[i].EndTime)
+                {
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < _channels.Count; i++)
+            {
+                if (_channels[i].Kind == kind)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         void Update()
         {
             SpeedMultiplier = 1f;
@@ -127,6 +155,8 @@ namespace HeroShooter.Player
                     break;
                 case StatusEffect.DamageTaken:
                     damageTaken *= effect.Magnitude;
+                    break;
+                case StatusEffect.Overclock:
                     break;
             }
         }

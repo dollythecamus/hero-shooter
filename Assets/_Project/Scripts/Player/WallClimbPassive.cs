@@ -1,4 +1,5 @@
 using HeroShooter.Data;
+using HeroShooter.VFX;
 using UnityEngine;
 
 namespace HeroShooter.Player
@@ -34,9 +35,15 @@ namespace HeroShooter.Player
         [SerializeField] LayerMask wallMask = 1 << 3;
         [SerializeField] PlayerMotor motor;
 
+        [Header("Feedback")]
+        [Tooltip("Seconds between dust puffs while climbing.")]
+        [SerializeField] float dustInterval = 0.22f;
+        [SerializeField] Color dustColor = new Color(0.86f, 0.83f, 0.76f, 0.85f);
+
         CharacterController _controller;
         bool _climbing;
         float _climbed;
+        float _nextDust;
         Vector3 _wallNormal = Vector3.back;
 
         public bool IsClimbing => _climbing;
@@ -127,6 +134,12 @@ namespace HeroShooter.Player
             float step = Mathf.Min(climbSpeed * dt, maxHeight - _climbed);
             _controller.Move(Vector3.up * step);
             _climbed += step;
+
+            if (Time.time >= _nextDust)
+            {
+                _nextDust = Time.time + dustInterval;
+                VfxPool.Spawn(transform.position + Vector3.up * 0.25f, 0.5f, dustColor);
+            }
         }
 
         /// <summary>True when a wall we are facing is within reach. Normal is flattened to horizontal.</summary>
@@ -190,12 +203,15 @@ namespace HeroShooter.Player
             float up = Mathf.Sqrt(2f * Mathf.Abs(motor.Gravity) * exitJumpUp);
             motor.Launch(_wallNormal * exitJumpOut + Vector3.up * up);
             _climbing = false;
+            VfxPool.Spawn(transform.position + Vector3.up * 0.2f, 0.7f, dustColor);
         }
 
         void Stop()
         {
             _climbing = false;
             motor.MovementSuspended = false;
+            // A puff marks the end of the climb: letting go, mantling over, or running out of wall.
+            VfxPool.Spawn(transform.position + Vector3.up * 0.2f, 0.7f, dustColor);
         }
     }
 }

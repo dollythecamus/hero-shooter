@@ -1,6 +1,7 @@
 using HeroShooter.Core;
 using HeroShooter.Data;
 using HeroShooter.Enemies;
+using HeroShooter.VFX;
 using UnityEngine;
 
 namespace HeroShooter.Player
@@ -34,6 +35,11 @@ namespace HeroShooter.Player
         [Header("References")]
         [SerializeField] PlayerMotor motor;
         [SerializeField] LayerMask enemyMask = 1 << 7;
+
+        [Header("Feedback")]
+        [Tooltip("Outward burst on landing. Scale is this fraction of the ability radius (roster: 5 m).")]
+        [SerializeField] float burstRadiusFraction = 0.45f;
+        [SerializeField] Color burstColor = new Color(1f, 0.62f, 0.28f, 1f);
 
         Phase _phase;
         CharacterController _controller;
@@ -130,6 +136,8 @@ namespace HeroShooter.Player
 
             Vector3 origin = transform.position;
             Collider[] hits = Physics.OverlapSphere(origin, radius, enemyMask, QueryTriggerInteraction.Ignore);
+
+            VfxPool.Spawn(origin + Vector3.up * 0.15f, radius * burstRadiusFraction, burstColor);
 
             for (int i = 0; i < hits.Length; i++)
             {

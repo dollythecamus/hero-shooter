@@ -1,4 +1,5 @@
 using HeroShooter.Core;
+using HeroShooter.VFX;
 using UnityEngine;
 
 namespace HeroShooter.Weapons
@@ -19,6 +20,15 @@ namespace HeroShooter.Weapons
         [Tooltip("Layers this bullet can hit. Keep the player's own layer out for friendly fire.")]
         [SerializeField] LayerMask hitMask = ~0;
 
+        [Header("Visuals")]
+        [Tooltip("Optional trail. Off unless a launch asks for one — Paper's tracer and Overclock's green.")]
+        [SerializeField] TrailRenderer trail;
+        [SerializeField] MeshRenderer body;
+        [Tooltip("Material swapped in for an overclocked shot (roster: green bullets). Per launch, not per asset.")]
+        [SerializeField] Material overclockMaterial;
+        [SerializeField] Color impactColor = new Color(1f, 0.85f, 0.45f, 1f);
+        [SerializeField] float impactBurstScale = 1f;
+
         Vector3 _direction;
         float _speed;
         float _damage;
@@ -27,6 +37,7 @@ namespace HeroShooter.Weapons
         int _mask;
         float _lifetime;
         float _collisionRadius;
+        Material _baseMaterial;
 
         /// <summary>Set by <see cref="ProjectilePool"/> when the instance is created.</summary>
         public ObjectPool<Projectile> Pool { get; set; }
@@ -37,6 +48,11 @@ namespace HeroShooter.Weapons
             _mask = hitMask.value;
             _lifetime = maxLifetime;
             _collisionRadius = radius;
+
+            if (body != null)
+            {
+                _baseMaterial = body.sharedMaterial;
+            }
         }
 
         public void OnDespawned()
@@ -52,7 +68,8 @@ namespace HeroShooter.Weapons
         /// same prefab also serves enemy fire.
         /// </summary>
         public void Launch(Vector3 direction, float speedOverride, float damageOverride, GameObject owner,
-            LayerMask maskOverride = default(LayerMask), float lifetimeOverride = 0f, float radiusOverride = 0f)
+            LayerMask maskOverride = default(LayerMask), float lifetimeOverride = 0f, float radiusOverride = 0f,
+            Color trailColor = default(Color), bool overclocked = false)
         {
             _direction = direction.normalized;
             _speed = speedOverride > 0f ? speedOverride : speed;
@@ -69,6 +86,27 @@ namespace HeroShooter.Weapons
 
             transform.rotation = Quaternion.LookRotation(_direction);
             transform.localScale = Vector3.one * (_collisionRadius / Mathf.Max(0.01f, radius));
+
+            ApplyVisuals(trailColor, overclocked);
+        }
+
+        /// <summary>
+        /// Trail and body tint are per-launch state, not a material edit: one prefab serves every weapon and
+        /// both sides, so the visual has to come with the shot rather than with the asset.
+        /// </summary>
+        void ApplyVisuals(Color trailColor, bool overclocked)
+        {
+            if (trail != null)
+            {
+                trail.Clear();
+                trail.emitting = trailColor.a > 0.01f;
+                trail.startColor = trailColor;
+            }
+
+            if (body != null && overclockMaterial != null)
+            {
+                body.sharedMaterial = overclocked ? overclockMaterial : _baseMaterial;
+            }
         }
 
         void Update()
@@ -94,6 +132,10 @@ namespace HeroShooter.Weapons
 
         void Impact(Collider other, Vector3 point, Vector3 normal)
         {
+            // The spark fires even when nothing damageable was hit: a bullet that lands on a wall has to read too.
+            Vector3 sparkRotation = normal.sqrMagnitude > 0.0001f ? normal : Vector3.up;
+            VfxPool.Spawn(point, Quaternion.LookRotation(sparkRotation), impactBurstScale, impactColor);
+
             IDamageable target = other.GetComponentInParent<IDamageable>();
             target?.TakeDamage(new DamageInfo(_damage, point, normal, _owner));
             ReturnToPool();

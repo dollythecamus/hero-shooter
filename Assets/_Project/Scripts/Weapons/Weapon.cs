@@ -14,6 +14,12 @@ namespace HeroShooter.Weapons
         /// <summary>Roster decision: aiming halves the spread for every hero. Not a per-weapon number.</summary>
         const float AimSpreadMultiplier = 0.5f;
 
+        /// <summary>Paper's bullets carry a thin bright tracer (roster); a charge weapon is Paper's sniper.</summary>
+        static readonly Color TracerColor = new Color(0.6f, 0.92f, 1f, 0.55f);
+
+        /// <summary>Overclock tints bullets, trails and particles green for every hero (roster).</summary>
+        static readonly Color OverclockGreen = new Color(0.3f, 1f, 0.4f, 0.65f);
+
         [Header("Data")]
         [SerializeField] WeaponDefinition definition;
 
@@ -147,8 +153,11 @@ namespace HeroShooter.Weapons
             Vector3 origin = muzzle != null ? muzzle.position : transform.position;
             Vector3 direction = ApplySpread(SolveAimDirection(origin));
 
+            bool overclocked = status != null && status.HasEffect(StatusEffect.Overclock);
+            Color trail = overclocked ? OverclockGreen : definition.RequiresCharge ? TracerColor : default(Color);
+
             pool.Fire(origin, direction, speed, damage, gameObject, default(LayerMask),
-                definition.projectileLifetime, definition.projectileRadius);
+                definition.projectileLifetime, definition.projectileRadius, trail, overclocked);
 
             if (status != null && definition.firingSpeedMultiplier < 1f)
             {
