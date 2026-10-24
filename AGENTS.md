@@ -65,6 +65,10 @@ A task is complete when:
 - The behaviour named in the task's gate was **observed in play mode** and the observation is quoted
   (numbers, log lines), not summarised as "works".
 - `git diff` was read by Hermes, not only produced by the implementing model.
+- `git diff --check` was checked too, with this caveat: **Unity's own serializer writes `m_Name: ` / `value: `
+  with a trailing space for empty strings**, so a saved scene or prefab always adds a few `trailing whitespace`
+  lines to that check — engine output, not code, and not hand-editable while the editor holds the file. Report
+  them; do not "fix" them.
 - `git status --short` shows only intended paths — no `Library/`, `Temp/`, `Logs/`, no stray `.meta` churn.
 - The touched `docs/features/*.md` is updated from the actual diff, and `docs/PROJECT_LEDGER.md` records the
   block, the gate result and the uncommitted files at checkpoint.
