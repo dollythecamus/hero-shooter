@@ -1,6 +1,6 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-10-24 11:35 (-03) · session 20261023_1941… · owner default profile
+Updated: 2026-10-24 11:45 (-03) · session local-2c3deb50e062… (S5) + local-6a40cc39a943… (study) · owner default profile
 Sprint: **one long block today from 13:00**, then 10-24 → 10-29 as buffer (plan § 6–7).
 
 ## Goal
@@ -351,6 +351,14 @@ none
 
 ## Requirements log
 
+- 2026-10-24 11:41 (session `local-6a40cc39a943…`, this TUI session) — Chloe: **"reflections on this hero-shooter
+  project … do this study reflection now and write a plan to apply what we learn here in a fully autonomous
+  loop"**. Result: `docs/studies/2026-10-24-loop-retro.md` — the 23 human messages classified, the six
+  documentation failure modes each pinned to its commit, and the loop plan (roles, `docs_lint` L1–L8, drills,
+  jam-day shape). Two of the `AGENTS.md` gates were found rotten and corrected in the same pass (the cumulative
+  `grep -c "error CS"` count, and `SceneManager.LoadScene` asserted as text instead of call sites). Docs only —
+  no source, prefab, scene or data asset touched; the tracked change in `Scenes/00_Boot.unity` is Chloe's own
+  editor edit and was left alone.
 - 2026-10-24 10:4x (same session) — Chloe: **"let's continue executing next actions on this hero-shooter project.
   now S5"** → S5 built end to end: task file first (`docs/tasks/2026-10-24_S5-maps-and-tutorial.md`), then
   `GameFlow` / `MapDefinition` / `MainMenuUI` / `MapSelectUI` / `MapCardUI` / `TutorialDirector` /
