@@ -2,8 +2,9 @@
 
 Written 2026-10-24 11:5x (-03) after the S5 block, from the session store, the git history and the
 docs as they stand at `aaa37e9`. This is not a feel-good retro: every claim below has the command
-that produced it. § 9 is the plan for a fully autonomous loop, § 10 is the creative-designer role and § 11 the
-playtest/self-play interface, both built from Chloe's answers, and § 12 is what is still open.
+that produced it. § 9 is the plan for a fully autonomous loop; § 10 (creative-designer role), § 11 (playtest and
+self-play) and § 12 (host messaging) are built from Chloe's answers; § 13 is the engine choice and § 14 is what is
+still open.
 
 Question being tested: **"the failures that needed my intervention were documentation failures;
 fixing documentation is what makes a fresh agent session able to continue."**
@@ -160,6 +161,7 @@ treats them as two different controls instead of one vague "human in the loop".
 | F4 docs never landed | Documentation is a **gate**, not a step: a block is not closed until `docs_lint` passes at HEAD; closing order is commit → docs → ledger, all before the context is allowed to end |
 | F5 boundary ambiguity | Permissions are a machine-readable list in `AGENTS.md`; anything not listed is a stop; a stop is a state in the ledger, not a sentence in chat |
 | F6 gate rot | `gates.sh` **executes** every command in `AGENTS.md` and compares *shape* (regex / call sites / after-last-build), never raw counts; a failing gate fails the commit |
+| Silent wait (host dependency) | Typed messages on a durable outbox, `READY`/`BLOCKED`/`STUCK`/`TRADE`, escalation at 2 h, and a buffer list so an unacked `READY` never idles the loop; `INFO` ≠ `STOP` → § 12 |
 | Eyes | Screenshot → rubric → vision judge, per block, recorded in the task file |
 | Averaging (taste / design) | Forced-random constraint roll, published with its seed before design starts; a designer role that owns ≤3 non-negotiables in a written manifesto; `docs_lint` L9 fails a block whose gate table drops one → § 10 |
 | Taste / spec | Numbered design-question interview at every block that touches design; unanswered questions become recorded defaults, never silent choices |
@@ -250,7 +252,10 @@ the spec interview**.
 9. `tools/formgen.py` + `docs/playtests/E1.form.yaml` — the designer's question spec → one offline HTML form
    (works from a phone, no accounts, no network).
 10. `tools/playtest_ingest.py` — validate returned forms against the spec, write the distribution report,
-    flag contradictions, and only then hand the designer a bounded package (§ 11.2).
+    flag contradictions, and only then hand the designer a bounded package (§ 11.3).
+11. `tools/mail.py` — the host interface of § 12: append-only `loop/mail.jsonl` + best-effort push to a
+    gateway platform, typed messages, unacked-READY escalation, inbox consumed only at block boundaries.
+12. `tools/engine_ready.sh` — the 2-hour readiness gate of § 13.4, one per candidate engine.
 
 **P1 — drills, before day 0** (prove the controls with injected faults; a drill that does not run
 is not a control):
@@ -269,6 +274,8 @@ is not a control):
 | D10 dead telemetry | break a metric's source (e.g. no damage events) and run the harness | the run is marked invalid, not scored as "zero damage" |
 | D11 leading form | hand the ingest a set of answers that all say "fine" | the report shows the distribution and the designer trades nothing on one event |
 | D12 no build at E1 | delete the build output right before the vertical-slice event | the E1 build gate fires and the human event is cancelled, not run against a stale binary |
+| D13 silent wait | never answer a `READY:E1` message | the loop keeps working the buffer list, re-sends hourly, escalates to `BLOCKED` at 2 h, and never idles |
+| D14 STOP mid-block | send `STOP` during a block | no write after the message is read at the next boundary; ledger shows `halted` + resume command; an `INFO` message sent the same way does *not* stop writes |
 
 **P2 — the loop's own success criteria**, measured per project, not per feeling:
 
@@ -288,7 +295,7 @@ is not a control):
 | 1–2 | **the only human contact**: answers batched into one message; unanswered → recorded defaults |
 | 2–8 | blocks 1–2 (core loop playable) + eyes pass each block |
 | 8–10 | self-play harness + screenshots → rubric verdicts → balance patch as its own block with before/after numbers; **the vertical-slice build is produced here** (E1 needs a binary) |
-| 10–11 | **E1 — human playtest, vertical slice**: ≤8 humans, the designer's frozen form, 20 min play + 10 min form, no conversation; ingest → design-delta block |
+| 10–11 | **E1 — human playtest, vertical slice**: ≤8 humans, the designer's frozen form, 20 min play + 10 min form, no conversation; ingest → design-delta block. **Falls at h14 if the h10 build or its smoke test fails** — the loop sends `READY:E1` at h9:40 either way |
 | 10–20 | blocks 3–5 (content, UI, maps) — implementer/verifier/scribe pipelined; audit at block 5 |
 | 20–24 | sleep window; nothing runs (the corpus shows no quality gain from the 21:48–10:15 gap and one revert from working past a halt) |
 | 24–40 | remaining blocks; every 5 blocks an audit |
@@ -305,12 +312,15 @@ is not a control):
    crosshair"; self-play catches "the second wave is unwinnable"; neither catches "this fight is boring".
    That is what the two human events are for, and they are *two* — 30 answers at most over 48 h. § 11 is
    the strongest part of the design and still the thinnest evidence stream in it.
-3. **Engine environments leak into the loop**: an editor that holds the project lock, a GUI-only
+3. **The host is a dependency with latency and no scheduler.** Every `READY` and `BLOCKED` message is a wait,
+   and the loop cannot tell "she is asleep" from "she is ignoring me". § 12's escalation rules bound the damage;
+   they do not remove it, and the buffer list is what the loop does instead of waiting.
+4. **Engine environments leak into the loop**: an editor that holds the project lock, a GUI-only
    build, a bridge that dies (recorded at 20:12 on 10-23). The loop needs a health check on the
    bridge at every block start and a documented recovery, or it will stall on infrastructure and
    mistake it for a code problem — which is exactly what happened for 90 minutes on 10-24 until
    the missing Particle System module was found.
-4. **Cost**: 62 % doc overhead. In a jam with a hard clock that is affordable only because blocks
+5. **Cost**: 62 % doc overhead. In a jam with a hard clock that is affordable only because blocks
    are small; if the schedule slips, the docs are what get cut, and then F1–F4 come back within two
    blocks. The controller must protect the doc gate above any individual feature.
 
@@ -561,21 +571,122 @@ only, and the answers stay on the venue machine.
 | PT6 self-play flattery | all-green numbers on a broken build | metric set frozen at hour 0, analyst ≠ designer, invalid ≠ green (D10, D11) |
 | PT7 silent disagreement | humans dislike what self-play loves | the ingest flags the contradiction explicitly — it is the single most valuable output of this layer |
 
-## 12. Still open
+## 12. The host interface — messages in both directions (Chloe's answer, applied)
 
-1. ~~The taste idea~~ — answered, recorded in § 10. What is *not* settled inside it: who arbitrates when
-   the designer's non-negotiable and the feasibility veto disagree at hour 0 (my default: the veto wins
-   and the roll is re-drawn, because an unbuildable vision is not eccentricity, it is a schedule risk).
-2. ~~Which human contact points survive parity~~ — answered: two human events, form-based and
-   conversation-free, plus bot self-play. Open inside it: **who hosts and schedules the two events** (this is
-   physical logistics and the loop cannot do it), and **where E1 lands** — h10 assumes the loop has a
-   runnable vertical slice by then; if the core-loop block overruns, E1 moves to h14 and the first build
-   gate moves with it.
-3. **The engine target.** Unity's editor lock, GUI builds and the MCP bridge are three hard human
-   dependencies in this project. Godot (headless export, `--headless` runs, scriptable scenes) removes all
-   three and would make a cleaner experiment — but it is a weaker test of "can it survive a real
-   toolchain".
-4. **Category table ownership.** The six categories she listed are 5–8 options each; the *annotations*
-   (forbids / gate / cost) are the expensive part and are worth writing once, for the whole experiment,
-   rather than per jam. That is a half-day of work before P0 and it is the piece most likely to be
-   skipped.
+The physical logistics stay hers; the loop still has to be able to **say** things and **hear** things, and
+this corpus has both failure directions. § 3's F4 is the loop failing to write down its own state; the
+mirror image is the loop *waiting* for a person who does not know it is waiting. Both are fixed the same way:
+durable record first, delivery second.
+
+### 12.1 Outbox — the loop speaks, the file is the truth
+
+`loop/mail.jsonl`, append-only, generated timestamps, one line per message. Push is best-effort on top of it;
+the file is what a reset re-reads.
+
+| Kind | When | What it must contain | Expected host action |
+|---|---|---|---|
+| `READY:<milestone>` | the E1/E2 build passes its smoke test | hour, build path, the 3 gate lines that passed | show up, or send `INFO` with a new window |
+| `BLOCKED:<dependency>` | a sign-off, a build on a GUI machine, a playtest host | what exactly is blocked, what unblocks it, what the loop does meanwhile | decide or delegate |
+| `STUCK:<block>` | two failed gate cycles on the same block | attempts, last verdict, the two hypotheses | steer or cut |
+| `TRADE:<non-negotiable>` | the designer wants to trade one (§ 10.7) | the reason, the fallback, the evidence | yes/no |
+| `DONE` / `DEAD:<reason>` | close, or the loop stops for good | the ledger's unverified list | — |
+
+Rules: **every human dependency in the ledger produces exactly one message** (no dependency exists only in a
+plan); **one message per event**, rate-limited to 1/h except `STUCK`/`DEAD`, because a loop that sends forty
+messages gets muted, which is worse than silent; **an unacked `READY` never idles the loop** — it works the
+buffer list (non-blocking items), re-sends hourly, and escalates to `BLOCKED` after 2 h.
+
+Delivery is a gateway platform, not the terminal: messages composed in a TUI session do not reach her, so the
+push targets a chat platform she actually reads. This is the same shape Hermes itself runs on this host — a
+durable outbox table plus adapter delivery — for the same reason: a process that dies holding an unsent
+message loses it.
+
+### 12.2 Inbox — two words that are not the same word
+
+| Kind | Meaning | Loop behaviour |
+|---|---|---|
+| `INFO` / `T-1` | the schedule moved | keep working; honour the new time as a `deadline:` in the ledger; finish-or-checkpoint within it |
+| `STOP` / `HALT` | stop | no write from the next boundary; state `halted` + resume command in the ledger |
+
+This distinction is typed on purpose. In the corpus, *"halt for now, writing docs and updating plans"* was
+read as permission to start the ability rework, and an unverified pass had to be reverted at 18:23 (F5). A
+`T-1` message and a `STOP` message must not be distinguishable only by tone.
+
+Inbound is consumed **at block boundaries and on gate failure, never mid-write** — the same rule that keeps a
+commit from freezing half-written work. The ack is two lines (what is running, when the checkpoint lands), not
+a conversation; and the host may change anything, but a change arrives as a written requirement plus a ledger
+entry, and the loop restates it in one line before acting, so a misreading is visible immediately.
+
+## 13. Engine target (Godot preferred; BRUTAL as the experimental track)
+
+Facts on this machine, checked today: **Godot 4.7.2** at `/etc/profiles/per-user/chloe/bin/godot` (4.6.3 also
+in the store). **`~/projects/testing_BRUTAL`**: Nix devshell, .NET 10 + Vulkan 1.3 + GLFW, first triangle
+verified by **pixel readback** (`docs/first-triangle.png`); upstream is Ahwoo's BRUTAL — interop layer, maths,
+allocators, thin bindings for Vulkan/GLFW/SDL/OpenGL/ImGui/FMOD/Jolt/Box2D, and explicitly *no editor, no scene
+graph, no renderer*.
+
+### 13.1 The criterion this project supplies
+
+**Can the loop run the artefact and see the frame without a human?** Unity failed both here: no build was ever
+produced, no screenshot path was ever built, and the editor lock, GUI build and MCP bridge were three standing
+human dependencies (the bridge even died at 20:12 on 10-23). Judged on that criterion:
+
+| | Godot | BRUTAL |
+|---|---|---|
+| headless run | `--headless`, exit code | a plain process; a window needs a display |
+| artefact build | `--export-release`, CLI | the compiler; self-contained |
+| scenes | text `.tscn` — authored without an editor | you write the scene graph (there is none) |
+| frame for the Eyes gate | viewport → PNG (needs a display; a virtual one is fine) | **proven**: pixel readback in 40 min |
+| what it does not give | — | navmesh, animation, asset pipeline, UI beyond ImGui |
+| 3D under a 48 h clock | cheap | building an engine while building a game |
+
+### 13.2 So the engine follows the roll, not the other way round
+
+The feasibility veto's *cost* column is engine-dependent, which means fixing the engine before the roll throws
+away half the design space. Concretely: **BRUTAL is the better engine for the designs the RNG is most likely
+to produce** — ASCII/terminal, 2D, simulation, text-heavy — because those need no scene graph and its
+verification path (readback, ImGui, Jolt, FMOD) is already proven on this host; and it is the worse engine for
+anything third-person 3D. Godot is the safest default and the highest ceiling for a complete jam game.
+
+Recommendation: **Godot as the default, BRUTAL as a track offered to the designer when the roll lands in its
+sweet spot — and one engine per run.** Mixing two engines in a single jam makes every failure ambiguous, which
+is the one thing this experiment cannot afford.
+
+### 13.3 What that changes in the plan
+
+- § 11.1's `--replay` requirement gets cheap in both engines (Godot injects input in-engine; BRUTAL owns its
+  main loop), so self-play against the **shipped artefact** becomes realistic instead of aspirational.
+- The engine health check that cost 90 minutes on 10-24 (a disabled module, misdiagnosed as a wedged editor)
+  becomes a standard pre-flight in `gates.sh`.
+- `AGENTS.md`'s "never hand-edit `.unity` while the editor is open" — the single hardest permission boundary in
+  this repo — disappears in both candidates.
+
+### 13.4 Engine-readiness gate (2 h each, before P0 closes)
+
+Pass all four or the engine is out of the experiment:
+
+1. a scene runs headless and exits with a code;
+2. scripted input drives the player with no human keystrokes;
+3. a build comes out of the CLI and runs from a **clean** directory;
+4. a frame is captured to PNG with nobody at the machine.
+
+BRUTAL extra: window creation under this NVIDIA/Wayland host. Godot extra: PNG capture with the dummy
+renderer off (a virtual display is acceptable). Until an engine passes, the plan has no engine, and the 2 h is
+cheaper than discovering it at h9 of a jam.
+
+## 14. Open items
+
+1. **Non-negotiable vs feasibility veto at hour 0** — my default stands (the veto wins, the roll is re-drawn).
+   Say so if you want the designer to win once and the schedule absorb it.
+2. **E1 landing** — decided as a rule, not a time: build by h10, smoke test at h10, E1 at h10 if both pass and
+   at h14 if not. The `READY:E1` message goes out at h9:40 either way.
+3. **Engine** — answered in principle (Godot default, BRUTAL track, one per run); still needs the § 13.4 spike
+   on both, which is half a day and can run before any of P0.
+4. **Category table annotations** — the piece § 10 needs and nobody enjoys: five categories × 5–8 options, each
+   with *what it forbids · which gate observes it · cost in block units*. Owner: me, with your review. Half a
+   day, written once, reused for every jam. Without it `design_roll.py` degrades into an adjective generator.
+5. **Message rate limit** — 1/hour except `STUCK`/`DEAD` is my proposal; override if you want a quieter or
+   noisier channel.
+6. **Noise floor for the whole experiment** — this study is one project, one engine, two days, and the human
+   was present. A single jam run cannot prove the loop generalises; it can only fail to falsify it. Say whether
+   the goal is one run or a pair (Godot + BRUTAL), because that changes what "success" is allowed to mean.

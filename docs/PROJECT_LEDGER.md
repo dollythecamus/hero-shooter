@@ -351,6 +351,13 @@ none
 
 ## Requirements log
 
+- 2026-10-24 13:0x (same session) — Chloe, on host logistics and engine: the loop needs a **messaging interface**
+  in both directions (agents announce `READY:E1`, the host sends `T-1` warnings), on top of her owning the physical
+  logistics; E1 may land at h10 or h14; engine preference is **Godot**, with BRUTAL (`~/projects/testing_BRUTAL`)
+  as an experimental track. Recorded as study § 12 (durable outbox + typed `READY/BLOCKED/STUCK/TRADE`, `INFO` ≠
+  `STOP`, unacked `READY` never idles the loop, escalation at 2 h) and § 13 (the "can the loop run the artefact and
+  see the frame without a human" criterion, which Unity fails on all counts; engine follows the design roll; one
+  engine per run; a 2-hour engine-readiness gate on four checks). Study only.
 - 2026-10-24 12:1x (same session) — Chloe, answering open question 2: yes to bot self-play (contingent on building
   the interface), and yes to human playtesting capped at **two events** (vertical slice, near-finished demo), where
   the designer writes a form and humans only fill it in — never a chat — plus an ingest/report interface that
