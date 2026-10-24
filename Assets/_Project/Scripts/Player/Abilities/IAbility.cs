@@ -17,12 +17,13 @@ namespace HeroShooter.Player.Abilities
     }
 
     /// <summary>
-    /// One activated ability. Cooldown and numbers come from the <c>AbilityDefinition</c>; the class
-    /// implements only what happens on press.
+    /// One instant ability. Cooldown and numbers come from the <c>AbilityDefinition</c>; the class
+    /// implements only what happens on press. The result says whether anything happened at all, so a cast
+    /// with no target does not burn the cooldown.
     /// </summary>
     public interface IAbility
     {
         float Cooldown { get; }
-        void Activate(AbilityContext context);
+        bool Activate(AbilityContext context);
     }
 }

@@ -31,8 +31,36 @@ namespace HeroShooter.Player
         Vector3 _planarVelocity;
         float _verticalVelocity;
 
+        // Set by Launch: the impulse keeps its momentum until the hero lands or steers, which is what makes
+        // the wall climb's exit jump actually leave the wall instead of being killed by ground acceleration.
+        bool _launched;
+
         public bool IsSprinting { get; private set; }
         public float PlanarSpeed => _planarVelocity.magnitude;
+
+        /// <summary>The gravity the motor actually uses (m/s², negative) — Slam derives its descent from it.</summary>
+        public float Gravity => gravity;
+
+        public bool IsGrounded => _controller != null && _controller.isGrounded;
+
+        /// <summary>
+        /// The one-mover rule: while this is true the motor does not call <see cref="CharacterController.Move"/>
+        /// at all — no gravity, no input — because another component (Slam's driver, the wall climb) owns the
+        /// controller. Whoever sets it must clear it when it is done.
+        /// </summary>
+        public bool MovementSuspended { get; set; }
+
+        /// <summary>
+        /// Hands the motor a velocity and returns control to it: used for the wall climb's exit jump and for
+        /// anything that wants to throw the hero without owning the controller for a whole phase.
+        /// </summary>
+        public void Launch(Vector3 velocity)
+        {
+            _verticalVelocity = velocity.y;
+            _planarVelocity = new Vector3(velocity.x, 0f, velocity.z);
+            _launched = true;
+            MovementSuspended = false;
+        }
 
         void Awake()
         {
@@ -58,6 +86,11 @@ namespace HeroShooter.Player
 
         void Update()
         {
+            if (MovementSuspended)
+            {
+                return;
+            }
+
             Vector2 input = InputReader.Move;
             Vector3 desired = CameraRelative(input);
 
@@ -69,13 +102,28 @@ namespace HeroShooter.Player
             IsSprinting = InputReader.SprintHeld;
             float statusMultiplier = status != null ? status.SpeedMultiplier : 1f;
             Vector3 targetVelocity = desired * (walkSpeed * (IsSprinting ? sprintMultiplier : 1f) * statusMultiplier);
-            _planarVelocity = Vector3.MoveTowards(_planarVelocity, targetVelocity, acceleration * Time.deltaTime);
+
+            bool steer = desired.sqrMagnitude > 0.01f;
+
+            if (_launched && !steer)
+            {
+                // Keep the impulse's momentum while airborne: no input means "let the launch finish".
+            }
+            else
+            {
+                _planarVelocity = Vector3.MoveTowards(_planarVelocity, targetVelocity, acceleration * Time.deltaTime);
+            }
 
             ApplyGravityAndJump();
 
             Vector3 motion = _planarVelocity;
             motion.y = _verticalVelocity;
             _controller.Move(motion * Time.deltaTime);
+
+            if (_controller.isGrounded)
+            {
+                _launched = false;
+            }
 
             if (desired.sqrMagnitude > 0.01f)
             {

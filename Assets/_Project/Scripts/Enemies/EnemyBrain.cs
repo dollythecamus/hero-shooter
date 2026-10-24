@@ -25,6 +25,10 @@ namespace HeroShooter.Enemies
         [Tooltip("Prints every state transition to the console — the S2 verification gate.")]
         [SerializeField] bool logTransitions = true;
 
+        [Header("Knockback")]
+        [Tooltip("Seconds the impulse owns the body. Until it ends no state may re-path the agent.")]
+        [SerializeField] float knockbackDuration = 0.3f;
+
         readonly StateMachine _machine = new StateMachine();
 
         NavMeshAgent _agent;
@@ -35,6 +39,7 @@ namespace HeroShooter.Enemies
         float _nextAllyCallTime;
         bool _isDead;
         Vector3 _knockback;
+        float _knockbackUntil;
 
         public EnemyStats Stats => stats;
         public StateMachine Machine => _machine;
@@ -56,6 +61,9 @@ namespace HeroShooter.Enemies
         public float SpeedMultiplier { get; set; } = 1f;
         public float DistanceToTarget => spyglass != null ? spyglass.DistanceToTarget : float.PositiveInfinity;
         public float TimeInState => _machine.TimeInState;
+
+        /// <summary>True while a knockback impulse owns the body — <see cref="MoveTo"/> refuses to path.</summary>
+        public bool IsKnockedBack => Time.time < _knockbackUntil;
 
         void Awake()
         {
@@ -123,10 +131,18 @@ namespace HeroShooter.Enemies
             _machine.Tick(Time.deltaTime);
             EvaluateTransitions();
 
-            if (_knockback.sqrMagnitude > 0.01f)
+            // The impulse owns the body for its whole duration: agent.Move is the only thing that moves it,
+            // and MoveTo refuses to path, so the FSM cannot cancel the displacement on the next frame.
+            if (IsKnockedBack)
             {
-                _agent.Move(_knockback * Time.deltaTime);
-                _knockback = Vector3.Lerp(_knockback, Vector3.zero, 8f * Time.deltaTime);
+                if (_agent.enabled)
+                {
+                    _agent.Move(_knockback * Time.deltaTime);
+                }
+            }
+            else if (_knockback.sqrMagnitude > 0.01f)
+            {
+                _knockback = Vector3.zero;
             }
         }
 
@@ -195,16 +211,38 @@ namespace HeroShooter.Enemies
 
         public void MoveTo(Vector3 worldPosition, float speed)
         {
+            if (IsKnockedBack)
+            {
+                return;
+            }
+
             _agent.speed = speed * SpeedMultiplier;
             _agent.isStopped = false;
             _agent.SetDestination(worldPosition);
         }
 
-        /// <summary>Impulse away from a hit (Rock's Ground Slam). Decays in Update and works with the agent.</summary>
+        /// <summary>
+        /// Impulse away from a hit (Rock's Ground Slam). The brain owns the displacement for
+        /// <see cref="knockbackDuration"/>: the path is cleared and the agent stopped, so states cannot
+        /// re-path and cancel it — the bug that made knockback invisible in the S2 play-test.
+        /// </summary>
         public void Push(Vector3 direction, float force)
         {
             direction.y = 0f;
+
+            if (direction.sqrMagnitude < 0.0001f)
+            {
+                return;
+            }
+
             _knockback = direction.normalized * force;
+            _knockbackUntil = Time.time + knockbackDuration;
+
+            if (_agent.enabled)
+            {
+                _agent.ResetPath();
+                _agent.isStopped = true;
+            }
         }
 
         public void HoldPosition()

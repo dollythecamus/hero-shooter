@@ -114,6 +114,13 @@ namespace HeroShooter.Weapons
             Fire(0f);
         }
 
+        /// <summary>Drops a charge without firing (Bulwark comes up mid-charge).</summary>
+        public void CancelCharge()
+        {
+            _charging = false;
+            ChargeRatio = 0f;
+        }
+
         void Fire(float charge)
         {
             ResolvePool();

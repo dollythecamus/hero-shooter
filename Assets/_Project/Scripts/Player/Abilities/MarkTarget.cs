@@ -15,23 +15,24 @@ namespace HeroShooter.Player.Abilities
         {
         }
 
-        public override void Activate(AbilityContext context)
+        public override bool Activate(AbilityContext context)
         {
             Transform target = AimRaycast.FindTarget(context, Range);
             if (target == null)
             {
-                return;
+                return false;
             }
 
             Health health = target.GetComponentInParent<Health>();
             if (health == null)
             {
-                return;
+                return false;
             }
 
             float previous = health.IncomingDamageMultiplier;
             health.IncomingDamageMultiplier = Magnitude;
             context.Host.StartCoroutine(Restore(health, previous, Duration));
+            return true;
         }
 
         static IEnumerator Restore(Health health, float previous, float duration)

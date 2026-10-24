@@ -15,8 +15,8 @@ MonoBehaviour:
   displayName: Rock Bulwark
   kind: 11
   description: Takes 40% damage at 75% speed for 4s
-  cooldown: 14
-  duration: 4
+  cooldown: 0
+  duration: 5
   magnitude: 0.4
   radius: 0
   range: 0

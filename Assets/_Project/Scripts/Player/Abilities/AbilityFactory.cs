@@ -3,8 +3,9 @@ using HeroShooter.Data;
 namespace HeroShooter.Player.Abilities
 {
     /// <summary>
-    /// Kind → behaviour. This is the whole "abilities are data" claim in one switch: adding an ability means
-    /// adding an enum value, a definition asset and one class — no edit to the player prefab or the input code.
+    /// Kind → behaviour, for the **instant** abilities only. The three stateful ones are components
+    /// (<c>BulwarkShield</c>, <c>SlamDriver</c>, <c>WallClimbPassive</c>) and are routed by
+    /// <c>PlayerAbilities</c> from <c>AbilityShapes</c> — a definition of one of those kinds returns null here.
     /// </summary>
     public static class AbilityFactory
     {
@@ -17,16 +18,10 @@ namespace HeroShooter.Player.Abilities
 
             switch (definition.kind)
             {
-                case AbilityKind.GroundSlam:
-                    return new GroundSlam(definition);
-                case AbilityKind.Bulwark:
-                    return new Bulwark(definition);
                 case AbilityKind.MarkTarget:
                     return new MarkTarget(definition);
                 case AbilityKind.Snare:
                     return new Snare(definition);
-                case AbilityKind.WallClimb:
-                    return new WallClimb(definition);
                 case AbilityKind.Overclock:
                     return new Overclock(definition);
                 default:

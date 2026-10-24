@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Data.AbilityDefinition
   displayName: Scissors Climb
   kind: 30
-  description: Climb straight up for under a second
-  cooldown: 3
-  duration: 0.9
+  description: 'Passive: hold jump against a wall to climb it'
+  cooldown: 0
+  duration: 0
   magnitude: 6
   radius: 0
   range: 0

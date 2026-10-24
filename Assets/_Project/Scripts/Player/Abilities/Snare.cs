@@ -15,23 +15,24 @@ namespace HeroShooter.Player.Abilities
         {
         }
 
-        public override void Activate(AbilityContext context)
+        public override bool Activate(AbilityContext context)
         {
             Transform target = AimRaycast.FindTarget(context, Range);
             if (target == null)
             {
-                return;
+                return false;
             }
 
             EnemyBrain brain = target.GetComponentInParent<EnemyBrain>();
             if (brain == null)
             {
-                return;
+                return false;
             }
 
             float previous = brain.SpeedMultiplier;
             brain.SpeedMultiplier = Magnitude;
             context.Host.StartCoroutine(Restore(brain, previous, Duration));
+            return true;
         }
 
         static IEnumerator Restore(EnemyBrain brain, float previous, float duration)

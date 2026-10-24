@@ -139,6 +139,9 @@ GameObject:
   - component: {fileID: 7115789505888564853}
   - component: {fileID: 7970637098124364802}
   - component: {fileID: 254024828259018535}
+  - component: {fileID: 4661766948856237933}
+  - component: {fileID: 7112301968594241213}
+  - component: {fileID: 8810033821985226711}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -221,6 +224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.PlayerCombat
   weapon: {fileID: 515936480818419589}
+  shield: {fileID: 0}
 --- !u!114 &3187548390469735647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,7 +269,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.PlayerStatus
   health: {fileID: 3187548390469735647}
-  climbSpeed: 7
 --- !u!114 &7115789505888564853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,6 +284,9 @@ MonoBehaviour:
   status: {fileID: 4998190288313544065}
   health: {fileID: 3187548390469735647}
   weapon: {fileID: 515936480818419589}
+  shield: {fileID: 0}
+  slam: {fileID: 0}
+  climb: {fileID: 0}
   enemyMask:
     serializedVersion: 2
     m_Bits: 128
@@ -318,3 +324,67 @@ MonoBehaviour:
   weapon: {fileID: 515936480818419589}
   abilities: {fileID: 7115789505888564853}
   appearance: {fileID: 7970637098124364802}
+--- !u!114 &4661766948856237933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151086699822332920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27361fb49e1b46b4687eaee25d75cd97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.BulwarkShield
+  maxMeter: 5
+  drainPerSecond: 1
+  refillPerSecond: 1
+  refillDelay: 1
+  releaseCooldown: 0.5
+  depletedCooldown: 8
+  damageMultiplier: 0.4
+  speedMultiplier: 0.75
+  status: {fileID: 0}
+--- !u!114 &7112301968594241213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151086699822332920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3560138fa995950c7a1dfb99a9b35c7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.SlamDriver
+  riseHeight: 4
+  descentGravityMultiplier: 2.5
+  radius: 5
+  damage: 40
+  knockbackForce: 8
+  motor: {fileID: 0}
+  enemyMask:
+    serializedVersion: 2
+    m_Bits: 128
+--- !u!114 &8810033821985226711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151086699822332920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6146f9b1444377debd5edeaf45d7253, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Player.WallClimbPassive
+  climbSpeed: 3
+  maxHeight: 6
+  wallReach: 0.8
+  eyeHeight: 1.2
+  exitJumpOut: 4
+  exitJumpUp: 2
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 8
+  motor: {fileID: 0}

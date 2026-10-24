@@ -4,13 +4,16 @@ using UnityEngine;
 namespace HeroShooter.Player
 {
     /// <summary>
-    /// Connects player input to the weapon. Abilities join this file in S3, where the
-    /// character's <c>AbilityDefinition</c> data decides what Q/E actually do.
+    /// Connects player input to the weapon. Firing is refused while a channelled shield is raised — Bulwark's
+    /// "no shooting while shielded" rule lives here because the weapon must not know about abilities.
     /// </summary>
     public class PlayerCombat : MonoBehaviour
     {
         [Tooltip("Left empty, the Weapon on this same GameObject is used.")]
         [SerializeField] Weapon weapon;
+
+        [Tooltip("Left empty, the BulwarkShield on this same GameObject is used.")]
+        [SerializeField] BulwarkShield shield;
 
         public Weapon Weapon => weapon;
 
@@ -22,12 +25,25 @@ namespace HeroShooter.Player
             {
                 weapon = GetComponent<Weapon>();
             }
+
+            if (shield == null)
+            {
+                shield = GetComponent<BulwarkShield>();
+            }
         }
 
         void Update()
         {
             if (weapon == null)
             {
+                return;
+            }
+
+            if (shield != null && shield.IsRaised)
+            {
+                // A raised shield cancels a charge instead of holding it: releasing mid-shield must not fire.
+                weapon.CancelCharge();
+                _wasHeld = false;
                 return;
             }
 

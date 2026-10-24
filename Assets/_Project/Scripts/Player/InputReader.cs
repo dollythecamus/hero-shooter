@@ -64,11 +64,25 @@ namespace HeroShooter.Player
         public static bool JumpPressed =>
             (Kb != null && Kb.spaceKey.wasPressedThisFrame) || (Pad != null && Pad.buttonSouth.wasPressedThisFrame);
 
-        public static bool Ability1Pressed =>
-            (Kb != null && Kb.qKey.wasPressedThisFrame) || (Ms != null && Ms.rightButton.wasPressedThisFrame);
+        /// <summary>Held jump — the wall climb reads this continuously, so it is not a press-only key.</summary>
+        public static bool JumpHeld =>
+            (Kb != null && Kb.spaceKey.isPressed) || (Pad != null && Pad.buttonSouth.isPressed);
 
-        public static bool Ability2Pressed =>
-            (Kb != null && Kb.eKey.wasPressedThisFrame) || (Ms != null && Ms.middleButton.wasPressedThisFrame);
+        /// <summary>
+        /// Q. RMB is deliberately **not** an ability button any more: it is the aim button for every hero,
+        /// and holding it while aiming would begin a channel (Bulwark) instead.
+        /// </summary>
+        public static bool Ability1Pressed => Kb != null && Kb.qKey.wasPressedThisFrame;
+
+        public static bool Ability1Held => Kb != null && Kb.qKey.isPressed;
+        public static bool Ability1Released => Kb != null && Kb.qKey.wasReleasedThisFrame;
+
+        public static bool Ability2Pressed => Kb != null && Kb.eKey.wasPressedThisFrame;
+        public static bool Ability2Held => Kb != null && Kb.eKey.isPressed;
+        public static bool Ability2Released => Kb != null && Kb.eKey.wasReleasedThisFrame;
+
+        /// <summary>Right mouse / left trigger: aim. The camera and weapon read this.</summary>
+        public static bool AimHeld => (Ms != null && Ms.rightButton.isPressed) || (Pad != null && Pad.leftTrigger.isPressed);
 
         /// <summary>Hold Tab to read the frag board.</summary>
         public static bool FragsHeld => Kb != null && Kb.tabKey.isPressed;

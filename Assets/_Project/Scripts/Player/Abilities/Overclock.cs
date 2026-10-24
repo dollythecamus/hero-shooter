@@ -12,10 +12,11 @@ namespace HeroShooter.Player.Abilities
         {
         }
 
-        public override void Activate(AbilityContext context)
+        public override bool Activate(AbilityContext context)
         {
             context.Status.AddEffect(StatusEffect.FireRate, Duration, Magnitude);
             context.Status.AddEffect(StatusEffect.Speed, Duration, 1.25f);
+            return true;
         }
     }
 }

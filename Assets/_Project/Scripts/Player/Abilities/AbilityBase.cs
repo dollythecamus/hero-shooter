@@ -22,6 +22,6 @@ namespace HeroShooter.Player.Abilities
         protected float Radius => Definition != null ? Definition.radius : 0f;
         protected float Range => Definition != null ? Definition.range : 0f;
 
-        public abstract void Activate(AbilityContext context);
+        public abstract bool Activate(AbilityContext context);
     }
 }

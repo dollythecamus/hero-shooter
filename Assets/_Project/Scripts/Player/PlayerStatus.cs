@@ -7,16 +7,14 @@ namespace HeroShooter.Player
     {
         Speed,
         FireRate,
-        DamageTaken,
-        Climb
+        DamageTaken
     }
 
     /// <summary>
     /// Timed status effects for the player, and the only place that multiplies speed / fire rate /
-    /// incoming damage. Abilities never touch the motor or the weapon directly — they apply an effect
-    /// here and it expires on its own.
+    /// incoming damage. It moves nothing: movement belongs to `PlayerMotor` alone (the one-mover rule), which
+    /// is why the old `Climb` effect — the second caller of `CharacterController.Move` — is gone.
     /// </summary>
-    [RequireComponent(typeof(CharacterController))]
     public class PlayerStatus : MonoBehaviour
     {
         struct ActiveEffect
@@ -28,23 +26,20 @@ namespace HeroShooter.Player
 
         [SerializeField] Health health;
 
-        [Tooltip("Fallback climb speed (m/s) when an ability passes a non-positive magnitude.")]
-        [SerializeField] float climbSpeed = 7f;
-
         readonly System.Collections.Generic.List<ActiveEffect> _active = new System.Collections.Generic.List<ActiveEffect>();
 
-        CharacterController _controller;
+        // Effects held by a channelled ability (Bulwark): applied while the channel runs, dropped on release.
+        readonly System.Collections.Generic.List<ActiveEffect> _channels = new System.Collections.Generic.List<ActiveEffect>();
+
         float _firingSlowUntil;
         float _firingSlowMultiplier = 1f;
 
-        public bool IsClimbing { get; private set; }
         public float SpeedMultiplier { get; private set; } = 1f;
         public float FireRateMultiplier { get; private set; } = 1f;
+        public float IncomingDamageMultiplier { get; private set; } = 1f;
 
         void Awake()
         {
-            _controller = GetComponent<CharacterController>();
-
             if (health == null)
             {
                 health = GetComponent<Health>();
@@ -55,6 +50,27 @@ namespace HeroShooter.Player
         public void AddEffect(StatusEffect kind, float duration, float magnitude)
         {
             _active.Add(new ActiveEffect { Kind = kind, EndTime = Time.time + duration, Magnitude = magnitude });
+        }
+
+        /// <summary>
+        /// Begins a channelled effect: it lasts until <see cref="EndChannel"/> for the same kind, not until a
+        /// clock runs out. Re-beginning replaces the previous value for that kind.
+        /// </summary>
+        public void BeginChannel(StatusEffect kind, float magnitude)
+        {
+            EndChannel(kind);
+            _channels.Add(new ActiveEffect { Kind = kind, Magnitude = magnitude });
+        }
+
+        public void EndChannel(StatusEffect kind)
+        {
+            for (int i = _channels.Count - 1; i >= 0; i--)
+            {
+                if (_channels[i].Kind == kind)
+                {
+                    _channels.RemoveAt(i);
+                }
+            }
         }
 
         /// <summary>Used by weapons that penalise firing (Rock's heavy slug).</summary>
@@ -69,8 +85,6 @@ namespace HeroShooter.Player
             SpeedMultiplier = 1f;
             FireRateMultiplier = 1f;
             float damageTaken = 1f;
-            float climb = 0f;
-            IsClimbing = false;
 
             for (int i = _active.Count - 1; i >= 0; i--)
             {
@@ -80,24 +94,12 @@ namespace HeroShooter.Player
                     continue;
                 }
 
-                ActiveEffect effect = _active[i];
-                switch (effect.Kind)
-                {
-                    case StatusEffect.Speed:
-                        SpeedMultiplier *= effect.Magnitude;
-                        break;
-                    case StatusEffect.FireRate:
-                        FireRateMultiplier *= effect.Magnitude;
-                        break;
-                    case StatusEffect.DamageTaken:
-                        damageTaken *= effect.Magnitude;
-                        break;
-                    case StatusEffect.Climb:
-                        // Climb is the one effect whose magnitude is a speed (m/s), not a multiplier.
-                        climb = effect.Magnitude > 0f ? effect.Magnitude : climbSpeed;
-                        IsClimbing = true;
-                        break;
-                }
+                Apply(_active[i], ref damageTaken);
+            }
+
+            for (int i = 0; i < _channels.Count; i++)
+            {
+                Apply(_channels[i], ref damageTaken);
             }
 
             if (Time.time < _firingSlowUntil)
@@ -105,14 +107,27 @@ namespace HeroShooter.Player
                 SpeedMultiplier *= _firingSlowMultiplier;
             }
 
+            IncomingDamageMultiplier = damageTaken;
+
             if (health != null)
             {
                 health.IncomingDamageMultiplier = damageTaken;
             }
+        }
 
-            if (IsClimbing)
+        void Apply(ActiveEffect effect, ref float damageTaken)
+        {
+            switch (effect.Kind)
             {
-                _controller.Move(Vector3.up * (climb * Time.deltaTime));
+                case StatusEffect.Speed:
+                    SpeedMultiplier *= effect.Magnitude;
+                    break;
+                case StatusEffect.FireRate:
+                    FireRateMultiplier *= effect.Magnitude;
+                    break;
+                case StatusEffect.DamageTaken:
+                    damageTaken *= effect.Magnitude;
+                    break;
             }
         }
     }
