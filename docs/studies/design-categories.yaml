@@ -1,0 +1,700 @@
+# design-categories.yaml - the design-roll option space for the agent-loop jam experiment
+#
+# Generated 2026-10-24 by three parallel subagents from one spec (20 categories x 30 items, <=14 words,
+# behavioural not adjectival, ~8 conventional / 14 unusual / 8 wild per category), then validated here:
+# 600 items, 0 duplicates, 0 over-length, pure ASCII.
+#
+# HOW TO CULL (Chloe): use design-categories.tsv in a spreadsheet. Set the `keep` column to 0, or delete the
+# row. Category granularity: delete the whole category block below (and mark it in the TSV) if the dimension
+# itself is wrong. Do not rewrite item text - if an item is nearly right, keep it and say so; re-wording is a
+# later pass. When the cull is done, the survivors get three annotations each (what it forbids / which gate can
+# observe it / cost in block units) and only then does design_roll.py exist (study § 10.3).
+#
+# flags: wild = feasibility-stressing, heavy = needs more than 2 weeks or an engine feature,
+#        forces: ... = what choosing it would force.
+#
+# A note from the review: input-and-controls is heavily shooter-shaped (19 of 30 items presuppose aim/fire/
+# reload) and 5 need hardware the loop does not have (webcam, microphone, foot pedals, head tracking, bite
+# sensor). Cull with that in mind if you want the roll to reach non-shooter designs.
+
+categories:
+  - id: input-and-controls
+    name: Input and control scheme
+    forces: "what the player can physically do"
+    items:
+      - "WASD plus mouse, standard third-person over-shoulder aim and fire"
+      - "twin-stick gamepad: left stick moves, right stick aims, triggers fire"
+      - "mouse-only pointer control, click to move and click to shoot"
+      - "keyboard-only, eight-direction movement with four aim keys"
+      - "hold right mouse to aim, left mouse fires, shift dashes"
+      - "click-to-move with a queued waypoint path and auto-attack"
+      - "one-button control: single key cycles target, holds to fire"
+      - "gamepad with aim assist snapping to the nearest visible enemy"
+      - "movement typed as rhythm: each step must land on the beat"
+      - "aim is a slingshot pull, release to launch a projectile arc"
+      - "reload by physically dragging magazines onto a weapon diagram"
+      - "controls swap hands every thirty seconds, mirrored layout"  # forces: relearn mid-fight, no muscle memory
+      - "aim with head tracking, fire with a bite sensor on a straw"  # heavy
+      - "two-stick tank controls, rotate body then rotate turret separately"
+      - "shoot by drawing a shape, gesture match decides the weapon"  # wild
+      - "stamina-limited verbs: dodge, shoot and jump share one meter"
+      - "voice command list of eight shouts, each mapped to an ability"  # heavy
+      - "aiming reticle drifts on its own, player counter-steers with mouse"
+      - "swap between three characters mid-fight, each with one button"  # forces: no single moveset, three tutorials
+      - "melee combos entered as short directional strings like a fighting game"
+      - "camera-relative movement disabled: forward is always world north"  # forces: no camera-relative strafing conventions
+      - "foot pedals for strafing, hands stay on aim and fire"  # heavy
+      - "the controller is a physical dial the player must keep spinning"  # wild
+      - "each shot requires solving a two-digit multiplication aloud"  # wild
+      - "controls are rebound randomly after every death, layout shown briefly"  # wild
+      - "player must keep both triggers held or the weapon overheats"  # wild
+      - "aim is controlled by leaning the whole body, camera follows torso"  # heavy
+      - "shooting requires drawing breath into a microphone, hold to charge"  # wild
+      - "both players share one keyboard half, hands crossing in the middle"  # wild
+      - "weapon fire is bound to blinking, tracked by webcam"  # heavy
+  - id: camera-and-perspective
+    name: Camera and perspective
+    forces: "what the player can see"
+    items:
+      - "fixed over-the-shoulder third person with slight aim zoom"
+      - "free orbit third person, mouse drag rotates around the hero"
+      - "first person with visible weapon and hands"
+      - "top-down isometric camera, fixed angle, no rotation"
+      - "side-on 2.5D camera locked to one axis of movement"
+      - "third person with a lock-on that frames hero and target together"
+      - "wide tactical camera that pulls back as enemies close in"
+      - "shoulder swap left and right, peek around cover both sides"
+      - "camera fixed to the arena walls, player runs between viewpoints"  # forces: no free look, level design owns framing
+      - "split screen: one camera aims, the other shows where you are"
+      - "rear-view mirror panel showing what is behind the hero"
+      - "camera lags one second behind the player, predicting nothing"
+      - "camera lives inside the weapon barrel, muzzle as viewpoint"
+      - "perspective flips to top-down whenever the player stops moving"
+      - "camera height tied to health, dropping as the hero takes damage"
+      - "picture-in-picture drone camera the player can steer independently"
+      - "camera orbits a fixed point, player moves the world instead"
+      - "surveillance-camera hopping: jump between fixed room feeds"  # forces: no continuous camera, rooms only
+      - "camera distance grows with combo meter, shrinking on a miss"
+      - "reflection-only view, player sees the arena in a mirror surface"
+      - "camera is the enemy's eye, always looking at the hero from a foe"
+      - "fisheye lens distortion that widens with movement speed"
+      - "one continuous unbroken shot, camera never cuts across the whole match"  # heavy
+      - "camera renders only what the hero remembers having seen"  # wild
+      - "two cameras at once, player picks which feed to trust"  # wild
+      - "camera attached to a bouncing physics object thrown by the player"  # wild
+      - "view is a low-resolution security feed with occasional dropped frames"  # wild
+      - "camera rolls 90 degrees each time the player takes a hit"  # wild
+      - "player controls the camera only, an AI controls the hero"  # wild
+      - "camera falls from the sky at match start and must be caught"  # wild
+  - id: spatial-structure
+    name: Spatial structure
+    forces: "what shape the play space has"
+    items:
+      - "single symmetric arena with two spawn rooms at opposite ends"
+      - "three-lane map with a contested middle and flanking routes"
+      - "vertical tower with ramps connecting five stacked floors"
+      - "small box arena with one central pillar for cover"
+      - "linear corridor run with chokepoints and side rooms"
+      - "open courtyard ringed by balconies reachable by stairs"
+      - "two-floor building, indoor close quarters and rooftop sightlines"
+      - "symmetrical capture zones on a mirrored city block"
+      - "arena shrinks continuously, outer ring collapsing into hazard"
+      - "rooms connect through one-way doors, no route works twice"
+      - "map is a single spiral ramp with no flat ground"  # forces: constant elevation, no cover flats
+      - "cover is destructible and never respawns within a match"
+      - "the map is one long hallway that loops back on itself"
+      - "three islands connected by bridges that retract on a timer"
+      - "elevator shaft arena, floors pass by and the fight moves vertically"
+      - "every wall is a movable crate the player can push"  # forces: no static cover, physics-heavy navigation
+      - "arena built from stacked shipping containers, gaps between them"
+      - "mirrored twin arenas, the second half is the first flipped"  # forces: one layout authored twice
+      - "safe zones marked by light, floor outside them damages"
+      - "map has no floor, platforms floating over a pit"
+      - "corridors rotate around a fixed center room"  # heavy
+      - "arena is a tangle of pipes the player crawls through"
+      - "the map is generated from the player's last match statistics"  # wild
+      - "arena folds like paper, walls collapsing into new geometry"  # heavy
+      - "one room duplicated infinitely, exits lead to identical copies"  # wild
+      - "the play space is the inside of a giant moving creature"  # wild
+      - "gravity direction changes per zone, walls are walkable floors"  # heavy
+      - "no fixed map: geometry spawns only where the player looks away"  # wild
+      - "arena is a single flat plane with no cover except other players"
+      - "map exists in two overlapping layers, player phases between them"  # heavy
+  - id: core-loop
+    name: Core loop
+    forces: "what the player repeats"
+    items:
+      - "shoot enemies, collect dropped ammo, advance to the next wave"
+      - "capture and hold a point while enemies contest it"
+      - "eliminate the enemy team, respawn, repeat until score limit"
+      - "escort a payload along a fixed route while defending it"
+      - "clear a room, pick one of three upgrades, open the next room"
+      - "plant a bomb, defend it for thirty seconds, extract"
+      - "survive escalating waves, spend currency between rounds"
+      - "duel one opponent at a time, winner stays in the arena"
+      - "kill enemies to steal their weapon, lose it when you die"
+      - "every kill shortens your own timer, the loop is a countdown"
+      - "damage dealt is stored and only applied when you stop firing"
+      - "you can only reload by standing still in cover for two seconds"
+      - "kills heal enemies, damage is the only way to lose health"
+      - "the loop alternates offense and repair: shoot, then rebuild cover"
+      - "each enemy killed becomes a friendly that fights for you"
+      - "shooting drains the map's light, darkness spawns more enemies"
+      - "player must return to spawn to bank score, dying loses carried points"
+      - "combo meter decays, so the loop is chasing a single unbroken chain"
+      - "weapons are single-use, every shot requires picking up a new gun"
+      - "loop is a delivery run: carry an object from A to B under fire"
+      - "enemies only die when pushed into environmental hazards"
+      - "every action spends a shared resource, including moving and aiming"
+      - "the loop rewrites itself: every third round changes a core rule"  # heavy
+      - "player must lose health to gain ammo, the two meters are one"  # wild
+      - "killing an enemy spawns two, but each is weaker than the last"  # wild
+      - "the loop is an auction: bid health for the right to attack"  # wild
+      - "every shot fired is recorded and replayed against you later"  # heavy
+      - "the player's own corpse from the last run is the boss"  # wild
+      - "each kill removes one of your controls until you reset"  # wild
+      - "score only counts if the player never stops moving the whole round"  # wild
+  - id: win-and-fail-states
+    name: Win and fail states
+    forces: "how a run ends"
+    items:
+      - "first team to twenty kills wins, no respawn limit"
+      - "run ends when health reaches zero, restart from the beginning"
+      - "capture all three points to win, losing them all loses"
+      - "survive ten waves to win, dying on any wave ends the run"
+      - "best of five rounds, each round is one life"
+      - "timer runs out, highest score at zero wins"
+      - "objective destroyed hands the match to the attackers"
+      - "lose a life per death, three lives, then game over"
+      - "you win by never firing a shot, killing ends the run"
+      - "the run ends when the player stops moving for three seconds"
+      - "winning requires dying at the right moment, not surviving"
+      - "both a win and loss meter fill; whichever completes first decides"
+      - "failing to hit anything for ten seconds ends the match"
+      - "the game ends when the player's score exactly matches a target"
+      - "each death adds a permanent rule, ten rules and the run is lost"
+      - "you win when the enemy team surrenders, morale tracked not health"
+      - "the run ends early but score is kept, ending fast is the goal"
+      - "win condition is hidden, guessed from three offered hints"
+      - "loss is delayed: damage accumulates and applies after the round"
+      - "match ends in a draw by default, only a double kill breaks it"
+      - "player sets their own win condition before the match starts"
+      - "each side can win on points or by destroying the arena itself"  # forces: two win paths, both must be taught
+      - "the game decides the winner and the player must justify it"  # wild
+      - "win and lose swap labels midway through every match"  # wild
+      - "the run only ends when the console is powered off"  # wild
+      - "losing is stored and replayed as a win in the next session"  # heavy
+      - "the player must lose three times before a win is even possible"  # wild
+      - "victory requires both teams to reach the score simultaneously"  # wild
+      - "the win state is a physical object someone must carry out"  # wild
+      - "every match ends in a draw, ranking decides who actually won"  # wild
+  - id: time-and-session-shape
+    name: Time and session shape
+    forces: "how long and how often a run lasts"
+    items:
+      - "five-minute matches, best of three, roughly fifteen minutes total"
+      - "single run of ten waves, twenty minutes, no saving"
+      - "endless mode, session ends when the player quits"
+      - "round-based, ninety seconds per round, six rounds"
+      - "one long match of thirty minutes with a halftime break"
+      - "short two-minute bursts, score attack, replay immediately"
+      - "tutorial then one match, total under ten minutes"
+      - "timed mode: highest score in three minutes, then restart"
+      - "the match clock runs only while the player is standing still"
+      - "one life per session, lasting only as long as the player plays well"
+      - "time rewinds ten seconds on death, limited to three rewinds"
+      - "rounds shorten by ten seconds each time, escalating pressure"
+      - "the game pauses whenever the player looks away from the screen"  # heavy
+      - "play time is a resource spent to use abilities"
+      - "session length set by the player at start, difficulty scales to it"
+      - "no rounds: continuous play, score decays if you idle"
+      - "matches last exactly as long as the player's first death"
+      - "one match per real day, locked out after it ends"  # forces: no replay, daily cadence
+      - "time only advances while the player is shooting"
+      - "the session ends when a hidden timer expires, never announced"
+      - "every death restarts the clock but keeps the score"
+      - "play in ninety-second chunks, one chunk per real hour"  # forces: no long sessions, external pacing
+      - "the game records your session and replays it as the next match"  # heavy
+      - "session continues after the player leaves, an AI plays your hero"  # heavy
+      - "time runs backwards, the match ends where it started"  # wild
+      - "the match lasts until the player's real battery dies"  # wild
+      - "each session is ten seconds of play, stretched over an hour"  # wild
+      - "the game only runs at night, daylight pauses the match"  # heavy
+      - "sessions are shared: another player continues where you stopped"  # heavy
+      - "the clock is the enemy, it attacks when the player waits"  # wild
+  - id: genre-lineage
+    name: Genre lineage
+    forces: "what design language the game inherits"
+    items:
+      - "souls-like: punish on read, restore on death run"  # forces: telegraphing, stamina, checkpoint economy
+      - "arena shooter: weapon pickups on timers, no loadouts"
+      - "roguelite: short runs, persistent unlocks between attempts"
+      - "tower defence: build before waves, watch them resolve"
+      - "stealth: vision cones, noise budget, restart on full alert"
+      - "racing: fixed track, lap times, slipstream drafting"
+      - "fighting game: healthbar duel, frame data, best of three"
+      - "survival craft: gather, build shelter, hold out nights"
+      - "bullet hell: dense patterns, tiny hitbox, graze scoring"
+      - "tower defence where towers are drafted from a deck"
+      - "platformer where the floor is procedurally hostile"
+      - "immersive sim where every door has three solutions"
+      - "colony sim where you command one unit at a time"
+      - "fighting game where the stage fights back"
+      - "puzzle box shooter: each room is one reusable mechanic"
+      - "stealth game where lighting is the only resource"
+      - "racing game where the track is built by the loser"
+      - "dungeon crawler played entirely in one long corridor"
+      - "extraction shooter with no guns, only traps"
+      - "tycoon game where you manage the enemy faction"
+      - "sports game scored by property damage"
+      - "rhythm game where enemies attack on the beat"
+      - "tower defence with a moving base"  # wild
+      - "souls-like where your corpse becomes the next enemy"
+      - "deckbuilder where cards are also consumable ammo"
+      - "battle royale with only twelve players and no circle"
+      - "co-op fishing game where the lake is the boss"
+      - "idle game you must physically defend"
+      - "courtroom drama resolved with shooting"
+      - "golf game with heroes and damage numbers"
+  - id: player-verb
+    name: Player verb
+    forces: "the one action the whole game is built around"
+    items:
+      - "shoot: aim, fire, manage recoil and reload windows"
+      - "dodge: read the tell, commit to a direction, recover"
+      - "jump: verticality as the primary movement and attack"
+      - "block: hold a guard, pay stamina, reflect on timing"
+      - "grapple: attach, swing, release to convert momentum"
+      - "dash: short committed burst with i-frames or none"
+      - "throw: arc a projectile, bank it off surfaces"
+      - "summon: place an ally that acts on its own logic"
+      - "hack: stand still, hold a channel, get interrupted"
+      - "terraform: raise or lower ground to change sightlines"
+      - "rewind: undo the last two seconds of your own position"
+      - "swap bodies with the last enemy you killed"
+      - "mark: tag a target, damage lands later on release"
+      - "listen: sound reveals geometry you cannot see"
+      - "paint: spray surfaces that change friction or damage"
+      - "eat: consume corpses to gain their last attack"
+      - "tether: link two objects, their motion is now shared"
+      - "dig: carve tunnels through destructible level floors"
+      - "reflect: hold a mirror, return projectiles to sender"
+      - "push: shove enemies and props with a wind cone"
+      - "freeze time while you move one object"  # heavy
+      - "plant a seed that grows into cover"
+      - "swap places with your own past self"
+      - "argue: a dialogue wheel that deals real damage"
+      - "dance: build a combo meter by hitting inputs on beat"
+      - "sneeze: uncontrollable burst that knocks everyone back"
+      - "photograph: the picture becomes a physical wall"
+      - "yawn: spread fatigue to every enemy in line of sight"
+      - "insult: provoke a specific enemy into charging"
+      - "juggle: keep a live grenade aloft, it never explodes"
+  - id: opposition-and-ai
+    name: Opposition and AI
+    forces: "who pushes back and how they decide"
+    items:
+      - "grunts that patrol, hear gunfire, and converge"
+      - "a sniper that only fires when you stand still"
+      - "shield bearers that advance in a slow wall"
+      - "elite that mirrors your last three attacks"
+      - "swarm that is weak alone and lethal in a crowd"
+      - "turret network with overlapping kill zones"
+      - "boss with three phases and a telegraphed reset"
+      - "flankers that always take the route you are not watching"
+      - "healers that revive downed allies unless interrupted"
+      - "an enemy that learns your favourite corner"  # forces: adaptive positioning
+      - "enemies that only move when you are not looking"
+      - "a rival hunter with the same kit as you"
+      - "opposition that gets stronger the more you heal"
+      - "a crowd that panics and becomes a hazard"
+      - "an AI that copies your build from the last run"
+      - "enemies that trade aggro based on who damaged them"
+      - "a pursuer that never stops and cannot be killed"
+      - "defenders that rebuild what you destroy overnight"
+      - "an opponent who wins by leaving the arena"
+      - "two factions that fight each other until you interfere"
+      - "a boss that is a mirror match against your own save"
+      - "an AI director that spends a budget on spawns"
+      - "enemies that surrender and must be escorted"
+      - "a hive mind: killing one alerts the entire map"
+      - "an enemy that steals your weapon and uses it"
+      - "a boss that critiques your playstyle out loud"
+      - "enemies that unionise and refuse to fight unpaid"  # wild
+      - "a rival who is your own ghost replay, adapted"
+      - "opposition that is a weather system, not creatures"
+      - "enemies that only exist while you remember them"
+  - id: physics-model
+    name: Physics model
+    forces: "what movement and collision actually feel like"
+    items:
+      - "standard gravity, capsule collider, snappy ground accel"
+      - "heavy momentum: slow to start, slow to stop"
+      - "low gravity with a long floaty apex"
+      - "zero gravity inside, normal gravity outside"
+      - "ragdoll limbs that are also your hitbox"
+      - "destructible cover that degrades under fire"
+      - "ice friction on every surface, no grip"
+      - "water volume that slows and distorts aim"
+      - "wind that pushes projectiles and players alike"
+      - "everything is a rigid body, nothing is static"  # heavy
+      - "two-dimensional movement on a 3D map"
+      - "gravity flips when you cross a threshold"
+      - "collision damage is the only damage source"
+      - "your mass changes as you take hits"
+      - "projectiles are physical objects you can catch"
+      - "the map tilts as weight shifts across it"
+      - "buoyancy: bodies float and shots sink"
+      - "time dilation zones that scale by proximity"
+      - "magnetic surfaces that pull metal weapons"
+      - "soft-body ground that absorbs and reflects force"
+      - "springs everywhere: no flat ground at all"
+      - "every collision transfers ownership of the object"
+      - "one shared physics body for all players"
+      - "everything falls upward from a fixed ceiling"
+      - "damage is real deformation, permanent and visible"
+      - "the arena is a single rotating cylinder"
+      - "your gun has recoil that moves you, not the camera"
+      - "no floors: only surfaces you can grip"
+      - "all objects share one velocity when touched"
+      - "the level is liquid and refills where you cut"
+  - id: economy-and-resources
+    name: Economy and resources
+    forces: "what is scarce and what people trade for it"
+    items:
+      - "health kits on the map, no regeneration"
+      - "ammo is per-weapon and drops from kills"
+      - "currency buys upgrades between waves"
+      - "one shared team pool of respawn tickets"
+      - "cooldowns instead of costs, always regenerating"
+      - "money from kills spent on doors and shortcuts"
+      - "durability on every weapon, repairs cost scrap"
+      - "time is the resource: everything costs seconds"
+      - "heat: firing builds it, venting leaves you open"
+      - "health as ammunition, no separate pools"  # heavy
+      - "temperature: fire and cold both kill you"
+      - "ammo is shared across the whole squad"
+      - "you spend your own max HP on abilities"
+      - "loot is physical and must be carried to extract"
+      - "space in your bag is the real constraint"
+      - "energy only refills by standing in enemy fire"
+      - "kills mint currency that inflates if hoarded"
+      - "every purchase raises the price of the next"
+      - "scrap comes from breaking your own gear"
+      - "one currency, two uses: heal or upgrade"
+      - "borrowed power: abilities are loans with interest"
+      - "the enemy bounty board pays for your gear"
+      - "your stats are the currency, spend them down"
+      - "you tip the AI director to change the next wave"
+      - "reputation is money and it only goes down"
+      - "bullets are seeds, you must plant and harvest"
+      - "you can only pay in things you are holding"
+      - "death is a transaction, cost scales with progress"
+      - "everyone shares one wallet, including enemies"
+      - "the map itself is collateral, you sell pieces"
+  - id: gimmick-and-constraint
+    name: Gimmick and constraint
+    forces: "the rule that forbids something and shapes every fight"
+    items:
+      - "you cannot stop moving, ever"  # forces: movement as default, no camping
+      - "no HUD at all, all state is diegetic"
+      - "one life, no save, no checkpoint"  # forces: risk pricing on every engage
+      - "no reloading: each magazine is discarded"
+      - "you cannot jump, the level is built around it"
+      - "you cannot heal mid-run, only at the start"
+      - "no crosshair, aim is body-position only"
+      - "you cannot see enemies behind you, no minimap"
+      - "friendly fire is always on and never disabled"
+      - "no ranged weapons at all, melee only"
+      - "you cannot pause, the game never stops"
+      - "every ability has a visible charge-up you cannot cancel"
+      - "no verticality: one flat plane, no ledges"
+      - "you cannot carry more than one item"
+      - "you cannot kill the same enemy twice"
+      - "no sound cues, all tells are visual"
+      - "health does not regenerate and never resets"
+      - "you cannot aim while moving"
+      - "no safe zones: enemies spawn anywhere you stand"
+      - "you cannot return to a room you left"
+      - "no sprint, no crouch, only one speed"
+      - "you cannot see your own health number"
+      - "you cannot win by killing, only by surviving"
+      - "no numbers anywhere, all values are qualitative"
+      - "you cannot use the same verb twice in a row"
+      - "the camera cannot rotate, only translate"
+      - "no deaths: failure only costs position"
+      - "you cannot remember the map between runs"
+      - "all damage is mutual, every hit hurts you too"
+      - "you cannot distinguish allies from enemies by sight"
+  - id: progression-and-meta
+    name: Progression and meta
+    forces: "what carries between attempts and why you return"
+    items:
+      - "unlock weapons by hitting kill milestones"
+      - "persistent currency buys permanent stat bumps"
+      - "skill tree with three exclusive branches"
+      - "new characters unlocked by finishing chapters"
+      - "rank resets each season, cosmetics persist"
+      - "blueprints drop rarely and unlock crafting"
+      - "difficulty tiers unlocked by clearing the last"
+      - "daily contracts that grant one-off rewards"
+      - "mastery per weapon, tracked separately"
+      - "run history you can study and replay"  # forces: learning from failure
+      - "the map remembers your previous route and adapts"
+      - "your corpse persists as loot for the next run"
+      - "bosses you spare return as allies later"
+      - "each death permanently changes one enemy type"
+      - "upgrades are lost but knowledge is not"
+      - "you inherit the build of the run that killed you"
+      - "the meta layer is a small town you upgrade"
+      - "every unlock makes one old weapon obsolete"
+      - "progress is shared across all players globally"
+      - "you can only carry one upgrade between runs"
+      - "you progress by teaching the AI to beat you"
+      - "progress is measured in how few runs you needed"
+      - "your save file is a single consumable item"
+      - "the meta layer is a rival who also progresses"
+      - "you unlock things by letting enemies win"
+      - "the game deletes content as you advance"
+      - "upgrades are voted on by other players offline"
+      - "your build is public and others can copy it"
+      - "there is no meta layer and no unlocks at all"
+      - "the tutorial is the endgame, played backwards"
+  - id: art-medium-and-style
+    name: Art medium and style
+    forces: "what the frame is made of"
+    items:
+      - "pixel art at 160x144, 8-colour palette"
+      - "low-poly 3D with flat unlit vertex colours"
+      - "hand-drawn 2D sprites with ink outlines"
+      - "photographed real objects composited into 2D scenes"
+      - "monochrome vector shapes with one accent colour"
+      - "PS1-era 3D: affine texture warping, dithered shading, 240p"
+      - "watercolour backgrounds behind hand-inked characters"
+      - "claymation-style stop motion at 12 frames per second"
+      - "all-terminal ASCII, 80x24 grid, single font"  # forces: no 3D, frame is text
+      - "everything drawn in MS Paint with the 5px brush"
+      - "stencil-and-spraypaint graffiti on flat cardboard cutouts"
+      - "single-colour silhouettes on a shifting gradient background"
+      - "collage of scanned receipts, tickets and newspaper clippings"
+      - "blueprint linework on graph paper, everything to scale"
+      - "cross-stitch patterns rendered on a coarse grid"
+      - "risograph two-colour misregistration with visible paper grain"
+      - "cardboard diorama photographed with a real desk lamp"
+      - "every surface is a low-res video feed with compression artifacts"
+      - "ink blot shapes the player reads as terrain"
+      - "voxel models at 0.25m resolution, no smoothing"
+      - "characters as paper dolls with visible tab-and-slot joints"
+      - "thermal camera palette: black body, white-hot living things"
+      - "frame is a single unbroken pencil line that redraws each second"
+      - "all geometry is text glyphs extruded into 3D"  # wild
+      - "game renders at 8x8 pixels upscaled, shapes readable by motion"
+      - "everything is made of hair, string and fishing line"  # wild
+      - "visuals generated live by a cellular automaton, no authored art"
+      - "every object is a photograph of the same chair, reskinned"
+      - "rendered as an MRI slice stack; you see through yourself"
+      - "art is the shadow only; the light source is never shown"  # wild
+  - id: audio-approach
+    name: Audio approach
+    forces: "what the ears are given and when"
+    items:
+      - "orchestral score that swells on damage taken"
+      - "chiptune soundtrack with one track per area"
+      - "ambient drone bed with no melody at all"
+      - "foley-heavy: every footstep and cloth rustle recorded"
+      - "silence except for noise the player makes"
+      - "looping industrial percussion keyed to enemy spawns"
+      - "diegetic radio stations the player can switch between"
+      - "single instrument: solo cello reacting to current health"
+      - "all audio is the human voice, mouth-made effects"  # forces: no synth, no music
+      - "sound only from what the player touches, proximity-mixed"
+      - "everything pitched to one root note, a permanent chord"
+      - "8-bit noise channel only, no melodic channel"
+      - "audio degrades with damage, bitcrushed as health drops"
+      - "sounds recorded inside a single room, all reverb matched"
+      - "rhythm game logic: attacks must land on the beat"
+      - "every sound is a household object struck exactly once"
+      - "no music, only a metronome that speeds up under pressure"
+      - "player whistles control companion behaviour by pitch"
+      - "soundscape is a field recording of the level's real location"
+      - "enemies are silent; you hear only your own footsteps"
+      - "one long 40-minute track that never loops"
+      - "audio reversed: each effect plays backwards from its impact"
+      - "the game is played by ear, visuals optional"  # wild
+      - "all sound synthesized from the player's microphone input"
+      - "silence is the health bar; noise costs you"  # heavy
+      - "each enemy has a unique song, overlapping into chaos"  # wild
+      - "no audio at all, subtitle-only sound design"  # wild
+      - "sound comes from the controller speaker only"
+      - "music generated by the current frame's polygon count"
+      - "the soundtrack is the player's own playlist, tempo-locked"  # wild
+  - id: interface-and-text
+    name: Interface and text
+    forces: "how state reaches the player"
+    items:
+      - "diegetic: everything is a physical object in the world"
+      - "minimal HUD: health as a vignette, ammo by counting"
+      - "clean flat HUD with fixed corner widgets"
+      - "in-world wrist device the character raises to read"
+      - "full-screen menus between rounds, no in-game overlay"
+      - "crosshair plus floating damage numbers"
+      - "radial menu held open with a thumbstick"
+      - "toggleable overlay grid showing exact numbers"
+      - "no HUD; all state read from character animation"  # forces: learn by watching
+      - "text is a physical sign the player must walk up to"
+      - "terminal prompt: type commands to act"
+      - "everything labelled with handwritten sticky notes"
+      - "interface drawn on a paper map the player unfolds"
+      - "numbers appear only when you stand still"
+      - "one context menu that changes with where you look"
+      - "health shown as a deck of cards losing members"
+      - "no text, only icons that degrade as they become irrelevant"
+      - "the pause menu is a conversation with your character"
+      - "every prompt is a lie you can disable by reading closely"
+      - "inventory is a physical bag you dump on the ground"
+      - "the HUD is a second player's screen you cannot control"
+      - "all feedback delivered by controller vibration patterns"
+      - "interface is a fake desktop OS the game runs inside"  # wild
+      - "no interface: the game explains itself once, then never"
+      - "the menu is a playable room you walk around"
+      - "text renders as an unreadable script you must learn"  # heavy
+      - "every number is a bar, no digits anywhere"
+      - "HUD is diegetic graffiti the enemies spray on walls"
+      - "interface appears only in replays, never live"
+      - "you control the UI cursor, not the character"  # wild
+  - id: narrative-delivery
+    name: Narrative delivery
+    forces: "how story reaches the player"
+    items:
+      - "voiced audio logs scattered through the level"
+      - "linear cutscenes between chapters"
+      - "environmental storytelling via set dressing alone"
+      - "text journals the player collects and reads"
+      - "a narrator describing events as they happen"
+      - "dialogue trees with visible consequences"
+      - "comic-panel interludes between missions"
+      - "quest text in a journal that updates as you learn"
+      - "story told only by enemy barks and taunts"  # forces: no narrator
+      - "each run's story is generated from the last run's deaths"
+      - "lore delivered by radio chatter you can miss entirely"
+      - "no words: story told through item placement"
+      - "the tutorial voice is the antagonist, lying throughout"
+      - "story is a rumour system; NPCs repeat distorted versions"
+      - "delivered by the level's architecture changing between visits"
+      - "one NPC who remembers everything you did last run"
+      - "story in patch notes and changelogs shown in-game"
+      - "the player writes the story into a text field"  # heavy
+      - "told through item descriptions, never through events"
+      - "cutscenes are playable and skippable only by failing"
+      - "story is a physical newspaper that updates daily"
+      - "the antagonist narrates your actions, accurately and constantly"
+      - "no story at all, only a score and a leaderboard"  # wild
+      - "story delivered by the soundtrack's lyrics only"
+      - "the game explains nothing; a wiki exists in-fiction"  # wild
+      - "narrative is procedurally generated from your input patterns"  # wild
+      - "every NPC is the same person at different ages"
+      - "story told by what is missing from the level"
+      - "the ending is chosen by how you treated the tutorial"
+      - "story is the load screen; gameplay is the advert"  # wild
+  - id: platform-and-context
+    name: Platform and context
+    forces: "where and for how long it is played"
+    items:
+      - "keyboard and mouse, desktop, 20-minute sessions"
+      - "gamepad, couch, one sitting of two hours"
+      - "mobile portrait, thumb-only, 3-minute sessions"
+      - "web browser build, no install, instant play"
+      - "single-player offline, save anywhere"
+      - "local split-screen for two players on one screen"
+      - "online co-op with matchmaking for four"
+      - "handheld-friendly: pause and resume anywhere"
+      - "two players share one keyboard, half the keys each"  # forces: local only
+      - "played in a browser tab alongside your real work"
+      - "asymmetric: one player on phone, one on desktop"
+      - "hotseat: players swap after each death"
+      - "played with one hand while holding a coffee"
+      - "designed for a livestream audience to vote on choices"
+      - "installed as a screensaver that runs when idle"
+      - "played on a TV with a group arguing over decisions"
+      - "one-life-per-day, with a server-enforced cooldown"
+      - "two screens: game on one, map on the other"
+      - "played standing up, sessions end when you sit down"
+      - "streamed: chat plays the enemies"  # heavy
+      - "runs on a handheld with one analogue stick only"
+      - "persistent world, you log in to find it changed"
+      - "played across two devices simultaneously, both required"  # wild
+      - "the game is a phone call; you play by voice"
+      - "no screen: audio only, played with headphones"
+      - "runs on a smart fridge screen, landscape 800x480"  # wild
+      - "installed on a museum kiosk with no keyboard"
+      - "played once, on your birthday, then it deletes itself"  # wild
+      - "two players on one controller, hands overlapping"  # wild
+      - "the game runs on a server; players only send inputs"  # wild
+  - id: theme-primary
+    name: Theme, primary
+    forces: "the jam theme itself"
+    items:
+      - "the last 60 seconds"
+      - "reciprocity"
+      - "something that must be returned"
+      - "the thing left behind"
+      - "two of the same"
+      - "a door that only opens once"
+      - "what the machine remembers"
+      - "borrowed time"
+      - "the weight you carry"
+      - "no one is coming"
+      - "the second attempt"
+      - "a debt with interest"
+      - "the map is wrong"
+      - "you are the obstacle"
+      - "the quiet part"
+      - "inheritance"
+      - "an apology that arrives too late"
+      - "the copy is better"
+      - "nothing here is yours"
+      - "the last one working"
+      - "a promise made under duress"
+      - "the exit was the entrance"
+      - "everything must go"
+      - "the witness"
+      - "trade in kind"
+      - "the room remembers"
+      - "two truths"
+      - "a light left on"
+      - "the version you never met"
+      - "what grows back"
+  - id: theme-secondary
+    name: Theme, secondary
+    forces: "the modifier that bends the theme"
+    items:
+      - "told backwards"
+      - "with no text at all"
+      - "from the antagonist side"
+      - "at half speed"
+      - "in one continuous shot"
+      - "without a player character"
+      - "as a comedy"
+      - "with the roles swapped"
+      - "in a single room"
+      - "as a tragedy"
+      - "with no fail state"
+      - "twice at once"
+      - "from the point of view of an object"
+      - "with the sound removed"
+      - "as a bureaucratic form"
+      - "in five minutes or less"
+      - "where the theme is the villain"
+      - "told by a liar"
+      - "with the theme as a resource you spend"
+      - "as a tutorial for something else"
+      - "without verbs"
+      - "from the last person alive"
+      - "as a sport with rules and a referee"
+      - "where the player is the theme"
+      - "with every choice irreversible"
+      - "as an argument between two narrators"
+      - "in reverse chronological order, mechanically"
+      - "as a job interview"
+      - "with the theme as a physical object"
+      - "where winning means giving it away"

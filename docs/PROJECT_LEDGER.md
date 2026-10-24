@@ -351,6 +351,12 @@ none
 
 ## Requirements log
 
+- 2026-10-24 13:2x (same session) — design-roll option space generated: three subagents wrote 20 categories x 30
+  items, merged and validated here (600 items, 0 duplicates, 0 over 14 words, pure ASCII) into
+  `docs/studies/design-categories.yaml` + `design-categories.tsv` (a `keep` column for culling in a spreadsheet).
+  Review notes recorded in the file header: the input category is shooter-shaped (19/30 items presuppose
+  aim/fire/reload) and 5 items need hardware the loop does not have. Next: Chloe culls, then the survivors get the
+  three annotations (forbids / gate / cost) and only then `design_roll.py`.
 - 2026-10-24 13:2x (same session) — Chloe closed the study's open items: the first experiment is a **pair** (one
   Godot run, one BRUTAL run) and each **stops when its h10 E1 is done** — no 48 h jam until the loop is fleshed out
   from what the pair teaches; feasibility veto over the designer's non-negotiable at h0 stands; a subagent
