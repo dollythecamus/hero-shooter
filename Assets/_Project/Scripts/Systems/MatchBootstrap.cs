@@ -5,10 +5,11 @@ using UnityEngine;
 namespace HeroShooter.Systems
 {
     /// <summary>
-    /// Match start: hold the roster, freeze the hero until a character is picked, hand the choice to the
-    /// loadout, then release the mouse. Also the place S5 will hang map choice off.
+    /// Match start: hold the roster, farm the hero's configuration out to the loadout, place it on the spawn
+    /// point and lock the cursor. Two entry paths — a pick made on the select screen inside this scene
+    /// (`90_TestArena`, the dev scene), or a pick carried in from `00_Boot` by <see cref="GameFlow"/>.
     /// </summary>
-    public class MatchBootstrap : MonoBehaviour
+    public class MatchBootstrap : MonoBehaviour, ICharacterPicker
     {
         [Header("Roster")]
         [SerializeField] CharacterDefinition[] roster;
@@ -29,6 +30,23 @@ namespace HeroShooter.Systems
 
         void Start()
         {
+            GameFlow flow = GameFlow.Instance;
+
+            if (flow != null && flow.SelectedCharacter != null)
+            {
+                ApplySelection(flow.SelectedCharacter);
+                return;
+            }
+
+            // No flow and no select screen: the scene was opened standalone in the editor (a map scene has no
+            // select canvas), so play it with the first hero instead of freezing the player behind a menu that
+            // is not there.
+            if (selectUI == null && roster != null && roster.Length > 0)
+            {
+                ApplySelection(roster[0]);
+                return;
+            }
+
             BeginSelection();
         }
 
@@ -64,13 +82,28 @@ namespace HeroShooter.Systems
                 return;
             }
 
-            Selected = roster[index];
+            ApplySelection(roster[index]);
+        }
+
+        public void PickCharacter(int index)
+        {
+            Select(index);
+        }
+
+        void ApplySelection(CharacterDefinition character)
+        {
+            if (character == null)
+            {
+                return;
+            }
+
+            Selected = character;
             _selectionOpen = false;
 
             if (hero != null)
             {
                 hero.gameObject.SetActive(true);
-                hero.Apply(Selected);
+                hero.Apply(character);
 
                 if (spawnPoint != null)
                 {

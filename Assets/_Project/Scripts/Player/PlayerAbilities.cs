@@ -1,3 +1,4 @@
+using System;
 using HeroShooter.Core;
 using HeroShooter.Data;
 using HeroShooter.Player.Abilities;
@@ -39,6 +40,9 @@ namespace HeroShooter.Player
         AbilityContext _context;
 
         public AbilityDefinition[] Definitions { get; } = new AbilityDefinition[SlotCount];
+
+        /// <summary>Raised with the slot index when an ability actually fired — the tutorial gate and, later, the ultimate meter read this instead of polling cooldowns.</summary>
+        public event Action<int> Activated;
 
         void Awake()
         {
@@ -173,6 +177,8 @@ namespace HeroShooter.Player
                 return false;
             }
 
+            bool activated;
+
             switch (_shapes[slot])
             {
                 case AbilityShape.Instant:
@@ -182,22 +188,30 @@ namespace HeroShooter.Player
                         return false;
                     }
 
-                    bool didSomething = _abilities[slot] != null
+                    activated = _abilities[slot] != null
                         ? _abilities[slot].Activate(_context)
                         : IsSlamSlot(slot) && slam != null && slam.TryStart();
 
-                    if (didSomething)
+                    if (activated)
                     {
                         _readyAt[slot] = Time.time + CooldownOf(slot);
                     }
 
-                    return didSomething;
+                    break;
                 }
                 case AbilityShape.Channel:
-                    return shield != null && shield.TryRaise();
+                    activated = shield != null && shield.TryRaise();
+                    break;
                 default:
                     return false;
             }
+
+            if (activated)
+            {
+                Activated?.Invoke(slot);
+            }
+
+            return activated;
         }
 
         bool IsSlamSlot(int slot) =>

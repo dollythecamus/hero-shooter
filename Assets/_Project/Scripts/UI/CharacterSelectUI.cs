@@ -18,7 +18,7 @@ namespace HeroShooter.Systems
 
         public bool IsVisible => canvas != null && canvas.gameObject.activeSelf;
 
-        public void Show(CharacterDefinition[] roster, MatchBootstrap bootstrap)
+        public void Show(CharacterDefinition[] roster, ICharacterPicker picker)
         {
             if (cards != null)
             {
@@ -31,7 +31,7 @@ namespace HeroShooter.Systems
 
                     if (roster != null && i < roster.Length && roster[i] != null)
                     {
-                        cards[i].Bind(roster[i], i, bootstrap);
+                        cards[i].Bind(roster[i], i, picker);
                     }
                     else
                     {

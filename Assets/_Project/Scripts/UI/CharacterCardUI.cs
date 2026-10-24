@@ -21,7 +21,7 @@ namespace HeroShooter.Systems
         [Tooltip("Index of this card in the roster. Used by the button wired in the prefab.")]
         [SerializeField] int rosterIndex;
 
-        MatchBootstrap _bootstrap;
+        ICharacterPicker _picker;
 
         /// <summary>
         /// Wired as a persistent listener on the prefab's Button, so the click is visible in the inspector
@@ -29,13 +29,13 @@ namespace HeroShooter.Systems
         /// </summary>
         public void Click()
         {
-            if (_bootstrap != null)
+            if (_picker != null)
             {
-                _bootstrap.Select(rosterIndex);
+                _picker.PickCharacter(rosterIndex);
             }
         }
 
-        public void Bind(CharacterDefinition character, int index, MatchBootstrap bootstrap)
+        public void Bind(CharacterDefinition character, int index, ICharacterPicker picker)
         {
             if (character == null)
             {
@@ -43,7 +43,7 @@ namespace HeroShooter.Systems
                 return;
             }
 
-            _bootstrap = bootstrap;
+            _picker = picker;
             rosterIndex = index;
             gameObject.SetActive(true);
 
