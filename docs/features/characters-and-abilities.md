@@ -95,23 +95,27 @@ class HeroLoadout : MonoBehaviour {
 class PlayerAppearance : MonoBehaviour { void Apply(CharacterDefinition character); }  // body scale + colour
                                                           // via MaterialPropertyBlock (no material instancing)
 
-class MatchBootstrap : MonoBehaviour {
+class MatchBootstrap : MonoBehaviour, ICharacterPicker {
     CharacterDefinition[] Roster { get; }
     CharacterDefinition Selected { get; }
     bool SelectionOpen { get; }
     void BeginSelection();                        // rig off, hero GameObject off, cursor free, panel shown
     void Select(int index);                       // hero on → Apply → reposition → panel hidden → rig on
+    void PickCharacter(int index);                // ICharacterPicker — the select screen's entry point
 }
+
+// The card's callback is the interface, not MatchBootstrap: the same screen runs in 00_Boot under MainMenuUI.
+interface ICharacterPicker { void PickCharacter(int index); }
 
 class CharacterSelectUI : MonoBehaviour {         // controller for Prefabs/UI/CharacterSelect.prefab
     bool IsVisible { get; }
-    void Show(CharacterDefinition[] roster, MatchBootstrap bootstrap);
+    void Show(CharacterDefinition[] roster, ICharacterPicker picker);
     void Hide();
 }
 
 class CharacterCardUI : MonoBehaviour {           // one authored card; button is a persistent listener
-    void Click();                                 // wired in the prefab, calls bootstrap.Select(rosterIndex)
-    void Bind(CharacterDefinition character, int index, MatchBootstrap bootstrap);
+    void Click();                                 // wired in the prefab, calls picker.PickCharacter(rosterIndex)
+    void Bind(CharacterDefinition character, int index, ICharacterPicker picker);
 }
 ```
 
@@ -128,6 +132,8 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
 
 - `hud-aiming-and-feedback.md` — `PlayerAbilities.CooldownRatio` / `IsReady` / `Definitions` and
   `Weapon.ChargeRatio` are the intended HUD inputs; ability VFX hang off these six classes.
+- `match-flow-and-maps.md` — `GameFlow` and `MainMenuUI` carry the pick into a map scene and drive
+  `CharacterSelectUI` through `ICharacterPicker`; `PlayerAbilities.Activated` is the tutorial's ability gate.
 - Nothing else. This is the top of the dependency graph.
 
 ## Behavior notes
@@ -161,8 +167,10 @@ class CharacterCardUI : MonoBehaviour {           // one authored card; button i
   context falls back to the player's own transform and every aim-based ability casts from the hero, not the
   crosshair.
 - `MatchBootstrap.BeginSelection` **deactivates the hero GameObject** (so no input runs) and later reactivates
-  it and calls `Apply`. `Start` always opens the selection panel; there is no "skip" path, so any test scene
-  that adds `MatchBootstrap` starts with a modal choice screen.
+  it and calls `Apply`. Since S5, `Start` opens the selection panel only when there is no pick to inherit and no
+  select screen in the scene: `GameFlow.SelectedCharacter` wins first (a map scene reached from `00_Boot`), then
+  `roster[0]` (a map scene opened directly in the editor), and only then the modal pick. `90_TestArena` is the
+  scene that still gets the modal screen. Flow and scene routing: `match-flow-and-maps.md`.
 - A card's button is a **persistent listener** authored on the prefab calling `CharacterCardUI.Click()`; the
   card knows its own `rosterIndex`, so the prefab carries no per-card arguments. `CharacterSelectUI` owns no
   layout — it binds cards, toggles the canvas and unlocks the cursor.
@@ -218,4 +226,5 @@ world-space enemy bars.
 - Abilities have no cost, no VFX and no range indicator. `AbilityDefinition.description` is read by **nobody**
   (`grep -rn description Assets/_Project/Scripts` → its declaration only): the select card renders
   `displayName` + `cooldown` from `CharacterCardUI.AbilityLine`.
-- `MatchBootstrap` is the whole match flow: no map select, no scene loading, no restart.
+- `MatchBootstrap` no longer owns the whole match flow: scene routing, map choice and the tutorial live in
+  `match-flow-and-maps.md`; `MatchBootstrap` only applies a pick to the hero already in the scene.

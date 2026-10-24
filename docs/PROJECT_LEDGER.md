@@ -1,6 +1,6 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-10-24 11:25 (-03) · session 20261023_1941… · owner default profile
+Updated: 2026-10-24 11:35 (-03) · session 20261023_1941… · owner default profile
 Sprint: **one long block today from 13:00**, then 10-24 → 10-29 as buffer (plan § 6–7).
 
 ## Goal
@@ -57,6 +57,16 @@ did not compile; Chloe approved it.
 tutorial), S6 (the three self-chosen mechanics) and S7 (builds + `docs/CODE_DEFENSE.md` + close) are still
 ahead — see *Next action*; Chloe caught this being dropped from the ledger on 2026-10-24.
 
+**S5 landed 2026-10-24 ~10:45–11:35** (Chloe's go: *"now S5"*): the game now has a real front end. `00_Boot`
+(menu → character select → map select → scene load), `10_Tutorial` with five event-gated steps, and two
+ProBuilder maps `20_Map_Arena` / `21_Map_Alley`, all wired through a new `GameFlow` singleton and two
+`MapDefinition` assets; Build Settings reordered with Chloe's sign-off (Boot at index 0, `SampleScene` dropped).
+Gate measured in play mode from `00_Boot`: both maps load with the carried hero and 4/4 agents on the baked
+NavMesh, and the tutorial runs move → look → shoot → ability → kill → done → back to the menu. Two defects the
+probes caught are fixed and re-measured (a dead `GameFlow` reference in `MainMenuUI` after a scene load; the Move
+step completing itself on the spawn teleport). Nothing has been *looked at* — every row is a number, not a
+judgement of layout. Numbers in `docs/tasks/2026-10-24_S5-maps-and-tutorial.md` § *Landed*.
+
 ## Next action
 
 **S4 closed 2026-10-24 ~11:1x. The day sprint has three blocks left** — `docs/PLAN.md` § 6 is the authority for
@@ -67,14 +77,13 @@ block starts, the way S1/S2/S3/S3b/S4 got theirs.
 2. ~~ability rework (S3b)~~ — landed 2026-10-23 ~21:2x, committed `1960b0a`/`aad17ae`.
 3. ~~aiming + HUD + enemy bars~~ — landed 2026-10-23, committed `5c40a99`/`5a115ba`.
 4. ~~VFX (rest of S4)~~ — landed and measured 2026-10-24 ~11:1x, committed `4da3ef1`/`0b20b2e`.
-5. **S5 — maps, map select, tutorial (NEXT, not builds)**: two ProBuilder maps + `MapSelectUI` /
-   `MapDefinition`, and a tutorial scene with gated steps. Gate: the tutorial completes from a fresh launch and
-   both maps load from the menu. Nothing of it exists yet — there is one scene (`90_TestArena`), no
-   `MapDefinition`, no `MapSelectUI`, and `MatchBootstrap` is the whole match flow.
-6. **S6 — the three self-chosen mechanics**: ranking and effort in `docs/PLAN.md` § 5 (default **A wave director
+5. ~~S5 — maps, map select, tutorial~~ — landed 2026-10-24 ~11:35 (task file `2026-10-24_S5-maps-and-tutorial.md`,
+   gate measured; committed with its docs).
+6. **S6 — the three self-chosen mechanics (NEXT, not builds)**: ranking and effort in `docs/PLAN.md` § 5 (default **A wave director
    with escalating difficulty + B ultimate meter + E pause menu**). Chloe picks at S6, once the mandatory systems
    stand. Gate: each one demonstrable in under 30 s. This is also where `ScoreService` and the kill/wave events
-   the frag board needs would come from.
+   the frag board needs would come from. **Blocked on Chloe's pick** — nothing of S6 starts before she names the
+   three (`docs/PLAN.md` § 5 lists A–E with effort estimates; the default is A+B+E if she wants it).
 7. **S7 — builds, code defense, close**: Linux x86_64 and Windows x86_64 from `File → Build Profiles`, run each
    from a **clean folder**, `docs/CODE_DEFENSE.md` (one block per system), commit and ledger close. Gate: a build
    runs from a clean folder and every defense block opens the file it names. Builds are GUI work; the agent can
@@ -117,6 +126,20 @@ Still open:
 
 ## Decisions
 
+- 2026-10-24 — **S5 scene flow**: `00_Boot` (menu → character select → map select) is the only scene that holds
+  the select screens; map scenes apply the carried pick through `GameFlow`. `90_TestArena` keeps its in-scene
+  select screen on purpose so the dev scene still runs standalone. Build Settings: Boot index 0, `90_TestArena`
+  last, template `SampleScene` dropped (Chloe's sign-off, 2026-10-24).
+- 2026-10-24 — **map scenes are copies of the arena rig, not a `MatchRig` prefab**: every rig reference
+  (`HudController → HeroLoadout`, `Match → HeroLoadout`/camera/`SpawnPoint`) is a same-scene reference, so a rig
+  prefab would re-own all of them for no gate that would catch a mistake before the demo. Cost: a rig change
+  touches three scenes — written down in `docs/features/match-flow-and-maps.md`.
+- 2026-10-24 — **the tutorial has no enemies**: the kill step uses the three static targets (same `Health`
+  component as enemies) so a mid-explanation death cannot break the demo.
+- 2026-10-24 — **map geometry is ProBuilder** (`ShapeGenerator` cube/stair/cylinder/door) with a `MeshCollider`
+  per shape on the Structure layer, and a `NavMeshSurface` bake per map. The old grey-box arena was scaled Unity
+  primitives; the two new maps are the ProBuilder evidence for the level-design half of the grade.
+
 - 2026-10-23 — **A "halt" stops every write, including code that looks like the obvious next step.** Chloe's
   "halt for now, writing docs and updating plans" meant docs only; the agent read the docs phase as permission to
   start the rework and had to revert an unverified implementation pass. From here: one explicit go per phase.
@@ -138,6 +161,32 @@ Still open:
 - 2026-10-23 — single generic `EnemyBrain` FSM with per-type attack strategy — "one brain, two bodies".
 
 ## Evidence
+
+- **S5 gate, 2026-10-24 10:5x–11:3x** — play mode from `00_Boot` through the MCP bridge (update callback +
+  `Debug.Log`, read back from `Logs/Editor.log`). Full table in `docs/tasks/2026-10-24_S5-maps-and-tutorial.md`.
+  The load-bearing lines: `A scene=00_Boot … menuUI=1 menuCanvasActive=True` / `A flow=True roster=3 maps=2
+  map0=ARENA/20_Map_Arena`; `B play() -> selectVisible=True cards=3 card0Name=ROCK`; `C pickPaper ->
+  mapSelectVisible=True mapCards=2 names=ARENA|ALLEY| heroLabel='FIGHTING AS PAPER' selectedCharacter=Paper`;
+  `E scene=20_Map_Arena selectedMap=ARENA hero=Paper maxHealth=90 playerPos=(0.00, 0.08, -22.00) spawnPos=(0.00,
+  1.20, -22.00) hud=True selectCanvasPresent=0` with `navmesh agents=4 onNavMesh=4`; `[Probe2] C
+  scene=21_Map_Alley map=ALLEY hero=Scissors … agentsOnNavMesh=4/4`, `stair/ramp present=True doorway=True
+  balcony=True`; tutorial `[Probe5] A step=0/5 gate=Move` → `B frame=45 step=1/5 gate=Look planarSpeed=6.00` →
+  `D step=2/5 gate=Shoot` → `E shoot: 0 -> 1` → `F step=3/5 gate=Ability` → `G ability Q=True E=True` →
+  `H step=4/5 gate=Kill` → `I damaged 3 targets` → `J COMPLETED=True step=5/5 panelTitle='TRAINING COMPLETE'
+  doneRootVisible=True` → `K after done button: scene=00_Boot menuVisible=True`.
+  - Not driven by a real keyboard: Move at `PlayerMotor.Launch` re-issued per frame (injected key state is
+    overwritten by the editor each input update — S3b note) and Look by advancing the rig's `_yaw`. Shoot /
+    Ability / Kill at their real call sites (`Weapon.TryFire`, `PlayerAbilities.TryActivate`,
+    `Health.TakeDamage`). **Not proven: the five steps under a human at the keyboard, and how any of it looks.**
+  - Two defects found by the probe and fixed: `MainMenuUI` kept a destroyed `GameFlow` after returning from a map
+    (its `Tutorial()` silently no-oped — `[Probe2] EXCEPTION frame=65`), fixed with `RefreshFlow()`; and the Move
+    step completed itself on the spawn teleport (`[Probe3] B … step=1/5` at the first frame), fixed by counting
+    travel only while `PlanarSpeed > 0.3` (`[Probe4] C after teleport … progress=0.00`).
+  - NavMesh: `20_Map_Arena` 295 triangles over 61×61 m, `21_Map_Alley` 225 triangles, both baked by a
+    `NavMeshSurface` (`collectObjects=All`, `PhysicsColliders`) into `<Scene>/NavMesh.asset`.
+  - Static: `grep -rn "Instantiate("` → `Core/ObjectPool.cs:43` only; `attackRange` → declaration only;
+    `SceneManager.LoadScene` → 3 sites in `Systems/GameFlow.cs`; no `error CS` after the last Tundra build;
+    `git diff --check` clean.
 
 - **VFX gate, 2026-10-24 10:5x–11:1x** — play mode, same bridge method; full table in the S4 task file. The
   load-bearing lines: pool `created=24` at start and **still 24** after a shot, a slam, a Bulwark cycle and a
@@ -256,26 +305,30 @@ Still open:
 
 ## Uncommitted at last checkpoint
 
-**none** — the VFX half landed as `4da3ef1` (3 new `Scripts/VFX` classes, 7 hooked scripts, the generated
-`T_Spark` + three materials, `Blast.prefab`, the projectile's trail/refs, the player's `ShieldVfx` shell, the
-scene's `Vfx` pool, and `com.unity.modules.particlesystem` in the manifest + lock). Its docs land in the commit
-that follows this line, which is the only reason the tree is not empty at the moment of writing.
+**none** — S5 landed as `9cc4233` (code, assets, Build Settings) and `9a426ad` (its docs). Code: 6 new scripts,
+4 edited scripts (`MatchBootstrap`, `PlayerAbilities`, `CharacterSelectUI`, `CharacterCardUI`),
+`ProjectSettings/EditorBuildSettings.asset` (the approved scene list). Assets: `Data/Maps/` (2 assets),
+`Prefabs/UI/{MainMenu,MapSelect,TutorialPanel}.prefab`, `Scenes/{00_Boot,10_Tutorial,20_Map_Arena,21_Map_Alley}.unity`
++ their `NavMesh.asset` folders. `90_TestArena.unity` and every prefab outside `Prefabs/UI/` are untouched.
 
-Earlier in this sprint: `5c40a99` (aiming + HUD + bars), `5a115ba` (their docs).
+Earlier in this sprint: `5c40a99` (aiming + HUD + bars), `5a115ba` (their docs), `4da3ef1`/`0b20b2e` (VFX).
 
 ## Handoff
 
-**Where the project stands (2026-10-24 11:2x).** S4 is closed: aiming, the authored HUD, the enemy bars and the
-VFX layer are all built, measured in play mode and committed. `docs/ASSIGNMENT.md`'s 11 mechanics are covered by
-code that exists and runs in the editor. What has **not** been done is everything after the editor: no build has
-ever been produced, and there is no `docs/CODE_DEFENSE.md` yet.
+**Where the project stands (2026-10-24 11:3x).** S4 and S5 are closed. There is a real front end — boot menu,
+character select, map select, two ProBuilder maps and a gated tutorial — plus everything S1–S4 built: movement,
+pooled shooting, the enemy FSM, three heroes with six abilities, aiming, the authored HUD, enemy bars and VFX.
+All of it is measured by play-mode probes. What has **not** been done is everything after the editor: no build has
+ever been produced, and there is no `docs/CODE_DEFENSE.md` yet. Nobody has looked at the Game view.
 
-**Next.** S5 (two maps + map select + tutorial) → S6 (the three chosen mechanics) → S7 (builds, `CODE_DEFENSE.md`,
-close) — the order and gates are in *Next action*, the scope in `docs/PLAN.md` § 6. Builds are S7, not next.
+**Next.** S6 (the three chosen mechanics) → S7 (builds, `CODE_DEFENSE.md`, close). S6 **cannot start until Chloe
+names the three** (`docs/PLAN.md` § 5: A wave director, B ultimate meter, C damage numbers, D destructible cover,
+E pause menu; default A+B+E). The order and gates are in *Next action*, the scope in `docs/PLAN.md` § 6.
 
 **Not verified anywhere in this sprint.** No one has looked at the Game view: HUD layout, world-space bars, VFX
-sizing and the Bulwark shell are all "the numbers reach the renderer", not "it looks right". One play session by
-Chloe covers it. The climb's dust stream likewise has never been seen while actually climbing.
+sizing, the Bulwark shell, the two new maps, the menu screens and the tutorial panel are all "the numbers reach
+the renderer", not "it looks right". One play session by Chloe — from `00_Boot`, one map and the tutorial —
+covers all of it. The climb's dust stream likewise has never been seen while actually climbing.
 
 **Known gaps that are deliberate, not forgotten:** minimap and the Tab frag board (need `ScoreService` and a
 layer split), the guns/projectiles rework (Chloe has not answered), the Scissors fire-rate-window readout,
@@ -298,6 +351,13 @@ none
 
 ## Requirements log
 
+- 2026-10-24 10:4x (same session) — Chloe: **"let's continue executing next actions on this hero-shooter project.
+  now S5"** → S5 built end to end: task file first (`docs/tasks/2026-10-24_S5-maps-and-tutorial.md`), then
+  `GameFlow` / `MapDefinition` / `MainMenuUI` / `MapSelectUI` / `MapCardUI` / `TutorialDirector` /
+  `TutorialPanelUI` / `ICharacterPicker`, three authored UI prefabs, four scenes with ProBuilder geometry and
+  NavMesh bakes, and the gate measured in play mode from `00_Boot`. Asked for and received sign-off on the one
+  `ProjectSettings/**` change (Build Settings scene list: Boot first, `90_TestArena` last, `SampleScene` removed) —
+  she chose option 1. Two defects the probe found are fixed and re-measured; docs written from the diff.
 - 2026-10-24 11:4x (same session) — Chloe: **"sprints 5-7 were removed? please recover them. next is not
   producing builds, there's more steps"**. Confirmed: `docs/PLAN.md` § 6 still carries S5/S6/S7, but the ledger
   had lost them (`grep "S5\|S6\|S7"` on the ledger returned nothing) because the last rewrite ended the sprint

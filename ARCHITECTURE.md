@@ -42,19 +42,22 @@ Input System is installed but **no Input Actions asset is used** — `InputReade
   `IAbility` classes from `AbilityFactory`, the three stateful ones are components (`SlamDriver`,
   `BulwarkShield`, `WallClimbPassive`); `PlayerAbilities` routes Q/E and owns the instant cooldowns.
   → `characters-and-abilities.md`
-- **Match flow & UI** — `MatchBootstrap` holds the roster, freezes the hero, hands the pick to `HeroLoadout`.
-  `CharacterSelectUI` / `CharacterCardUI` drive an **authored** prefab. → `characters-and-abilities.md`
+- **Match flow, maps & tutorial** — `GameFlow` (DontDestroyOnLoad, the only `SceneManager.LoadScene` caller) holds
+  the roster, the `MapDefinition` catalog and both picks; `MainMenuUI` → `CharacterSelectUI` → `MapSelectUI` are
+  authored prefabs in `00_Boot`; `MatchBootstrap` applies the carried pick inside a map scene;
+  `TutorialDirector` gates five steps on observed events. → `match-flow-and-maps.md`
 - **HUD, aiming & enemy bars** — `ThirdPersonCameraRig` owns the RMB aim state (FOV/offset/blend),
   `HudController` pushes health, both ability slots, chips, crosshairs and the hit marker into the authored
   `HUD.prefab`; `EnemyBarBinder` gives every enemy a pooled world-space `EnemyHealthBar`.
   → `hud-aiming-and-feedback.md`
-- **Planned, not built** — VFX (sparks, tracers, particles), wave director, scoring, minimap, map select,
-  tutorial. → `docs/tasks/`
+- **Planned, not built** — wave director, scoring, minimap, pause menu. → `docs/tasks/`
 
-Scene reality: `Assets/_Project/Scenes/90_TestArena.unity` holds the ProBuilder arena, the `ProjectilePool`
-object, the `Match` bootstrap, the camera rig, the authored `CharacterSelect` canvas, the authored `HUD`
-prefab instance, the `EnemyBars` object (bar pool + binder), 3 static test targets,
-and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is no runtime spawner.
+Scene reality, five scenes in build order: `00_Boot` (menu + `GameFlow` + the two select canvases),
+`10_Tutorial` (match rig, 30×30 course, `TutorialDirector`, 3 static targets, **no enemies**),
+`20_Map_Arena` and `21_Map_Alley` (match rig + their own ProBuilder geometry + a baked `NavMeshSurface`, 4
+hand-placed enemies each), and `90_TestArena` (the dev scene: same rig, no `GameFlow`, still opens the select
+screen inside the match). Every match scene carries the `ProjectilePool`, `Match`, camera rig, authored `HUD`,
+`EnemyBars` and `Vfx` objects. There is no runtime spawner anywhere — enemies are prefab instances placed per map.
 
 ## Core conventions
 
@@ -76,7 +79,10 @@ and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is 
   rather than poll. Optional references are resolved in `Awake` with a `GetComponent` / `Camera.main` fallback
   because a prefab cannot hold a scene reference; `Weapon` re-resolves its pool on every use for ordering reasons.
 - **Error handling**: no exceptions for gameplay. Missing data or a dead target means a silent early return —
-  a null `WeaponDefinition` fires nothing, an ability with no target does nothing. Nothing logs a warning.
+  a null `WeaponDefinition` fires nothing, an ability with no target does nothing. The only `Debug.LogWarning` is
+  `MapSelectUI.Select` refusing a `MapDefinition` with an empty `sceneName` (an authoring mistake that would
+  otherwise load nothing); the `Debug.Log` lines in `ObjectPool`, `EnemyBrain` and `DamageLog` exist for console
+  probes.
 - **Testing**: no automated tests exist. `com.unity.test-framework` is installed but there is no test assembly,
   so the done-criteria are play-mode gates, console probes and greps (`AGENTS.md`).
 
@@ -92,11 +98,11 @@ and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is 
 | `Assets/_Project/Scripts/Enemies/` | `EnemyBrain`, `EnemyStats`, `Spyglass`, `AllyCall`, `IEnemyAttack`, `RangedAttack`, `MeleeAttack` |
 | `Assets/_Project/Scripts/Enemies/FSM/` | `EnemyState`, `IState`, `StateMachine` |
 | `Assets/_Project/Scripts/Enemies/States/` | `Search`, `Chase`, `Attack`, `Flee`, `CallAllies` states |
-| `Assets/_Project/Scripts/Systems/` | `MatchBootstrap`, `DamageLog` (S1 console probe, delete when the HUD lands) |
-| `Assets/_Project/Scripts/UI/` | `CharacterSelectUI`, `CharacterCardUI`, `HudController`, `AbilitySlotUI`, `EnemyHealthBar`(+Pool), `EnemyBarBinder` (controllers for authored prefabs) |
-| `Assets/_Project/Data/` | the SO instances: `Characters/`, `Weapons/`, `Abilities/`, `Enemies/` |
-| `Assets/_Project/Prefabs/` | `Player/`, `Enemies/`, `Projectiles/`, `UI/` (`VFX/` is empty) |
-| `Assets/_Project/Scenes/` | `90_TestArena.unity` — the only gameplay scene; NavMesh baked into it |
+| `Assets/_Project/Scripts/Systems/` | `GameFlow` (scene routing + picks), `MatchBootstrap`, `TutorialDirector`, `DamageLog` (S1 console probe) |
+| `Assets/_Project/Scripts/UI/` | `MainMenuUI`, `CharacterSelectUI`, `CharacterCardUI`, `ICharacterPicker`, `MapSelectUI`, `MapCardUI`, `TutorialPanelUI`, `HudController`, `AbilitySlotUI`, `EnemyHealthBar`(+Pool), `EnemyBarBinder` (controllers for authored prefabs) |
+| `Assets/_Project/Data/` | the SO instances: `Characters/`, `Weapons/`, `Abilities/`, `Enemies/`, `Maps/` |
+| `Assets/_Project/Prefabs/` | `Player/`, `Enemies/`, `Projectiles/`, `UI/` (`MainMenu`, `CharacterSelect`, `MapSelect`, `TutorialPanel`, `HUD`, `EnemyHealthBar`), `VFX/` |
+| `Assets/_Project/Scenes/` | `00_Boot`, `10_Tutorial`, `20_Map_Arena`, `21_Map_Alley`, `90_TestArena` (dev) — build order is `ProjectSettings/EditorBuildSettings.asset` |
 | `Assets/_Project/Art/Materials/` | `M_Floor`, `M_Block`, `M_Player`, `M_Enemy`, `M_Projectile` |
 | `docs/` | assignment, plan, ledger, roster, layers, per-block task files, feature docs |
 
@@ -110,22 +116,22 @@ and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is 
 | Enemy FSM | `docs/features/enemy-fsm.md` | `EnemyBrain`, states, `Spyglass`, `AllyCall`, attack strategies, `EnemyStats` |
 | Characters & abilities | `docs/features/characters-and-abilities.md` | `CharacterDefinition`, `AbilityDefinition`, 6 abilities, `PlayerAbilities`, `HeroLoadout`, `MatchBootstrap`, select UI |
 | HUD, aiming & feedback | `docs/features/hud-aiming-and-feedback.md` | `ThirdPersonCameraRig` aim state, `HudController`, `AbilitySlotUI`, `EnemyHealthBar`/pool/binder, the VFX pool + hooks |
+| Match flow, maps & tutorial | `docs/features/match-flow-and-maps.md` | `GameFlow`, `MapDefinition`, `MainMenuUI`/`MapSelectUI`, `TutorialDirector`/`TutorialPanelUI`, the five scenes |
 | Editor bridge | `docs/features/editor-mcp-tooling.md` | MCP for Unity v10 setup and pitfalls |
 
 ## Not built yet (listed here so it is not mistaken for existing code)
 
-`docs/PLAN.md` § 3 names files that do not exist: `GameFlow`, `WaveDirector`, `ScoreService`, `SpawnPoint`,
-`TutorialDirector`, `HUD`, `MinimapCamera`, `FragBoardUI`, `AbilityCooldownUI`, `MapSelectUI`, `PauseMenu`,
-`HitFeedback`, `EnemyHealth`, `MapDefinition`, `WaveDefinition`, `PlayerHealth`. Health is one `Health`
-component for player and enemies; there is no wave spawning, no death/score handling and no menu scenes
-(`00_Boot`…`21_Map_Alley` do not exist). The HUD itself, the enemy bars and the VFX pool **do** exist — the
-`HUD` name in that list refers to the planned standalone `HUD.cs` from the first draft, which was built as
-`UI/HudController.cs` instead.
+`docs/PLAN.md` § 3 names files that do not exist: `WaveDirector`, `ScoreService`, `SpawnPoint`, `MinimapCamera`,
+`FragBoardUI`, `AbilityCooldownUI`, `PauseMenu`, `HitFeedback`, `EnemyHealth`, `WaveDefinition`, `PlayerHealth`.
+Health is one `Health` component for player and enemies; there is no wave spawning, no death/score handling and no
+minimap. `GameFlow`, `TutorialDirector`, `MapSelectUI`, `MapDefinition` and the menu scenes **do** exist now (S5).
+The HUD itself, the enemy bars and the VFX pool exist too — the `HUD` name in that list refers to the planned
+standalone `HUD.cs` from the first draft, which was built as `UI/HudController.cs` instead.
 
-**Sprint blocks still ahead** (`docs/PLAN.md` § 6): **S5** two ProBuilder maps + `MapSelectUI`/`MapDefinition` +
-a tutorial scene with gated steps; **S6** the three self-chosen mechanics (default: wave director, ultimate meter,
-pause menu — this is where `WaveDirector`, `WaveDefinition`, `SpawnPoint`, `ScoreService` and the kill events
-come from); **S7** Linux + Windows builds, `docs/CODE_DEFENSE.md`, close and submit.
+**Sprint blocks still ahead** (`docs/PLAN.md` § 6): **S6** the three self-chosen mechanics (default: wave director,
+ultimate meter, pause menu — this is where `WaveDirector`, `WaveDefinition`, `SpawnPoint`, `ScoreService` and the
+kill events come from); **S7** Linux + Windows builds, `docs/CODE_DEFENSE.md`, close and submit. **S5 is closed**
+— see `docs/tasks/2026-10-24_S5-maps-and-tutorial.md`.
 
 ## External constraints
 

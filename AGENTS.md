@@ -1,8 +1,11 @@
 # AGENTS.md — hero-shooter
 
-Unity 6 third-person hero shooter (UNICAP assignment, due 2026-10-30 22:00). The only gameplay scene is
-`Assets/_Project/Scenes/90_TestArena.unity`; the code entry point is `MatchBootstrap` on the `Match` object.
-Read `ARCHITECTURE.md` first, then only the feature doc for the system you are touching.
+Unity 6 third-person hero shooter (UNICAP assignment, due 2026-10-30 22:00). Five scenes, in build order:
+`00_Boot` (menu, `GameFlow`, both select screens) → `10_Tutorial` → `20_Map_Arena` → `21_Map_Alley` →
+`90_TestArena` (the dev scene, still opens the character select inside the match). Scene routing is `GameFlow`
+(`Scripts/Systems/GameFlow.cs`) and it is the only `SceneManager.LoadScene` caller; a match scene starts by
+`MatchBootstrap` applying the carried pick. Read `ARCHITECTURE.md` first, then only the feature doc for the
+system you are touching (`docs/features/match-flow-and-maps.md` for anything touching scenes, maps or tutorial).
 
 ## Commands
 
@@ -24,6 +27,7 @@ grep -c "error CS" Logs/Editor.log                   # verified 0 → no compile
 # Static done-criteria greps (the only automatable gates that exist)
 grep -rn "Instantiate(" Assets/_Project/Scripts    # must return ONLY Core/ObjectPool.cs:43
 grep -rn "attackRange" Assets/_Project/Scripts     # EnemyStats.attackRange is read by nobody — see enemy-fsm.md
+grep -rn "SceneManager.LoadScene" Assets/_Project/Scripts   # 3 sites, all in Systems/GameFlow.cs
 git diff --check                                   # verified clean; keep it clean in every commit
 
 # Editor bridge (how the agent wires prefabs/scenes/ProBuilder instead of editing YAML)
@@ -34,6 +38,9 @@ curl -sS http://127.0.0.1:8080/health              # verified {"status":"healthy
 #   UNVERIFIED — never run from the CLI on this project. Use the editor: File > Build Profiles,
 #   targets Linux x86_64 and Windows x86_64 (Windows module installed, Mono backend).
 #   No executeMethod build class exists.
+
+# Scene order (a fresh launch must start in 00_Boot or there is no hero)
+grep -A2 "m_Scenes" ProjectSettings/EditorBuildSettings.asset   # 00_Boot first; edit only with Chloe's sign-off
 
 # Play-mode verification (there are no automated tests)
 #   Editor Play mode + console probes through the MCP bridge (execute_code / debugger_get_log).
