@@ -200,10 +200,11 @@ Still open:
 
 ## Uncommitted at last checkpoint
 
-none — `git status --short` empty after the audit-fix step, which landed as `7510f5e` (five scripts) plus
-`4cab2fd` (feature docs + this ledger). No prefab, scene, data asset or `ProjectSettings/**` change is part of
-the step: the files play mode wrote (`90_TestArena.unity`, `CharacterSelect.prefab`, `TimeManager.asset`) were
-reverted with `git checkout --` before the commit.
+none — `git status --short` empty after the S3b rework, which landed as `1960b0a` (scripts, `Player.prefab`,
+two ability assets, three deleted classes) plus `aad17ae` (feature docs, the S3b task file, `ARCHITECTURE.md`
+and this ledger). No scene or `ProjectSettings/**` change: play mode did not write the arena this time, and the
+`git diff --check` warning left on the prefab is Unity's own serializer (`m_Name: ` with a trailing space in the
+three new MonoBehaviour blocks) — not code, and not hand-editable while the editor holds the file.
 
 ## Handoff
 
