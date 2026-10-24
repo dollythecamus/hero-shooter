@@ -109,7 +109,7 @@ and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is 
 | Weapons & projectiles | `docs/features/weapons-and-projectiles.md` | `Weapon`, `WeaponDefinition`, `Projectile`, `ProjectilePool` |
 | Enemy FSM | `docs/features/enemy-fsm.md` | `EnemyBrain`, states, `Spyglass`, `AllyCall`, attack strategies, `EnemyStats` |
 | Characters & abilities | `docs/features/characters-and-abilities.md` | `CharacterDefinition`, `AbilityDefinition`, 6 abilities, `PlayerAbilities`, `HeroLoadout`, `MatchBootstrap`, select UI |
-| HUD, aiming & feedback | `docs/features/hud-aiming-and-feedback.md` | `ThirdPersonCameraRig` aim state, `HudController`, `AbilitySlotUI`, `EnemyHealthBar`/pool/binder — VFX still planned |
+| HUD, aiming & feedback | `docs/features/hud-aiming-and-feedback.md` | `ThirdPersonCameraRig` aim state, `HudController`, `AbilitySlotUI`, `EnemyHealthBar`/pool/binder, the VFX pool + hooks |
 | Editor bridge | `docs/features/editor-mcp-tooling.md` | MCP for Unity v10 setup and pitfalls |
 
 ## Not built yet (listed here so it is not mistaken for existing code)
@@ -117,8 +117,15 @@ and **4 hand-placed enemies** (2 ranged, 2 melee) as prefab instances. There is 
 `docs/PLAN.md` § 3 names files that do not exist: `GameFlow`, `WaveDirector`, `ScoreService`, `SpawnPoint`,
 `TutorialDirector`, `HUD`, `MinimapCamera`, `FragBoardUI`, `AbilityCooldownUI`, `MapSelectUI`, `PauseMenu`,
 `HitFeedback`, `EnemyHealth`, `MapDefinition`, `WaveDefinition`, `PlayerHealth`. Health is one `Health`
-component for player and enemies; there is no wave spawning, no death/score handling, no menu scenes
-(`00_Boot`…`21_Map_Alley` do not exist) and no VFX prefab.
+component for player and enemies; there is no wave spawning, no death/score handling and no menu scenes
+(`00_Boot`…`21_Map_Alley` do not exist). The HUD itself, the enemy bars and the VFX pool **do** exist — the
+`HUD` name in that list refers to the planned standalone `HUD.cs` from the first draft, which was built as
+`UI/HudController.cs` instead.
+
+**Sprint blocks still ahead** (`docs/PLAN.md` § 6): **S5** two ProBuilder maps + `MapSelectUI`/`MapDefinition` +
+a tutorial scene with gated steps; **S6** the three self-chosen mechanics (default: wave director, ultimate meter,
+pause menu — this is where `WaveDirector`, `WaveDefinition`, `SpawnPoint`, `ScoreService` and the kill events
+come from); **S7** Linux + Windows builds, `docs/CODE_DEFENSE.md`, close and submit.
 
 ## External constraints
 

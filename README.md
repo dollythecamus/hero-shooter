@@ -18,16 +18,18 @@ waves of FSM-driven ranged and melee enemies with pooled projectiles and two abi
    Where it disagrees with the code, the roster wins.
 7. `docs/LAYERS.md` — layer indices and the mask values that follow from them.
 8. `docs/features/` — one doc per system (`damage-and-pooling`, `player-movement-and-camera`,
-   `weapons-and-projectiles`, `enemy-fsm`, `characters-and-abilities`, `hud-aiming-and-feedback` (planned),
+   `weapons-and-projectiles`, `enemy-fsm`, `characters-and-abilities`, `hud-aiming-and-feedback`,
    `editor-mcp-tooling`).
 9. `docs/tasks/` — one file per sprint block: what was built, what was verified, what was reverted.
 
 ## Status
 
-S1 (player + camera + pooled shooting), S2 (enemy FSM, both archetypes) and S3 (3 characters, 6 abilities,
-authored character select) are landed. S3's six ability *effects* were never measured in play mode; the ability
-rework, HUD/aiming/VFX and the remaining brief items (minimap, Tab frags, map select, tutorial) are not built.
-Truth lives in `docs/PROJECT_LEDGER.md`.
+S1 (player + camera + pooled shooting), S2 (enemy FSM, both archetypes), S3 (3 characters, 6 abilities, authored
+character select), S3b (ability rework) and S4 (aiming, authored HUD, enemy bars, pooled VFX) are **landed and
+measured in play mode**. Still to build: **S5** (two ProBuilder maps + map select + tutorial), **S6** (the three
+self-chosen mechanics — default wave director, ultimate meter, pause menu) and **S7** (Linux + Windows builds,
+`docs/CODE_DEFENSE.md`, submission); the minimap and Tab frag board are deferred out of the sprint. Truth lives
+in `docs/PROJECT_LEDGER.md`; scope and gates per block in `docs/PLAN.md` § 6.
 
 ## Layout
 

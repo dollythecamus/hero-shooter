@@ -53,26 +53,42 @@ projectile's `TrailRenderer` + material swap, the slam landing burst, climb dust
 `com.unity.modules.particlesystem` — the project had no built-in modules enabled at all, so `ParticleSystem`
 did not compile; Chloe approved it.
 
+**S4 is the last feature block of the day sprint, not the end of it.** S5 (two ProBuilder maps + map select +
+tutorial), S6 (the three self-chosen mechanics) and S7 (builds + `docs/CODE_DEFENSE.md` + close) are still
+ahead — see *Next action*; Chloe caught this being dropped from the ledger on 2026-10-24.
+
 ## Next action
 
-**S4 is closed.** What is left before the deadline is the submission work in `docs/PLAN.md` § 6–7:
+**S4 closed 2026-10-24 ~11:1x. The day sprint has three blocks left** — `docs/PLAN.md` § 6 is the authority for
+scope and gates; this list is the order and the state. S5–S7 have **no task file yet**: one is written when its
+block starts, the way S1/S2/S3/S3b/S4 got theirs.
 
 1. ~~correctness fixes from the docs audit~~ — landed 2026-10-23 ~20:05.
 2. ~~ability rework (S3b)~~ — landed 2026-10-23 ~21:2x, committed `1960b0a`/`aad17ae`.
 3. ~~aiming + HUD + enemy bars~~ — landed 2026-10-23, committed `5c40a99`/`5a115ba`.
-4. ~~VFX (rest of S4)~~ — landed and measured 2026-10-24 ~11:1x, committed with its docs.
-5. **Builds, next** — Linux x86_64 and Windows x86_64 from `File → Build Profiles`, then **run each from a clean
-   folder** and check the checklist in `docs/ASSIGNMENT.md` against the built game. This is GUI work in the
-   editor; the agent can drive the dialogs through the bridge but cannot verify a built binary's behaviour, so a
-   human run is required. No executeMethod build class exists (see `AGENTS.md`).
-6. **`docs/CODE_DEFENSE.md`** — one block per system, each verified by opening the named file, for the 20:20
-   walkthrough on 2026-10-30.
+4. ~~VFX (rest of S4)~~ — landed and measured 2026-10-24 ~11:1x, committed `4da3ef1`/`0b20b2e`.
+5. **S5 — maps, map select, tutorial (NEXT, not builds)**: two ProBuilder maps + `MapSelectUI` /
+   `MapDefinition`, and a tutorial scene with gated steps. Gate: the tutorial completes from a fresh launch and
+   both maps load from the menu. Nothing of it exists yet — there is one scene (`90_TestArena`), no
+   `MapDefinition`, no `MapSelectUI`, and `MatchBootstrap` is the whole match flow.
+6. **S6 — the three self-chosen mechanics**: ranking and effort in `docs/PLAN.md` § 5 (default **A wave director
+   with escalating difficulty + B ultimate meter + E pause menu**). Chloe picks at S6, once the mandatory systems
+   stand. Gate: each one demonstrable in under 30 s. This is also where `ScoreService` and the kill/wave events
+   the frag board needs would come from.
+7. **S7 — builds, code defense, close**: Linux x86_64 and Windows x86_64 from `File → Build Profiles`, run each
+   from a **clean folder**, `docs/CODE_DEFENSE.md` (one block per system), commit and ledger close. Gate: a build
+   runs from a clean folder and every defense block opens the file it names. Builds are GUI work; the agent can
+   drive the dialogs but cannot judge a built binary, so a human run is required. No `executeMethod` build class
+   exists (see `AGENTS.md`).
 
-Deferred out of this block and recorded there: minimap + Tab frag board (both need systems that do not exist
-yet — `ScoreService`, a minimap mask/layer split), and the guns/projectiles rework (Chloe has not answered).
+After S7 the buffer in `docs/PLAN.md` § 7 applies: balance pass Sat 24–Sun 25, `CODE_DEFENSE.md` finished and
+rehearsed Mon 26–Wed 28, final builds + LMS submission Thu 29, freeze Fri 30 (18:00).
 
-**Stopping point:** the per-ability verification table in that file, measured in play mode rather than inferred,
-plus the S4 gates. Nothing is declared closed on the strength of "it compiles".
+Deferred out of the sprint and recorded there: minimap + Tab frag board (both need systems that do not exist yet
+— `ScoreService`, a minimap mask/layer split), and the guns/projectiles rework (Chloe has not answered).
+
+**Stopping point:** the gate named on the block being worked, observed in play mode (or from a built binary for
+S7) rather than inferred. Nothing is declared closed on the strength of "it compiles".
 
 
 ## Open questions
@@ -93,6 +109,8 @@ plus the S4 gates. Nothing is declared closed on the strength of "it compiles".
 
 Still open:
 
+- **The three self-chosen mechanics (S6)** — ranking and costs in `docs/PLAN.md` § 5, default **A wave director +
+  B ultimate meter + E pause menu**. Chloe picks at S6; nothing of them starts before that.
 - **Guns and projectiles rework** — Chloe is answering this later; nothing on the weapon feel starts before that.
 - Git remote `dollythecamus/hero-shooter`: push or stay local?
 
@@ -252,8 +270,8 @@ VFX layer are all built, measured in play mode and committed. `docs/ASSIGNMENT.m
 code that exists and runs in the editor. What has **not** been done is everything after the editor: no build has
 ever been produced, and there is no `docs/CODE_DEFENSE.md` yet.
 
-**Next.** Builds (Linux + Windows from `File → Build Profiles`) and a human run from a clean folder — the agent
-can drive the build dialogs through the bridge but cannot judge a built binary. Then the code-defense doc.
+**Next.** S5 (two maps + map select + tutorial) → S6 (the three chosen mechanics) → S7 (builds, `CODE_DEFENSE.md`,
+close) — the order and gates are in *Next action*, the scope in `docs/PLAN.md` § 6. Builds are S7, not next.
 
 **Not verified anywhere in this sprint.** No one has looked at the Game view: HUD layout, world-space bars, VFX
 sizing and the Bulwark shell are all "the numbers reach the renderer", not "it looks right". One play session by
@@ -280,6 +298,12 @@ none
 
 ## Requirements log
 
+- 2026-10-24 11:4x (same session) — Chloe: **"sprints 5-7 were removed? please recover them. next is not
+  producing builds, there's more steps"**. Confirmed: `docs/PLAN.md` § 6 still carries S5/S6/S7, but the ledger
+  had lost them (`grep "S5\|S6\|S7"` on the ledger returned nothing) because the last rewrite ended the sprint
+  at S4 and jumped to builds. Restored in *Next action* (S5 maps + map select + tutorial → S6 three chosen
+  mechanics → S7 builds + defense + close, each with its gate), added the S6 mechanics choice to *Open
+  questions*, and corrected the handoff line that said builds were next.
 - 2026-10-24 10:25 (same session) — Chloe: **"editor ok"** → the VFX half finished: the block had actually been
   failing on a disabled Particle System module (`error CS1069`), not a wedged editor. Asked for sign-off, she
   approved adding `com.unity.modules.particlesystem` to `manifest.json`; after that the nine VFX scripts compiled
