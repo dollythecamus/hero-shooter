@@ -494,6 +494,20 @@ The audit became **L11**, so this cannot pass silently again.
 The v1 files are kept under `docs/studies/superseded/`: the measurement is evidence, and it is also the cheapest
 possible illustration of why the option space is part of the design.
 
+The second generation passed the audit: **0.3 % combat vocabulary** (2 of 600, both in `conflict-and-stakes`),
+0 duplicates, 0 length violations — while the categories that were never biased (art, theme, audio) came out
+unchanged, which is the check that the fix hit the cause and not the symptom.
+
+Two residual biases are recorded rather than quietly fixed, because both are decisions rather than defects:
+
+1. **Combat is now under-sampled** against the real games landscape — 0.3 % where a general space would be nearer
+   10–20 %. That is Chloe's taste respected, but a space that cannot reach a conflict-driven design is not
+   "general", it is taste-filtered, and the study should say so in those words.
+2. **22 of the 30 `medium-and-material` items are physical** (paper forms, receipts, a cassette, a scent jar,
+   wool and pins). An agent loop builds software, so most of that category dies at the feasibility veto. It is
+   the most inventive category in the file, which is exactly why the veto has to be visible before the roll rather
+   than after: the cull file carries a `physical` column so this is a sorting decision, not a surprise.
+
 ## 11. Playtest and self-play — the human interface (Chloe's answer, applied)
 
 Her answer: yes to self-play driven by the design bot, **contingent on building the interface for it**; yes to
