@@ -305,7 +305,7 @@ Still open:
 
 ## Uncommitted at last checkpoint
 
-**none** — S5 landed as `9cc4233` (code, assets, Build Settings) and `9a426ad` (its docs). Code: 6 new scripts,
+**none** — S5 landed as `9cc4233` (code, assets, Build Settings) and the docs commit on top of it (*Docs: record S5 from the diff and the measured gates*). Code: 6 new scripts,
 4 edited scripts (`MatchBootstrap`, `PlayerAbilities`, `CharacterSelectUI`, `CharacterCardUI`),
 `ProjectSettings/EditorBuildSettings.asset` (the approved scene list). Assets: `Data/Maps/` (2 assets),
 `Prefabs/UI/{MainMenu,MapSelect,TutorialPanel}.prefab`, `Scenes/{00_Boot,10_Tutorial,20_Map_Arena,21_Map_Alley}.unity`
