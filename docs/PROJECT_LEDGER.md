@@ -351,6 +351,12 @@ none
 
 ## Requirements log
 
+- 2026-10-24 14:2x (same session) — **study material moved out of this repo** at Chloe's instruction: the loop
+  study, the design-roll option space and its superseded generation now live in
+  `~/projects/unicap-gamejam-agent-experiment/docs/loop-study/` (the project the experiment actually belongs to).
+  Nothing experiment-related remains here; this repo is the UNICAP assignment only. Also decided: the operator will
+  not hand-cull the 630-item space — the designer role generates 10 complete sets from the 21 categories and culls
+  each draw by feasibility and contradictions before interpreting the winner into the design document.
 - 2026-10-24 14:0x (same session) — Chloe's two corrections to the v2 space: combat gets **its own category** (with
   explicit abstentions, reskins like friendship-building, and inverted goals as peers of a duel), and
   `medium-and-material` is bound to a **software-realizable** reading (material as interface/art direction, not
