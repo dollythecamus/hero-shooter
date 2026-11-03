@@ -51,6 +51,10 @@ namespace HeroShooter.Systems
         [SerializeField] GameObject chargeRoot;
         [SerializeField] Image chargeFill;
 
+        [Header("Minimap")]
+        [Tooltip("Facing arrow inside the minimap frame. The map itself is a RenderTexture, so only the arrow turns.")]
+        [SerializeField] RectTransform minimapArrow;
+
         readonly AbilityDefinition[] _boundDefinitions = new AbilityDefinition[PlayerAbilities.SlotCount];
         float _hitMarkerUntil;
 
@@ -93,6 +97,20 @@ namespace HeroShooter.Systems
             PushWeapon(hero.Weapon);
             PushChips();
             PushHitMarker();
+            PushMinimapArrow();
+        }
+
+        void PushMinimapArrow()
+        {
+            if (minimapArrow == null || hero == null)
+            {
+                return;
+            }
+
+            // World +Z is up the minimap screen, so a hero facing +Z points the arrow straight up; yaw
+            // therefore maps to a negative UI z-rotation (UI rotation is counter-clockwise positive).
+            Vector3 facing = hero.transform.eulerAngles;
+            minimapArrow.localEulerAngles = new Vector3(0f, 0f, -facing.y);
         }
 
         void PushHealth(Health health)
