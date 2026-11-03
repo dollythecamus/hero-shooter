@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HeroShooter.Core;
 using HeroShooter.Enemies;
 using UnityEngine;
@@ -6,9 +7,13 @@ using UnityEngine;
 namespace HeroShooter.Systems
 {
     /// <summary>
-    /// Hands each hand-placed enemy its pooled world-space bar once, and is the HUD's single source of
-    /// enemy-side state: the longest running Mark / Snare for the chips, and a damage event for the hit
-    /// marker. It exists because the arena has no spawner — there is no per-enemy spawn hook to hang a bar on.
+    /// Hands each enemy its pooled world-space bar once, and is the HUD's single source of enemy-side
+    /// state: the longest running Mark / Snare for the chips, and a damage event for the hit marker and
+    /// the damage numbers.
+    ///
+    /// Binding is public because the enemy set stopped being static: the arena's hand-placed enemies are
+    /// picked up at Start, and <see cref="WaveDirector"/> binds each body as it comes out of its pool. A
+    /// brain is bound once even though a pooled body is spawned many times.
     /// </summary>
     public class EnemyBarBinder : MonoBehaviour
     {
@@ -18,7 +23,8 @@ namespace HeroShooter.Systems
         [Tooltip("Enemies to give a bar to. Left empty, every EnemyBrain in the scene is picked up at Start.")]
         [SerializeField] EnemyBrain[] enemies;
 
-        Health[] _healths;
+        readonly List<EnemyBrain> _bound = new List<EnemyBrain>();
+        readonly List<Health> _boundHealth = new List<Health>();
 
         /// <summary>Raised for every hit taken by a bound enemy; the HUD compares the source to the hero.</summary>
         public event Action<DamageInfo> EnemyDamaged;
@@ -48,44 +54,44 @@ namespace HeroShooter.Systems
                 return;
             }
 
-            _healths = new Health[enemies.Length];
-
-            for (int i = 0; i < enemies.Length; i++)
+            foreach (EnemyBrain brain in enemies)
             {
-                EnemyBrain brain = enemies[i];
-
-                if (brain == null)
-                {
-                    continue;
-                }
-
-                Health health = brain.Health != null ? brain.Health : brain.GetComponent<Health>();
-                _healths[i] = health;
-
-                if (health != null)
-                {
-                    health.Damaged += OnEnemyDamaged;
-                }
-
-                EnemyHealthBar bar = pool.Get(brain.transform.position, brain.transform.rotation);
-                bar.Bind(health, brain);
+                Bind(brain);
             }
         }
 
-        void Update()
+        /// <summary>Gives one enemy a bar and starts reporting its damage. Calling it twice is a no-op.</summary>
+        public void Bind(EnemyBrain brain)
         {
-            if (_healths == null)
+            if (brain == null || pool == null || _bound.Contains(brain))
             {
                 return;
             }
 
+            Health health = brain.Health != null ? brain.Health : brain.GetComponent<Health>();
+
+            if (health == null)
+            {
+                return;
+            }
+
+            _bound.Add(brain);
+            _boundHealth.Add(health);
+            health.Damaged += OnEnemyDamaged;
+
+            EnemyHealthBar bar = pool.Get(brain.transform.position, brain.transform.rotation);
+            bar.Bind(health, brain);
+        }
+
+        void Update()
+        {
             float mark = 0f;
             float snare = 0f;
 
-            for (int i = 0; i < _healths.Length; i++)
+            for (int i = 0; i < _bound.Count; i++)
             {
-                Health health = _healths[i];
-                EnemyBrain brain = enemies[i];
+                Health health = _boundHealth[i];
+                EnemyBrain brain = _bound[i];
 
                 if (health != null && health.DamageMultiplierSecondsLeft > mark)
                 {
@@ -104,12 +110,7 @@ namespace HeroShooter.Systems
 
         void OnDestroy()
         {
-            if (_healths == null)
-            {
-                return;
-            }
-
-            foreach (Health health in _healths)
+            foreach (Health health in _boundHealth)
             {
                 if (health != null)
                 {

@@ -79,15 +79,21 @@ namespace HeroShooter.Core
                 return;
             }
 
-            Current = Mathf.Max(0f, Current - info.Amount * Mathf.Max(0f, IncomingDamageMultiplier));
-            Damaged?.Invoke(info);
+            // The damage listeners get what actually landed, not what the weapon asked for: a Marked enemy
+            // hits for 1.35x, and a damage number that showed the pre-multiplier figure would contradict the
+            // health bar next to it.
+            DamageInfo applied = info;
+            applied.Amount = info.Amount * Mathf.Max(0f, IncomingDamageMultiplier);
+
+            Current = Mathf.Max(0f, Current - applied.Amount);
+            Damaged?.Invoke(applied);
 
             if (Current > 0f)
             {
                 return;
             }
 
-            Died?.Invoke(info);
+            Died?.Invoke(applied);
 
             if (destroyOnDeath)
             {

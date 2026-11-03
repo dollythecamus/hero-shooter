@@ -42,6 +42,19 @@ namespace HeroShooter.Player
         /// <summary>The camera this rig drives (weapon aim uses it).</summary>
         public Camera Cam { get; private set; }
 
+        /// <summary>
+        /// Degrees per pixel of mouse movement. The pause menu's slider writes here, so the setting and the
+        /// behaviour are one number.
+        /// </summary>
+        public float MouseSensitivity
+        {
+            get => mouseSensitivity;
+            set => mouseSensitivity = Mathf.Max(0.01f, value);
+        }
+
+        /// <summary>Flips the vertical look axis without touching the horizontal one.</summary>
+        public bool InvertY { get; set; }
+
         /// <summary>0 at the hip, 1 fully aiming. The HUD swaps crosshairs on this, not on the raw button.</summary>
         public float AimBlend => _aimBlend;
 
@@ -80,7 +93,8 @@ namespace HeroShooter.Player
 
             Vector2 look = InputReader.Look;
             _yaw += look.x * mouseSensitivity;
-            _pitch = Mathf.Clamp(_pitch - look.y * mouseSensitivity, pitchLimits.x, pitchLimits.y);
+            float pitchDelta = look.y * mouseSensitivity * (InvertY ? -1f : 1f);
+            _pitch = Mathf.Clamp(_pitch - pitchDelta, pitchLimits.x, pitchLimits.y);
 
             _aimBlend = Mathf.Lerp(_aimBlend, InputReader.AimHeld ? 1f : 0f,
                 1f - Mathf.Exp(-aimBlendPerSecond * Time.deltaTime));

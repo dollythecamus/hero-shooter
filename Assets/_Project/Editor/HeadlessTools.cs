@@ -1,7 +1,6 @@
 using System.Text;
 using HeroShooter.Core;
 using HeroShooter.Systems;
-using HeroShooter.UI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;

@@ -13,7 +13,7 @@ namespace HeroShooter.Enemies
     /// </summary>
     [RequireComponent(typeof(Health))]
     [RequireComponent(typeof(NavMeshAgent))]
-    public class EnemyBrain : MonoBehaviour
+    public class EnemyBrain : MonoBehaviour, IPooled
     {
         [Header("Data")]
         [SerializeField] EnemyStats stats;
@@ -127,6 +127,50 @@ namespace HeroShooter.Enemies
             if (_health != null)
             {
                 _health.Died -= OnDied;
+            }
+        }
+
+        /// <summary>
+        /// Re-entry from the pool. Everything OnDied switched off is switched back on here, and the state
+        /// machine is dropped back to Search so a recycled body cannot resume the chase that killed it.
+        /// </summary>
+        public void OnSpawned()
+        {
+            _isDead = false;
+            _spawnPoint = transform.position;
+            _knockback = Vector3.zero;
+            _knockbackUntil = 0f;
+            SpeedMultiplier = 1f;
+            _speedMultiplierUntil = 0f;
+            _nextFleeTime = 0f;
+            _nextAllyCallTime = 0f;
+            CallTarget = null;
+
+            if (_health != null)
+            {
+                _health.ResetHealth();
+            }
+
+            if (_agent != null)
+            {
+                // Warp needs an enabled agent, so the order matters: switch it on, then place it.
+                _agent.enabled = true;
+                _agent.isStopped = false;
+                _agent.Warp(transform.position);
+            }
+
+            _machine.ChangeState(EnemyState.Search);
+        }
+
+        /// <summary>Back into the pool: stop thinking and stop moving, keep the transform where it died.</summary>
+        public void OnDespawned()
+        {
+            _isDead = true;
+
+            if (_agent != null && _agent.enabled)
+            {
+                _agent.isStopped = true;
+                _agent.enabled = false;
             }
         }
 

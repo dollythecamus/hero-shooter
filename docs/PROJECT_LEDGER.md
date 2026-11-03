@@ -1,7 +1,34 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-10-24 11:45 (-03) · session local-2c3deb50e062… (S5) + local-6a40cc39a943… (study) · owner default profile
-Sprint: **one long block today from 13:00**, then 10-24 → 10-29 as buffer (plan § 6–7).
+Updated: 2026-11-03 09:00 (-03) · session local (default profile) · **extension: the assignment is now due
+2026-11-03 tonight, not 2026-10-30**
+
+## 2026-11-03 — extension day (this turn's requirement, recorded when it arrived)
+
+Chloe, 07:42: *"deadline was oct 30th but we were given an extension, now it's nov 3rd and we have to
+deliver it tonight."* Demo 18:30–20:00, code walkthrough 20:20–22:00 (same evening shape as the brief),
+LMS submission before 22:00. Every earlier "2026-10-30" line below stands as history.
+
+**State found at 07:45 (verified, not read off this ledger):** code frozen at `9cc4233` since 2026-10-24
+11:35 — everything after it was docs. Requirements **#8 minimap, #9 Tab frag board and #11 the three
+free mechanics had no code at all**; no build had ever been produced; `docs/CODE_DEFENSE.md` did not exist;
+nobody had looked at the Game view. Working tree carried Chloe's own `M 00_Boot.unity`.
+
+**Decisions taken with her at 07:50:** free mechanics = **A-lite (waves) + C (damage numbers) + E (pause
+menu)**; order = **mandatory gaps → build → free mechanics**; the agent works **headless** (code plus
+prefab authoring through batchmode `PrefabUtility`), and Chloe makes the first visual pass at **14:00**.
+
+**Landed today (all measured, see Evidence):** minimap + frag board (`77870a7`), the first Linux and
+Windows builds, then waves / damage numbers / pause menu. Headless tooling lives in
+`Assets/_Project/Editor/` (`HeadlessTools`, `HeadlessWaves`, `BuildScript`) and is Editor-only, so it never
+ships in a player. `tools/unity-run.sh` documents the host's two headless-Unity requirements (steam-run for
+the editor, 64-bit `libtinfo`/`libstdc++` for the shader-compiler child).
+
+**Next action (2026-11-03):** Chloe's play pass at 14:00 from a built binary — the first human look at the
+Game view (HUD layout, minimap frame, damage numbers, pause panel, both maps, Tab and Esc with a real
+keyboard) — then fixes, then a final rebuild of both targets from the same commit, then LMS upload, then the
+walkthrough rehearsal out of `docs/CODE_DEFENSE.md`. The old S6/S7 list below is history; S6 is now done
+(A-lite + C + E) and S7 exists as `BuildScript` + `docs/CODE_DEFENSE.md`.
 
 ## Goal
 
@@ -22,6 +49,10 @@ A buildable Unity 6 third-person hero shooter that satisfies all 11 minimum mech
 (with the authored character select), S3's six ability *effects* never measured. The ability rework is planned in
 `docs/tasks/2026-10-23_S3b-ability-rework.md` and **not built** — an implementation pass was started at ~18:10
 and reverted at Chloe's instruction before any compile verification. Tree clean, working tree == `dced7ba`.
+
+*Superseded 2026-10-24 20:15 (live check, this line only):* `git status --porcelain -uall` lists
+`M Assets/_Project/Scenes/00_Boot.unity` (8 deletions) and HEAD is `bbac882`, a docs commit on top of the
+content commits — the tree is neither clean nor at `dced7ba`. S1–S5 stand as closed; the S6 pick is next.
 
 **Docs retrofit landed 2026-10-23 ~19:2x** (`docs-driven-dev-pipeline` stage 0): `ARCHITECTURE.md`, `AGENTS.md`,
 and six feature docs under `docs/features/` now describe the code as it actually is, including the drift against
@@ -161,6 +192,48 @@ Still open:
 - 2026-10-23 — single generic `EnemyBrain` FSM with per-type attack strategy — "one brain, two bodies".
 
 ## Evidence
+
+- **2026-11-03 — headless tooling.** Batchmode could not start at all until two things were fixed: the
+  editor links against libs NixOS does not expose (solved with `steam-run`), and its shader-compiler *child*
+  cannot find a 64-bit `libtinfo` or `libstdc++` inside that FHS (solved by prepending the two store paths,
+  which is what `tools/unity-run.sh` is for). Before that: `error while loading shared libraries:
+  libpango-1.0.so.0`, then `Failed to get ipc connection from UnityShaderCompiler … Timed out`, then
+  `libtinfo.so.6: wrong ELF class: ELFCLASS32` (a 32-bit ncurses earlier in the path — the 64-bit one is
+  `62qhvy2m2lpqj7ca39j9wvp2kkcxwdcg-ncurses-6.6`).
+- **Minimap gate (requirement #8), 2026-11-03 ~08:20** — authored through `PrefabUtility` in batchmode, then
+  measured in play mode. Static: `camera=True ortho=True size=26 mask=201 rt=MinimapRT depth=-10`,
+  `frame=True anchor=(1.00,1.00) pos=(-24,-24) size=(232,232)`, `rawTexture=MinimapRT`,
+  `hudControllerArrow=True`. Live, hero placed at `(5.0, 0.1, -7.0)` with yaw 90: after 60 frames
+  `cam pos=(5.00, 29.60, -7.00) rot=(90.00, 0.00, 0.00)` — 30 m above the hero and bolt upright, i.e. the
+  parent's yaw cannot tip the map. **Not proven: that the RenderTexture actually shows the map** — the
+  headless device has no graphics (see the crash note below); the 14:00 pass is the visual proof.
+- **Frag board gate (requirement #9), 2026-11-03 ~08:25** — real arena scene, play mode:
+  `A score=True alive=4 kills=0 deaths=0`; one enemy killed through `Health` → `B alive=3 kills=1`; with Tab
+  injected through a virtual `Keyboard` device, `C tabPressed=True fragsHeld=True … board fills
+  row='ROCK' kills='1' deaths='0' footer='ENEMIES ALIVE  3'`; released → `D panelActive=False`.
+  **Pitfall confirmed, same as S3b:** injected key state does not survive the editor's input update, so
+  `FragBoardUI.Update` sees `held=False` on its own frames (`updates=103` proves the loop reaches it). The
+  held-key path is therefore only provable by a human press — which the 14:00 pass covers.
+- **Builds (S7), 2026-11-03 08:16 / 08:23** — the project's first ever, from `BuildScript` (scene list read
+  from Build Settings): `[Build] result=Succeeded size=102.8MB time=00:04:09 errors=0` (Linux x86_64) and
+  `size=102.3MB time=00:03:43 errors=0` (Windows x86_64), into `/home/chloe/builds/hero-shooter/`. The Linux
+  player was then started headless: engine, input and physics initialise, `GfxDevice: Null Device`, no
+  exception in 45 s — **scene content unverified, no renderer**.
+- **Free mechanics gate (requirement #11), 2026-11-03 ~08:50** — arena scene, play mode: wave 1 spawned 3
+  and `B wave=1 alive=3 scoreAlive=7` (4 hand-placed + 3 spawned), pools `rangedCreated=6 rangedActive=1
+  meleeCreated=6 meleeActive=2` (warm-up, not `Instantiate`); a spawned enemy killed → `D alive=2 kills=1
+  scoreAlive=6`, `waveLine='WAVE 1 / 5   2 LEFT'`, `damageNumbersActive=1 damagePoolChildren=16` (pooled);
+  `E paused timeScale=0 panel=True` → `resumed timeScale=1 panel=False`; hero killed → `deaths=1 hp=200
+  pos=(0.00, 0.08, -22.00) movedFromDeathSpot=0.00`.
+  Two defects the probe found and the code now carries fixes for: the respawn first sent the hero to the
+  prefab's authored position because `WaveDirector.Start` can run before `MatchBootstrap` places it (fixed by
+  capturing one frame later), and spawned enemies had no bar and no damage numbers until
+  `EnemyBarBinder.Bind` became public and `WaveDirector` started calling it.
+- **Headless probe crash, 2026-11-03 (diagnosed, not a game defect):** play-mode probes segfault in URP with
+  `RenderTexture.Create failed` → `DrawOpaqueObjects: Unable to find surface for attachment 0` → `signo:11`.
+  Cause: the minimap camera renders into a RenderTexture and the null graphics device cannot create one. The
+  probes disable that one camera; in a real build with a GPU the texture is created normally. **Consequence:
+  no headless probe can prove anything about what the minimap looks like.**
 
 - **S5 gate, 2026-10-24 10:5x–11:3x** — play mode from `00_Boot` through the MCP bridge (update callback +
   `Debug.Log`, read back from `Logs/Editor.log`). Full table in `docs/tasks/2026-10-24_S5-maps-and-tutorial.md`.

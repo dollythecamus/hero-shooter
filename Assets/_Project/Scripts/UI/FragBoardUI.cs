@@ -3,7 +3,7 @@ using HeroShooter.Systems;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace HeroShooter.UI
+namespace HeroShooter.Systems
 {
     /// <summary>
     /// Shows the authored frag panel while Tab is held (requirement #9). It displays and does nothing else —

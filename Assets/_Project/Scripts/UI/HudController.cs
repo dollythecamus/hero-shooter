@@ -55,6 +55,14 @@ namespace HeroShooter.Systems
         [Tooltip("Facing arrow inside the minimap frame. The map itself is a RenderTexture, so only the arrow turns.")]
         [SerializeField] RectTransform minimapArrow;
 
+        [Header("Waves")]
+        [Tooltip("Wave counter line. Empty when the scene has no WaveDirector.")]
+        [SerializeField] Text waveText;
+        [SerializeField] WaveDirector waves;
+
+        [Header("Damage numbers")]
+        [SerializeField] DamageNumberPool damageNumbers;
+
         readonly AbilityDefinition[] _boundDefinitions = new AbilityDefinition[PlayerAbilities.SlotCount];
         float _hitMarkerUntil;
 
@@ -98,6 +106,33 @@ namespace HeroShooter.Systems
             PushChips();
             PushHitMarker();
             PushMinimapArrow();
+            PushWaveText();
+        }
+
+        void PushWaveText()
+        {
+            if (waveText == null)
+            {
+                return;
+            }
+
+            if (waves == null)
+            {
+                waveText.text = string.Empty;
+                return;
+            }
+
+            if (waves.Finished)
+            {
+                waveText.text = "ALL WAVES CLEARED";
+                return;
+            }
+
+            // During the breather the next wave number is already known, so the line counts down instead of
+            // claiming a wave that has not started.
+            waveText.text = waves.Breather
+                ? $"WAVE {waves.Wave + 1} IN {Mathf.CeilToInt(waves.BreatherLeft)}"
+                : $"WAVE {waves.Wave} / {waves.LastWave}   {waves.Alive} LEFT";
         }
 
         void PushMinimapArrow()
@@ -222,6 +257,11 @@ namespace HeroShooter.Systems
             if (source == hero.transform || source.IsChildOf(hero.transform))
             {
                 _hitMarkerUntil = Time.time + hitMarkerSeconds;
+
+                if (damageNumbers != null)
+                {
+                    damageNumbers.Show(info.Point, info.Amount);
+                }
             }
         }
 

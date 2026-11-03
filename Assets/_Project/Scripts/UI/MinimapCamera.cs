@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace HeroShooter.UI
+namespace HeroShooter.Systems
 {
     /// <summary>
     /// A top-down orthographic camera that rides the hero prefab and writes to a RenderTexture, which the
