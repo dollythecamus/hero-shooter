@@ -378,6 +378,11 @@ Still open:
 
 ## Uncommitted at last checkpoint
 
+**2026-11-03 08:55 — none of mine.** `c406b81` (free mechanics + `docs/CODE_DEFENSE.md`) and `77870a7`
+(minimap + frag board) are the day's two commits; binaries rebuilt from `c406b81` into
+`/home/chloe/builds/hero-shooter/{linux,windows}`. One tracked file is still dirty and it is **Chloe's own
+edit**: `Assets/_Project/Scenes/00_Boot.unity` (present before this session started, left untouched).
+
 **none** — S5 landed as `9cc4233` (code, assets, Build Settings) and the docs commit on top of it (*Docs: record S5 from the diff and the measured gates*). Code: 6 new scripts,
 4 edited scripts (`MatchBootstrap`, `PlayerAbilities`, `CharacterSelectUI`, `CharacterCardUI`),
 `ProjectSettings/EditorBuildSettings.asset` (the approved scene list). Assets: `Data/Maps/` (2 assets),
