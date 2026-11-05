@@ -1,7 +1,48 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-03 09:00 (-03) · session local (default profile) · **extension: the assignment is now due
-2026-11-03 tonight, not 2026-10-30**
+Updated: 2026-11-05 13:20 (-03) · session local (default profile) · **still owed — the due date passed**
+
+## 2026-11-05 — review after the deadline; the deliverable is still owed
+
+Chloe, 13:11: *"all three of these still need to be delivered complete, even past their due date …
+seems like hero-shooter is the one needing fewer steps and less priority, to continue tomorrow."*
+So the assignment is **not closed**. Of the three open deliverables it is the smallest remaining job and
+is picked up **2026-11-06**.
+
+**State verified from disk this session (not read off this ledger):**
+- Code: HEAD `70db5be`. The requirement-bearing commits are `77870a7` (minimap + Tab frag board) and
+  `c406b81` (waves / damage numbers / pause menu); every row of the 11-row checklist has code.
+- Builds: `Logs/build-linux3.log` → `[Build] result=Succeeded size=102.9MB errors=0` (08:42) and
+  `Logs/build-windows3.log` → `Succeeded size=102.4MB errors=0` (08:45), output
+  `~/builds/hero-shooter/{linux,windows}`. Three attempts per target; the last two are incremental
+  (~12 s) and ran after the code landed, around the ledger commit.
+- `docs/CODE_DEFENSE.md` exists — 246 lines, one block per system.
+- `Logs/Editor.log` last modified **2026-10-28 16:55**: no editor session since. The 14:00 play pass
+  planned for 2026-11-03 never happened, so nothing about how the game looks or feels is verified.
+
+**Still missing, in order:**
+1. **A human play pass from a built binary** — HUD layout, the actual minimap image, damage numbers,
+   pause panel, both maps, Tab and Esc on a real keyboard, the five tutorial steps under a human. Every
+   other claim in this file is a number from a headless probe.
+2. Fixes from that pass, then a rebuild of both targets from the fixed commit.
+3. **Commit the tree.** Dirty: `Assets/Settings/PC_RPAsset.asset`,
+   `Assets/Settings/UniversalRenderPipelineGlobalSettings.asset`,
+   `ProjectSettings/ProjectSettings.asset`, `ProjectSettings/UnityConnectSettings.asset`,
+   `ProjectSettings/Packages/com.unity.probuilder/Settings.json` (all Unity re-serialization produced by
+   the build, timestamps 08:44–08:45) plus Chloe's own `Assets/_Project/Scenes/00_Boot.unity` (2026-10-24).
+4. **No remote exists**: `git rev-list --left-right --count origin/master...master` prints nothing and
+   `git branch -vv` shows no upstream — nothing has ever been pushed.
+5. **LMS submission and the walkthrough rehearsal** — no artifact on disk, so unverifiable from here.
+
+**Open questions for 2026-11-06:**
+- Was any build uploaded to the LMS (deadline was 2026-11-03 22:00)? If not, what goes up — the two
+  folders in `~/builds/hero-shooter/` zipped, or a fresh rebuild after the play pass?
+- Remote `dollythecamus/hero-shooter`: push or stay local?
+
+---
+
+Updated (previous): 2026-11-03 09:00 (-03) · session local (default profile) · **extension: the assignment
+was due 2026-11-03, not 2026-10-30**
 
 ## 2026-11-03 — extension day (this turn's requirement, recorded when it arrived)
 
