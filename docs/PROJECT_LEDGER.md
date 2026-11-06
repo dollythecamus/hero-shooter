@@ -1,6 +1,32 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 13:40 (-03) · session (default profile, MCP for Unity on 8089) · **packaged for upload; only the LMS upload and the walkthrough rehearsal remain**
+Updated: 2026-11-06 13:50 (-03) · session (default profile) · **published to GitHub (private) with a v1.0.0 release; only the walkthrough rehearsal remains**
+
+## 2026-11-06 13:45–13:50 — published to GitHub
+
+- **Repo:** https://github.com/dollythecamus/hero-shooter — **private**, default branch `main`, 59 commits,
+  386 files, PNG assets on Git LFS (4 objects, 196 KB).
+- **Release `v1.0.0`** with both build archives attached:
+  https://github.com/dollythecamus/hero-shooter/releases/tag/v1.0.0 (38.4 MB Linux, 39.9 MB Windows, checksums
+  in the release notes).
+
+**Verified from a fresh clone, not from the local repo:** 386 files, `git lfs ls-files` reports 4 and the LFS
+asset materialises (`White.png` is the real 72-byte PNG, not a ~130-byte pointer), `private=true`,
+`default_branch=main`, and `git ls-remote` reports `main` at `eb0370b` — the local HEAD. Release assets both
+read `state=uploaded`.
+
+**Privacy pre-check before publishing:** no legal name, no email addresses, no tokens or passwords anywhere in
+the tracked tree; every commit is authored `128943019+dollythecamus@users.noreply.github.com`, so her real
+address is not in the history. Only `~/`-style absolute paths (username, not a secret) appear, in the build
+scripts and docs.
+
+**Operational trap, worth remembering:** the agent's shell sets `HOME=/var/lib/hermes`, so `gh` read an empty
+config and reported "not logged in" while her own session was authenticated. Every `gh`/`git` call for this
+repo now runs with `HOME=/home/chloe`, and the repo carries a **repo-local**
+`credential.helper = !gh auth git-credential` so pushes authenticate without editing her global git config.
+
+**Next action:** the walkthrough rehearsal from `docs/CODE_DEFENSE.md`; at submission she shares the private
+repo with the professor and uploads the LMS package.
 
 ## 2026-11-06 13:35–13:40 — packaged for submission
 
