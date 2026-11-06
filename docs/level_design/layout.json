@@ -10,7 +10,7 @@
   "yard": 0.0,
   "deck": 4.0,
   "bank": 3.0,
-  "mast": 8.5
+  "mast": 5.5
  },
  "solids": [
   {
@@ -262,7 +262,7 @@
    "z0": 9.5,
    "x1": -9.5,
    "z1": 12.5,
-   "h": 8.5,
+   "h": 5.5,
    "kind": "mast"
   }
  ],
@@ -608,7 +608,7 @@
    "name": "Pilar de canto",
    "x": -11.0,
    "z": 11.0,
-   "y": 8.5,
+   "y": 5.5,
    "note": "unico ponto que fecha o loop elevado; so Scissors (wall climb)"
   },
   {

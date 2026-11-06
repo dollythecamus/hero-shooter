@@ -6,7 +6,7 @@
    "label": "Critical path",
    "kind": "critical",
    "length_m": 13.5,
-   "exposure": 0.579,
+   "exposure": 0.569,
    "crossfire": 1.0,
    "walk_s": 2.2,
    "sprint_s": 1.4
@@ -15,7 +15,7 @@
    "label": "Anel interno (tanque)",
    "kind": "loop",
    "length_m": 40.0,
-   "exposure": 0.614,
+   "exposure": 0.62,
    "crossfire": 1.0,
    "walk_s": 6.7,
    "sprint_s": 4.2
@@ -24,7 +24,7 @@
    "label": "Anel medio (patio)",
    "kind": "loop",
    "length_m": 72.0,
-   "exposure": 0.636,
+   "exposure": 0.641,
    "crossfire": 1.0,
    "walk_s": 12.0,
    "sprint_s": 7.5
@@ -33,8 +33,8 @@
    "label": "Anel externo (galeria)",
    "kind": "loop",
    "length_m": 144.0,
-   "exposure": 0.244,
-   "crossfire": 0.464,
+   "exposure": 0.254,
+   "crossfire": 0.561,
    "walk_s": 24.0,
    "sprint_s": 15.0
   },
@@ -42,8 +42,8 @@
    "label": "Desvio pela galeria",
    "kind": "secondary",
    "length_m": 86.0,
-   "exposure": 0.275,
-   "crossfire": 0.535,
+   "exposure": 0.291,
+   "crossfire": 0.698,
    "walk_s": 14.3,
    "sprint_s": 9.0
   },
@@ -51,8 +51,8 @@
    "label": "Loop elevado (Scissors)",
    "kind": "elevated",
    "length_m": 43.0,
-   "exposure": 0.834,
-   "crossfire": 0.919,
+   "exposure": 0.914,
+   "crossfire": 1.0,
    "walk_s": 7.2,
    "sprint_s": 4.5
   },
@@ -85,14 +85,14 @@
   },
   "gate_to_gate_short": {
    "length_m": 37.0,
-   "exposure": 0.541,
+   "exposure": 0.537,
    "crossfire": 1.0,
    "walk_s": 6.2,
    "sprint_s": 3.9
   },
   "gate_to_gate_long": {
    "length_m": 72.0,
-   "exposure": 0.396,
+   "exposure": 0.394,
    "crossfire": 0.729,
    "walk_s": 12.0,
    "sprint_s": 7.5
@@ -103,22 +103,22 @@
    "perimeter_m": 40.0,
    "walk_s": 6.7,
    "sprint_s": 4.2,
-   "exposure": 0.614,
+   "exposure": 0.62,
    "crossfire": 1.0
   },
   "L2_middle": {
    "perimeter_m": 72.0,
    "walk_s": 12.0,
    "sprint_s": 7.5,
-   "exposure": 0.636,
+   "exposure": 0.641,
    "crossfire": 1.0
   },
   "L3_outer": {
    "perimeter_m": 144.0,
    "walk_s": 24.0,
    "sprint_s": 15.0,
-   "exposure": 0.244,
-   "crossfire": 0.464
+   "exposure": 0.254,
+   "crossfire": 0.561
   }
  },
  "redundancy_ratio": 1.95

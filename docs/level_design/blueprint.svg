@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1336" height="1474" viewBox="0 0 1336 1474">
-<rect x="0" y="0" width="1336" height="1474" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1336" height="1518" viewBox="0 0 1336 1518">
+<rect x="0" y="0" width="1336" height="1518" fill="#ffffff"/>
 <defs><pattern id="hatch" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="11" height="11" fill="#ffffff"/><line x1="0" y1="0" x2="0" y2="11" stroke="#9aa1a7" stroke-width="1.5"/></pattern><pattern id="mhatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#7d858c"/><line x1="0" y1="0" x2="0" y2="7" stroke="#4b5257" stroke-width="1.2"/></pattern></defs>
 <line x1="96.0" y1="1240.0" x2="96.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
 <line x1="96.0" y1="1240.0" x2="1240.0" y2="1240.0" stroke="#f0f2f4" stroke-width="0.8"/>
@@ -90,8 +90,8 @@
 <line x1="1125.6" y1="668.0" x2="1077.4" y2="668.0" stroke="#c62828" stroke-width="3.0" opacity="1.00" stroke-linecap="round"/><polygon points="1068.4,668.0 1077.4,663.0 1077.4,673.0" fill="#c62828" opacity="1.00"/>
 <text x="668.0" y="241.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PORTAO N  5 m</text>
 <text x="668.0" y="1094.4" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PORTAO S  5 m</text>
-<text x="959.2" y="720.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
-<text x="376.8" y="720.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
+<text x="1110.0" y="746.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
+<text x="226.0" y="746.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
 <polyline points="668.0,1201.0 668.0,1084.0 668.0,1045.0 668.0,954.0 668.0,863.0" fill="none" stroke="#8e959c" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" opacity="0.90" stroke-dasharray="5 7"/>
 <circle cx="668.0" cy="1136.0" r="13" fill="#ffffff" stroke="#1b5e20" stroke-width="2.6"/>
 <circle cx="668.0" cy="1136.0" r="5" fill="#1b5e20"/>
@@ -119,8 +119,8 @@
 <text x="590.0" y="382.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#2b3036" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">DECK 4 m</text>
 <text x="382.0" y="808.4" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#2b3036" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">DECK</text>
 <text x="382.0" y="850.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#2b3036" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">4 m</text>
-<text x="382.0" y="408.0" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#ffffff" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">8.5 m</text>
-<rect x="88.0" y="1262.0" width="1160.0" height="200" fill="#f7f8f9" stroke="#e2e6ea" stroke-width="1.4"/>
+<text x="382.0" y="408.0" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#12161a" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">5.5 m</text>
+<rect x="88.0" y="1262.0" width="1160.0" height="244" fill="#f7f8f9" stroke="#e2e6ea" stroke-width="1.4"/>
 <text x="96.0" y="1292.0" font-family="DejaVu Sans Mono, monospace" font-size="15.0" fill="#12161a" text-anchor="start" font-weight="bold">PATIO DE SUBESTACAO   |   22_Map_Substation   |   CIRCULATION</text>
 <text x="96.0" y="1322.0" font-family="DejaVu Sans Mono, monospace" font-size="13.0" fill="#12161a" text-anchor="start" font-weight="normal">aneis  40 / 72 / 144 m      vao curto 37 m (54% exposto)  vs  vao coberto 72 m (40%)  =  x1.95</text>
 <text x="96.0" y="1348.0" font-family="DejaVu Sans Mono, monospace" font-size="13.0" fill="#525a61" text-anchor="start" font-weight="normal">POIs  1 pilar de canto   2 deck NE   3 topo do banco   4/5 nichos      R = ranged   M = melee</text>

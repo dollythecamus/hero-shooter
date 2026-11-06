@@ -84,8 +84,8 @@ def build_layout():
                                14.5 * sz + 0.6, 8.0, "Mast_%s%s" % ("N" if sz > 0 else "S",
                                                                      "E" if sx > 0 else "W"), "mast"))
 
-    # the corner mast: breaks the elevated loop. 8.5 m tall, only Scissors crosses it.
-    solids.append(rect(-12.5, 9.5, -9.5, 12.5, 8.5, "CornerMast", "mast"))
+    # the corner mast: 5.5 m high, above the 4 m deck but within Scissors' 6 m climb cap.
+    solids.append(rect(-12.5, 9.5, -9.5, 12.5, 5.5, "CornerMast", "mast"))
 
     # concrete pad, flush with the yard: visual only, no step for the character controller
     pads.append(rect(-7, -7, 7, 7, 0.0, "Pad", "pad"))
@@ -106,7 +106,7 @@ def build_layout():
 
     return {"name": "Patio de Subestacao", "scene": "22_Map_Substation", "unit": "m",
             "footprint": {"w": 44, "d": 44},
-            "levels": {"yard": 0.0, "deck": DECK_Y, "bank": 3.0, "mast": 8.5},
+            "levels": {"yard": 0.0, "deck": DECK_Y, "bank": 3.0, "mast": 5.5},
             "solids": solids, "pads": pads, "decks": decks, "connectors": connectors}
 
 
@@ -231,7 +231,7 @@ PROBES = [
     (0.0, -14.5, EYE), (0.0, 14.5, EYE), (-14.5, 0.0, EYE), (14.5, 0.0, EYE),   # gates + chokepoints
     (0.0, -18.0, EYE), (0.0, 18.0, EYE), (-18.0, 0.0, EYE), (18.0, 0.0, EYE),   # gallery mid-sides
     (10.0, 11.0, DECK_Y + EYE), (-11.0, -11.0, DECK_Y + EYE),                   # catwalk ends
-    (-11.0, 11.0, 8.5 + EYE),                                                   # corner mast top
+    (-11.0, 11.0, 5.5 + EYE),                                                   # corner mast top
     (0.0, 0.0, 3.0),                                                            # bank roof
     (0.0, 10.5, EYE), (0.0, -10.5, EYE), (10.5, 0.0, EYE), (-10.5, 0.0, EYE),   # mid-lane points
 ]
@@ -304,7 +304,7 @@ S = 26.0          # px per metre
 M = 96.0          # margin
 W_PX = 44 * S + 2 * M
 BAND_Y = M + 44 * S + 22      # the sheet band starts below the plan
-BAND_H = 200
+BAND_H = 244
 H_PX = BAND_Y + BAND_H + 12
 
 COL = {
@@ -461,8 +461,8 @@ def draw_plan(layout, routes, met):
     out.append(arrow([17.6, 0], [15.4, 0], COL["critical"], 3.0))
     out.append(svg_text(0, 16.4, "PORTAO N  5 m", 12.5, COL["critical"], anchor="middle"))
     out.append(svg_text(0, -16.4, "PORTAO S  5 m", 12.5, COL["critical"], anchor="middle"))
-    out.append(svg_text(11.2, -2.0, "GARGALO 2.5 m", 12, COL["critical"], anchor="middle"))
-    out.append(svg_text(-11.2, -2.0, "GARGALO 2.5 m", 12, COL["critical"], anchor="middle"))
+    out.append(svg_text(17.0, -3.0, "GARGALO 2.5 m", 12, COL["critical"], anchor="middle"))
+    out.append(svg_text(-17.0, -3.0, "GARGALO 2.5 m", 12, COL["critical"], anchor="middle"))
 
     # breadcrumbs + spawn
     out.append(svg_line(routes["B1_breadcrumbs"]["pts"], COL["breadcrumb"], 3.0, "5 7", 0.9))
@@ -495,7 +495,7 @@ def draw_plan(layout, routes, met):
     out.append(svg_text(-3.0, 11.0, "DECK 4 m", 12, COL["deck_edge"], anchor="middle", weight="bold"))
     out.append(svg_text(-11.0, -5.4, "DECK", 12, COL["deck_edge"], anchor="middle", weight="bold"))
     out.append(svg_text(-11.0, -7.0, "4 m", 12, COL["deck_edge"], anchor="middle", weight="bold"))
-    out.append(svg_text(-11.0, 10.0, "8.5 m", 11.5, "#ffffff", anchor="middle"))
+    out.append(svg_text(-11.0, 10.0, "5.5 m", 11.5, COL["text"], anchor="middle"))
 
     # ---- band below the plan
     by = BAND_Y
@@ -526,6 +526,9 @@ def draw_circulation(layout, routes, met):
     out = frame("PATIO DE SUBESTACAO  -  CIRCULATION",
                 "tres aneis aninhados  |  dois gargalos  |  um loop elevado quebrado por um pilar")
     out += plan_geometry(layout, op=0.30)
+    # Make the vertical connectors legible without colouring the underlying geometry.
+    out.append(arrow([10.0, 2.0], [10.0, 8.8], COL["access"], 3.2, 0.95, 10))
+    out.append(arrow([-3.8, -11.0], [-8.8, -11.0], COL["access"], 3.2, 0.95, 10))
 
     loop_col = {"L1_inner": COL["inner"], "L2_middle": COL["middle"], "L3_outer": COL["outer"]}
     for name in ("L1_inner", "L2_middle", "L3_outer"):
@@ -538,8 +541,12 @@ def draw_circulation(layout, routes, met):
             nxt = [(a[0] * 0.32 + b[0] * 0.68), (a[1] * 0.32 + b[1] * 0.68)]
             out.append(arrow(mid, nxt, loop_col[name], 2.6, 0.95, 10))
         lab = r["label"] + "  %.0f m" % met["loops"][name]["perimeter_m"]
-        out.append(svg_text(pts[0][0], pts[0][1], lab, 12.5, loop_col[name],
-                            anchor="middle", weight="bold", dy=-13))
+        if name == "L3_outer":
+            out.append(svg_text(0, -18.0, "Anel externo 144 m", 12.5, loop_col[name],
+                                anchor="middle", weight="bold", dy=-13))
+        else:
+            out.append(svg_text(pts[0][0], pts[0][1], lab, 12.5, loop_col[name],
+                                anchor="middle", weight="bold", dy=-13))
 
     # crossing axes = the critical path
     for a, b in (((0, 13.6), (0, 3.0)), ((0, -13.6), (0, -3.0)),
@@ -547,8 +554,8 @@ def draw_circulation(layout, routes, met):
         out.append(arrow(a, b, COL["critical"], 3.2, 0.95))
     out.append(svg_text(0, 16.2, "PORTAO 5 m", 12, COL["critical"], anchor="middle"))
     out.append(svg_text(0, -16.2, "PORTAO 5 m", 12, COL["critical"], anchor="middle"))
-    out.append(svg_text(11.6, -1.9, "GARGALO 2.5 m", 11.5, COL["critical"], anchor="middle"))
-    out.append(svg_text(-11.6, -1.9, "GARGALO 2.5 m", 11.5, COL["critical"], anchor="middle"))
+    out.append(svg_text(17.0, -3.2, "GARGALO 2.5 m", 11.5, COL["critical"], anchor="middle"))
+    out.append(svg_text(-17.0, -3.2, "GARGALO 2.5 m", 11.5, COL["critical"], anchor="middle"))
 
     # elevated loop: two arms, broken at the pillar
     out.append(svg_line([[12.5, 11.0], [-9.5, 11.0]], COL["elevated"], 3.6, None, 1.0))
@@ -558,7 +565,7 @@ def draw_circulation(layout, routes, met):
     cmx, cmy = px(-11.0, 11.0)
     out.append('<circle cx="%.1f" cy="%.1f" r="17" fill="none" stroke="%s" stroke-width="2.6" '
                'stroke-dasharray="5 4"/>' % (cmx, cmy, COL["elevated"]))
-    out.append(svg_text(-11.0, 6.4, "PILAR 8.5 m", 12.5, COL["elevated"], anchor="middle", weight="bold"))
+    out.append(svg_text(-11.0, 6.4, "PILAR 5.5 m", 12.5, COL["elevated"], anchor="middle", weight="bold"))
     out.append(svg_text(-11.0, 5.4, "o loop quebra aqui", 11.5, COL["elevated"], anchor="middle"))
     out.append(svg_text(-11.0, 4.4, "so Scissors fecha", 11.5, COL["elevated"], anchor="middle"))
 
@@ -593,7 +600,7 @@ def draw_circulation(layout, routes, met):
         met["routes"]["gate_to_gate_long"]["length_m"],
         met["routes"]["gate_to_gate_long"]["exposure"] * 100,
         met["redundancy_ratio"]), 12, COL["text"]))
-    sy2 = by + 176
+    sy2 = by + 218
     out.append(line_px(M, sy2, M + 10 * S, sy2, COL["text"], 2.4))
     for k in range(0, 11, 2):
         out.append(line_px(M + k * S, sy2 - 7, M + k * S, sy2 + 7, COL["text"], 1.6))
@@ -655,7 +662,7 @@ def main():
         {"prefab": "melee", "x": 10.5, "z": -2.0, "y": 0.0, "on": "yard"},
     ]
     layout_out["pois"] = [
-        {"id": 1, "name": "Pilar de canto", "x": -11.0, "z": 11.0, "y": 8.5,
+        {"id": 1, "name": "Pilar de canto", "x": -11.0, "z": 11.0, "y": 5.5,
          "note": "unico ponto que fecha o loop elevado; so Scissors (wall climb)"},
         {"id": 2, "name": "Ponta NE do deck", "x": 10.0, "z": 11.0, "y": DECK_Y,
          "note": "vantagem sobre metade norte do patio"},

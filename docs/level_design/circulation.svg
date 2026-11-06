@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1336" height="1474" viewBox="0 0 1336 1474">
-<rect x="0" y="0" width="1336" height="1474" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1336" height="1518" viewBox="0 0 1336 1518">
+<rect x="0" y="0" width="1336" height="1518" fill="#ffffff"/>
 <defs><pattern id="hatch" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="11" height="11" fill="#ffffff"/><line x1="0" y1="0" x2="0" y2="11" stroke="#9aa1a7" stroke-width="1.5"/></pattern><pattern id="mhatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#7d858c"/><line x1="0" y1="0" x2="0" y2="7" stroke="#4b5257" stroke-width="1.2"/></pattern></defs>
 <line x1="96.0" y1="1240.0" x2="96.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
 <line x1="96.0" y1="1240.0" x2="1240.0" y2="1240.0" stroke="#f0f2f4" stroke-width="0.8"/>
@@ -84,6 +84,8 @@
 <rect x="1029.4" y="1029.4" width="31.2" height="31.2" fill="url(#mhatch)" stroke="#3f454a" stroke-width="1.8" opacity="0.30"/>
 <rect x="1029.4" y="275.4" width="31.2" height="31.2" fill="url(#mhatch)" stroke="#3f454a" stroke-width="1.8" opacity="0.30"/>
 <rect x="343.0" y="343.0" width="78.0" height="78.0" fill="url(#mhatch)" stroke="#3f454a" stroke-width="1.8" opacity="0.30"/>
+<line x1="928.0" y1="616.0" x2="928.0" y2="449.2" stroke="#00695c" stroke-width="3.2" opacity="0.95" stroke-linecap="round"/><polygon points="928.0,439.2 933.5,449.2 922.5,449.2" fill="#00695c" opacity="0.95"/>
+<line x1="569.2" y1="954.0" x2="449.2" y2="954.0" stroke="#00695c" stroke-width="3.2" opacity="0.95" stroke-linecap="round"/><polygon points="439.2,954.0 449.2,948.5 449.2,959.5" fill="#00695c" opacity="0.95"/>
 <polyline points="538.0,798.0 798.0,798.0 798.0,538.0 538.0,538.0 538.0,798.0" fill="none" stroke="#e08600" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
 <line x1="668.0" y1="798.0" x2="704.8" y2="798.0" stroke="#e08600" stroke-width="2.6" opacity="0.95" stroke-linecap="round"/><polygon points="714.8,798.0 704.8,803.5 704.8,792.5" fill="#e08600" opacity="0.95"/>
 <line x1="798.0" y1="668.0" x2="798.0" y2="631.2" stroke="#e08600" stroke-width="2.6" opacity="0.95" stroke-linecap="round"/><polygon points="798.0,621.2 803.5,631.2 792.5,631.2" fill="#e08600" opacity="0.95"/>
@@ -101,25 +103,25 @@
 <line x1="1136.0" y1="668.0" x2="1136.0" y2="509.5" stroke="#1565c0" stroke-width="2.6" opacity="0.95" stroke-linecap="round"/><polygon points="1136.0,499.5 1141.5,509.5 1130.5,509.5" fill="#1565c0" opacity="0.95"/>
 <line x1="668.0" y1="200.0" x2="509.5" y2="200.0" stroke="#1565c0" stroke-width="2.6" opacity="0.95" stroke-linecap="round"/><polygon points="499.5,200.0 509.5,194.5 509.5,205.5" fill="#1565c0" opacity="0.95"/>
 <line x1="200.0" y1="668.0" x2="200.0" y2="826.5" stroke="#1565c0" stroke-width="2.6" opacity="0.95" stroke-linecap="round"/><polygon points="200.0,836.5 194.5,826.5 205.5,826.5" fill="#1565c0" opacity="0.95"/>
-<text x="200.0" y="1123.0" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#1565c0" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">Anel externo (galeria)  144 m</text>
+<text x="668.0" y="1123.0" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#1565c0" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">Anel externo 144 m</text>
 <line x1="668.0" y1="314.4" x2="668.0" y2="581.0" stroke="#c62828" stroke-width="3.2" opacity="0.95" stroke-linecap="round"/><polygon points="668.0,590.0 663.0,581.0 673.0,581.0" fill="#c62828" opacity="0.95"/>
 <line x1="668.0" y1="1021.6" x2="668.0" y2="755.0" stroke="#c62828" stroke-width="3.2" opacity="0.95" stroke-linecap="round"/><polygon points="668.0,746.0 673.0,755.0 663.0,755.0" fill="#c62828" opacity="0.95"/>
 <line x1="1021.6" y1="668.0" x2="755.0" y2="668.0" stroke="#c62828" stroke-width="3.2" opacity="0.95" stroke-linecap="round"/><polygon points="746.0,668.0 755.0,663.0 755.0,673.0" fill="#c62828" opacity="0.95"/>
 <line x1="314.4" y1="668.0" x2="581.0" y2="668.0" stroke="#c62828" stroke-width="3.2" opacity="0.95" stroke-linecap="round"/><polygon points="590.0,668.0 581.0,673.0 581.0,663.0" fill="#c62828" opacity="0.95"/>
 <text x="668.0" y="246.8" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PORTAO 5 m</text>
 <text x="668.0" y="1089.2" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PORTAO 5 m</text>
-<text x="969.6" y="717.4" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
-<text x="366.4" y="717.4" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
+<text x="1110.0" y="751.2" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
+<text x="226.0" y="751.2" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
 <polyline points="993.0,382.0 421.0,382.0" fill="none" stroke="#6a1b9a" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" opacity="1.00"/>
 <polyline points="382.0,421.0 382.0,993.0" fill="none" stroke="#6a1b9a" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" opacity="1.00"/>
 <line x1="772.0" y1="382.0" x2="548.0" y2="382.0" stroke="#6a1b9a" stroke-width="2.8" opacity="1.00" stroke-linecap="round"/><polygon points="538.0,382.0 548.0,376.5 548.0,387.5" fill="#6a1b9a" opacity="1.00"/>
 <line x1="382.0" y1="616.0" x2="382.0" y2="840.0" stroke="#6a1b9a" stroke-width="2.8" opacity="1.00" stroke-linecap="round"/><polygon points="382.0,850.0 376.5,840.0 387.5,840.0" fill="#6a1b9a" opacity="1.00"/>
 <circle cx="382.0" cy="382.0" r="17" fill="none" stroke="#6a1b9a" stroke-width="2.6" stroke-dasharray="5 4"/>
-<text x="382.0" y="501.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#6a1b9a" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PILAR 8.5 m</text>
+<text x="382.0" y="501.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#6a1b9a" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PILAR 5.5 m</text>
 <text x="382.0" y="527.6" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#6a1b9a" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">o loop quebra aqui</text>
 <text x="382.0" y="553.6" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#6a1b9a" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">so Scissors fecha</text>
 <text x="668.0" y="1203.6" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#525a61" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">37 m exposto (curto)</text>
-<rect x="88.0" y="1262.0" width="1160.0" height="200" fill="#f7f8f9" stroke="#e2e6ea" stroke-width="1.4"/>
+<rect x="88.0" y="1262.0" width="1160.0" height="244" fill="#f7f8f9" stroke="#e2e6ea" stroke-width="1.4"/>
 <line x1="96.0" y1="1296.0" x2="138.0" y2="1296.0" stroke="#c62828" stroke-width="3.4"/>
 <text x="150.0" y="1300.4" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#12161a" text-anchor="start" font-weight="normal">eixos de travessia (portoes e gargalos)</text>
 <line x1="96.0" y1="1322.0" x2="138.0" y2="1322.0" stroke="#e08600" stroke-width="3.4"/>
@@ -134,19 +136,19 @@
 <text x="150.0" y="1430.4" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#12161a" text-anchor="start" font-weight="normal">acessos: rampa (N) e escada (W)</text>
 <text x="746.0" y="1296.0" font-family="DejaVu Sans Mono, monospace" font-size="13.0" fill="#12161a" text-anchor="start" font-weight="bold">MEDIDO   (2.5D, 16 pontos de visada, olho 1.6 m)</text>
 <text x="746.0" y="1324.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#525a61" text-anchor="start" font-weight="normal">anel        perim    walk   sprint    expo  crossfire</text>
-<text x="746.0" y="1348.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#12161a" text-anchor="start" font-weight="normal">interno      40 m   6.7 s    4.2 s     61%      100%</text>
+<text x="746.0" y="1348.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#12161a" text-anchor="start" font-weight="normal">interno      40 m   6.7 s    4.2 s     62%      100%</text>
 <text x="746.0" y="1370.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#12161a" text-anchor="start" font-weight="normal">medio        72 m  12.0 s    7.5 s     64%      100%</text>
-<text x="746.0" y="1392.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#12161a" text-anchor="start" font-weight="normal">externo     144 m  24.0 s   15.0 s     24%       46%</text>
+<text x="746.0" y="1392.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#12161a" text-anchor="start" font-weight="normal">externo     144 m  24.0 s   15.0 s     25%       56%</text>
 <text x="746.0" y="1414.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#12161a" text-anchor="start" font-weight="normal">vao curto     37 m   expo 54%</text>
-<text x="746.0" y="1436.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#12161a" text-anchor="start" font-weight="normal">vao coberto   72 m   expo 40%   (x1.95)</text>
-<line x1="96.0" y1="1438.0" x2="356.0" y2="1438.0" stroke="#12161a" stroke-width="2.4"/>
-<line x1="96.0" y1="1431.0" x2="96.0" y2="1445.0" stroke="#12161a" stroke-width="1.6"/>
-<line x1="148.0" y1="1431.0" x2="148.0" y2="1445.0" stroke="#12161a" stroke-width="1.6"/>
-<line x1="200.0" y1="1431.0" x2="200.0" y2="1445.0" stroke="#12161a" stroke-width="1.6"/>
-<line x1="252.0" y1="1431.0" x2="252.0" y2="1445.0" stroke="#12161a" stroke-width="1.6"/>
-<line x1="304.0" y1="1431.0" x2="304.0" y2="1445.0" stroke="#12161a" stroke-width="1.6"/>
-<line x1="356.0" y1="1431.0" x2="356.0" y2="1445.0" stroke="#12161a" stroke-width="1.6"/>
-<text x="370.0" y="1443.0" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#525a61" text-anchor="start" font-weight="normal">10 m</text>
-<polygon points="1210.0,1406.0 1200.0,1438.0 1220.0,1438.0" fill="#12161a"/>
-<text x="1210.0" y="1460.0" font-family="DejaVu Sans Mono, monospace" font-size="14.0" fill="#12161a" text-anchor="middle" font-weight="bold">N</text>
+<text x="746.0" y="1436.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#12161a" text-anchor="start" font-weight="normal">vao coberto   72 m   expo 39%   (x1.95)</text>
+<line x1="96.0" y1="1480.0" x2="356.0" y2="1480.0" stroke="#12161a" stroke-width="2.4"/>
+<line x1="96.0" y1="1473.0" x2="96.0" y2="1487.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="148.0" y1="1473.0" x2="148.0" y2="1487.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="200.0" y1="1473.0" x2="200.0" y2="1487.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="252.0" y1="1473.0" x2="252.0" y2="1487.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="304.0" y1="1473.0" x2="304.0" y2="1487.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="356.0" y1="1473.0" x2="356.0" y2="1487.0" stroke="#12161a" stroke-width="1.6"/>
+<text x="370.0" y="1485.0" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#525a61" text-anchor="start" font-weight="normal">10 m</text>
+<polygon points="1210.0,1448.0 1200.0,1480.0 1220.0,1480.0" fill="#12161a"/>
+<text x="1210.0" y="1502.0" font-family="DejaVu Sans Mono, monospace" font-size="14.0" fill="#12161a" text-anchor="middle" font-weight="bold">N</text>
 </svg>
