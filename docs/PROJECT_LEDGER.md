@@ -1,6 +1,16 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 15:05 (-03) · session (default profile) · **HUD passive label removed; builds, archives and the v1.0.0 assets all replaced. Note: the `docs/level_design/` files in commit `7b5d937` are a parallel session's work (see below).**
+Updated: 2026-11-06 15:50 (-03) · session (default profile) · **P2 substation greybox and NavMesh verified in editor; P3 selector wiring still awaits sign-off for Build Settings changes. Existing Arena/ProjectSettings churn is untouched.**
+
+## 2026-11-06 15:50 — level-design P2 complete
+
+- Built `Assets/_Project/Scenes/22_Map_Substation.unity` from `docs/level_design/layout.json` with 49 ProBuilder meshes/colliders; the design sheets and 5.5 m mast are regenerated from the same source.
+- Saved `NavMesh.asset` beside the scene and verified its GUID reference in the scene file. Bake: 647 vertices / 277 triangles; ground spawn-to-ramp/stair endpoints and elevated deck endpoints all return complete NavMesh paths.
+- Direct editor play test opened the level, kept the player at the south-gallery spawn, and found 7 agents on the NavMesh. Stopped play with the scene clean.
+- Local commit `b9e80a7` checkpoints the P2 scene/bake and design sheets. Next: P3 map catalog/selector wiring; adding the Build Settings entry modifies `ProjectSettings/**`, requiring approval.
+- The following working-tree entries are still present and were not staged or edited here: `Assets/_Project/Scenes/20_Map_Arena.unity`, deletion of `Assets/_Project/Scenes/20_Map_Arena/NavMesh-NavMesh 2.asset[.meta]`, new `Assets/_Project/Scenes/20_Map_Arena/NavMesh-NavMesh.asset[.meta]`, and `ProjectSettings/ProjectSettings.asset`.
+
+
 
 ## 2026-11-06 15:00 — HUD: the passive ability's label is gone
 
