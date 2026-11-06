@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Weapon_Rock
   m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Data.WeaponDefinition
   displayName: Heavy Slug
-  shotsPerSecond: 1.1
+  shotsPerSecond: 0.85
   damage: 32
   projectileSpeed: 45
   spreadDegrees: 2.5
@@ -22,5 +22,10 @@ MonoBehaviour:
   chargeTime: 0
   chargedDamage: 0
   chargedProjectileSpeed: 0
+  magazineSize: 12
+  reserveAmmo: 96
+  reloadTime: 1.4
+  pelletsPerShot: 1
+  pelletSpreadDegrees: 3.5
   firingSpeedMultiplier: 0.45
   firingSlowDuration: 0.5

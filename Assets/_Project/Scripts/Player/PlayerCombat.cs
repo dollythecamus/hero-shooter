@@ -34,7 +34,7 @@ namespace HeroShooter.Player
 
         void Update()
         {
-            if (weapon == null)
+            if (weapon == null || Time.timeScale <= 0f)
             {
                 return;
             }

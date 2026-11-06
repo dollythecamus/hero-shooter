@@ -48,11 +48,11 @@ namespace HeroShooter.Weapons
 
         public int ShotsFired { get; private set; }
 
-        /// <summary>Rounds left in the magazine — what the ammo readout shows first.</summary>
+        /// <summary>
+        /// Rounds left in the magazine. There is no reserve any more (second 2026-11-06 gate: a player could
+        /// run dry with no way to get ammo back) — a reload always fills to <see cref="WeaponDefinition.magazineSize"/>.
+        /// </summary>
         public int Magazine { get; private set; }
-
-        /// <summary>Rounds left outside the magazine.</summary>
-        public int Reserve { get; private set; }
 
         public bool IsReloading { get; private set; }
 
@@ -119,7 +119,6 @@ namespace HeroShooter.Weapons
             IsReloading = false;
 
             Magazine = newDefinition != null ? Mathf.Max(0, newDefinition.magazineSize) : 0;
-            Reserve = newDefinition != null ? Mathf.Max(0, newDefinition.reserveAmmo) : 0;
         }
 
         /// <summary>Late binding: the pool may wake up after this component, so re-check on use.</summary>
@@ -186,12 +185,13 @@ namespace HeroShooter.Weapons
         }
 
         /// <summary>
-        /// R. Refused when the magazine is already full, when a reload is running, or when there is nothing
-        /// in reserve — so holding the key does not restart the animation or eat the last rounds.
+        /// R. Always available while the magazine is not already full — there is no reserve to run out of, so
+        /// the only refusal left is "nothing to do" (second 2026-11-06 gate: R did nothing because the reserve
+        /// was empty).
         /// </summary>
         public void BeginReload()
         {
-            if (definition == null || IsReloading || Reserve <= 0)
+            if (definition == null || IsReloading)
             {
                 return;
             }
@@ -211,12 +211,7 @@ namespace HeroShooter.Weapons
         void FinishReload()
         {
             IsReloading = false;
-
-            int wanted = Mathf.Max(0, definition.magazineSize - Magazine);
-            int moved = Mathf.Min(wanted, Reserve);
-
-            Magazine += moved;
-            Reserve -= moved;
+            Magazine = Mathf.Max(0, definition.magazineSize);
         }
 
         void Fire(float charge)
@@ -300,10 +295,13 @@ namespace HeroShooter.Weapons
 
             Ray ray = aimCamera.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f));
 
-            // Far enough forward to clear the hero's own capsule, still exactly on the ray.
-            float start = Vector3.Distance(ray.origin, transform.position) + 0.5f;
+            // Start the round at the hero's own depth on that ray rather than half a metre past it: a melee
+            // enemy pressed against the hero lives inside that gap and was being missed (second 2026-11-06
+            // gate). Spawning inside the hero's capsule is safe because the projectile ignores its owner.
+            Vector3 chest = transform.position + Vector3.up * 1f;
+            float start = Mathf.Max(0.2f, Vector3.Dot(chest - ray.origin, ray.direction));
 
-            origin = ray.origin + ray.direction * Mathf.Max(0.5f, start);
+            origin = ray.origin + ray.direction * start;
             direction = ray.direction;
         }
 

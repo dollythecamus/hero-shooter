@@ -33,10 +33,8 @@ namespace HeroShooter.Data
         public float chargedProjectileSpeed = 0f;
 
         [Header("Ammunition")]
-        [Tooltip("Rounds in one magazine. Every trigger pull spends one round, whatever it fires.")]
+        [Tooltip("Rounds in one magazine. Every trigger pull spends one round, whatever it fires. There is no reserve: a reload always fills to this.")]
         public int magazineSize = 12;
-        [Tooltip("Rounds carried outside the magazine. Reloading draws from here.")]
-        public int reserveAmmo = 96;
         [Tooltip("Seconds a reload takes.")]
         public float reloadTime = 1.4f;
         [Tooltip("Projectiles per trigger pull. Rock fires eight small ones like a shotgun.")]

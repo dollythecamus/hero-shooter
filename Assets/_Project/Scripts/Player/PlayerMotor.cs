@@ -91,7 +91,7 @@ namespace HeroShooter.Player
 
         void Update()
         {
-            if (MovementSuspended)
+            if (MovementSuspended || Time.timeScale <= 0f)
             {
                 return;
             }

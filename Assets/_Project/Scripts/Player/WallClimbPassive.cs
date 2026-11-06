@@ -17,12 +17,16 @@ namespace HeroShooter.Player
     public class WallClimbPassive : MonoBehaviour
     {
         [Header("Climb")]
-        [Tooltip("Metres per second while climbing (roster: 3).")]
-        [SerializeField] float climbSpeed = 3f;
+        [Tooltip("Metres per second while climbing (roster: 3, raised to 5 after the 2026-11-06 gate found it too slow).")]
+        [SerializeField] float climbSpeed = 5f;
         [Tooltip("How high one climb may go, from where it started (roster: 6 m). Overridden by the ability's magnitude.")]
         [SerializeField] float maxHeight = 6f;
         [SerializeField] float wallReach = 0.8f;
         [SerializeField] float eyeHeight = 1.2f;
+
+        [Header("Mantle")]
+        [Tooltip("Metres per second of the pull-over at the top. It is a move, not a teleport.")]
+        [SerializeField] float mantleSpeed = 6f;
 
         [Header("Exit jump (reaching the cap)")]
         [Tooltip("Outward speed along the wall normal.")]
@@ -42,11 +46,18 @@ namespace HeroShooter.Player
 
         CharacterController _controller;
         bool _climbing;
+        bool _mantling;
         float _climbed;
         float _nextDust;
         Vector3 _wallNormal = Vector3.back;
+        Vector3 _mantleFrom;
+        Vector3 _mantleTo;
+        float _mantleStart;
+        float _mantleSeconds = 0.2f;
 
-        public bool IsClimbing => _climbing;
+        /// <summary>True while climbing *or* being pulled over the top — both are the trait doing its work.</summary>
+        public bool IsClimbing => _climbing || _mantling;
+
         public float Climbed => _climbed;
 
         void Awake()
@@ -72,8 +83,14 @@ namespace HeroShooter.Player
 
         void Update()
         {
-            if (motor == null || _controller == null)
+            if (motor == null || _controller == null || Time.timeScale <= 0f)
             {
+                return;
+            }
+
+            if (_mantling)
+            {
+                StepMantle();
                 return;
             }
 
@@ -186,15 +203,35 @@ namespace HeroShooter.Player
                     continue;
                 }
 
-                _controller.enabled = false;
-                transform.position = hit.point + Vector3.up * 0.05f + intoWall * 0.35f;
-                _controller.enabled = true;
+                // Animate the pull-over instead of teleporting (2026-11-06 gate: the hero "snapped to the top").
+                // The controller stays enabled and is walked to the ledge, so collisions still apply and the
+                // movement reads as climbing over the lip.
+                _mantleFrom = transform.position;
+                _mantleTo = hit.point + Vector3.up * 0.05f + intoWall * 0.35f;
+                _mantleSeconds = Mathf.Clamp(
+                    Vector3.Distance(_mantleFrom, _mantleTo) / Mathf.Max(0.5f, mantleSpeed), 0.08f, 0.4f);
+                _mantleStart = Time.time;
+                _mantling = true;
+                _climbing = false;
 
-                Stop();
                 return true;
             }
 
             return false;
+        }
+
+        /// <summary>Walks the hero from the last held position onto the ledge over a fraction of a second.</summary>
+        void StepMantle()
+        {
+            float t = Mathf.Clamp01((Time.time - _mantleStart) / Mathf.Max(0.05f, _mantleSeconds));
+            Vector3 target = Vector3.Lerp(_mantleFrom, _mantleTo, Mathf.SmoothStep(0f, 1f, t));
+            _controller.Move(target - transform.position);
+
+            if (t >= 1f)
+            {
+                _mantling = false;
+                Stop();
+            }
         }
 
         void ExitJump()

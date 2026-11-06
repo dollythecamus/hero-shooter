@@ -39,6 +39,12 @@ namespace HeroShooter.Weapons
         float _collisionRadius;
         Material _baseMaterial;
 
+        /// <summary>
+        /// Reused by the per-frame sweep. Non-alloc so a bullet in flight costs nothing; projectiles update
+        /// one at a time on the main thread, so a shared buffer cannot be read by two of them at once.
+        /// </summary>
+        static readonly RaycastHit[] Hits = new RaycastHit[16];
+
         /// <summary>Set by <see cref="ProjectilePool"/> when the instance is created.</summary>
         public ObjectPool<Projectile> Pool { get; set; }
 
@@ -114,10 +120,32 @@ namespace HeroShooter.Weapons
             float step = _speed * Time.deltaTime;
             Vector3 origin = transform.position;
 
-            if (Physics.SphereCast(origin, _collisionRadius, _direction, out RaycastHit hit, step, _mask,
-                    QueryTriggerInteraction.Ignore))
+            int count = Physics.SphereCastNonAlloc(origin, _collisionRadius, _direction, Hits, step, _mask,
+                QueryTriggerInteraction.Ignore);
+
+            // The round now starts inside the hero (it leaves the camera axis, so it spawns at the hero's own
+            // depth). Ignoring the owner's colliders is what replaces the old spawn gap — a gap that also
+            // dodged enemies pressed against the hero.
+            int nearest = -1;
+            float nearestDistance = float.MaxValue;
+
+            for (int i = 0; i < count; i++)
             {
-                Impact(hit.collider, hit.point, hit.normal);
+                if (_owner != null && Hits[i].collider.transform.IsChildOf(_owner.transform))
+                {
+                    continue;
+                }
+
+                if (Hits[i].distance < nearestDistance)
+                {
+                    nearestDistance = Hits[i].distance;
+                    nearest = i;
+                }
+            }
+
+            if (nearest >= 0)
+            {
+                Impact(Hits[nearest].collider, Hits[nearest].point, Hits[nearest].normal);
                 return;
             }
 

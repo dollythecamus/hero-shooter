@@ -101,6 +101,14 @@ namespace HeroShooter.Player
                 return;
             }
 
+            // A frozen match must not turn (second 2026-11-06 gate: the camera kept looking around behind the
+            // pause panel). Mouse look is read in raw pixels rather than scaled by deltaTime, so freezing the
+            // clock alone was never going to stop it.
+            if (Time.timeScale <= 0f)
+            {
+                return;
+            }
+
             Vector2 look = InputReader.Look;
             _yaw += look.x * mouseSensitivity;
             float pitchDelta = look.y * mouseSensitivity * (InvertY ? -1f : 1f);

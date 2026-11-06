@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Weapon_Paper
   m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.Data.WeaponDefinition
   displayName: Charge Rifle
-  shotsPerSecond: 1
+  shotsPerSecond: 0.7
   damage: 15
   projectileSpeed: 90
   spreadDegrees: 0.15
@@ -22,5 +22,10 @@ MonoBehaviour:
   chargeTime: 1.2
   chargedDamage: 65
   chargedProjectileSpeed: 160
+  magazineSize: 12
+  reserveAmmo: 96
+  reloadTime: 1.4
+  pelletsPerShot: 1
+  pelletSpreadDegrees: 3.5
   firingSpeedMultiplier: 1
   firingSlowDuration: 0.4

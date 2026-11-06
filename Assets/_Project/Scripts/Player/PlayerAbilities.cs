@@ -152,6 +152,11 @@ namespace HeroShooter.Player
 
         void Update()
         {
+            if (Time.timeScale <= 0f)
+            {
+                return;
+            }
+
             HandleSlot(0, InputReader.Ability1Pressed, InputReader.Ability1Released);
             HandleSlot(1, InputReader.Ability2Pressed, InputReader.Ability2Released);
         }

@@ -12,6 +12,11 @@ namespace HeroShooter.Systems
     ///
     /// Time.timeScale = 0 rather than a pause flag everywhere: a frozen clock already stops the FSM, the
     /// wave loop and the weapon, and no system needs to know a menu exists.
+    ///
+    /// The cursor is **owned by the pause state**, not by the key press. The second 2026-11-06 gate found the
+    /// mouse free after resuming and Esc behaving like it toggled the wrong way, so the state is now one
+    /// boolean that every path (Esc, the Resume button, a scene load) writes through the same setter, and the
+    /// cursor is re-derived from it every frame. There is no event left that can miss.
     /// </summary>
     public class PauseMenu : MonoBehaviour
     {
@@ -26,8 +31,14 @@ namespace HeroShooter.Systems
         [SerializeField] float minSensitivity = 0.03f;
         [SerializeField] float maxSensitivity = 0.35f;
 
+        [Tooltip("Seconds a toggle is immune to the next one: a held key must not open and close the panel.")]
+        [SerializeField] float toggleCooldown = 0.15f;
+
         ThirdPersonCameraRig _rig;
         bool _open;
+        float _nextToggle;
+
+        public bool IsOpen => _open;
 
         void Awake()
         {
@@ -59,65 +70,55 @@ namespace HeroShooter.Systems
 
         void Update()
         {
-            if (InputReader.PausePressed)
+            if (InputReader.PausePressed && Time.unscaledTime >= _nextToggle)
             {
-                if (_open)
-                {
-                    Resume();
-                }
-                else
-                {
-                    Pause();
-                }
-
+                _nextToggle = Time.unscaledTime + Mathf.Max(0.02f, toggleCooldown);
+                SetPaused(!_open);
                 return;
             }
 
-            if (!_open)
-            {
-                ReassertCursorLock();
-            }
-        }
-
-        /// <summary>
-        /// The 2026-11-06 gate found the cursor still free after Resume. Unity does not re-apply
-        /// <c>Cursor.lockState</c> when the game window regains focus, so a lock set once in
-        /// <see cref="Resume"/> can be dropped silently. Re-asserting it while the menu is closed is
-        /// idempotent and cannot fight the menu, which is the only other owner of the cursor.
-        /// </summary>
-        static void ReassertCursorLock()
-        {
-            if (Cursor.lockState != CursorLockMode.Locked)
-            {
-                InputReader.SetCursorLocked(true);
-            }
+            EnforceCursor();
         }
 
         public void Pause()
         {
-            _open = true;
-
-            if (panel != null)
-            {
-                panel.SetActive(true);
-            }
-
-            Time.timeScale = 0f;
-            InputReader.SetCursorLocked(false);
-            PullSettingsIntoWidgets();
+            SetPaused(true);
         }
 
         public void Resume()
         {
-            _open = false;
+            SetPaused(false);
+        }
 
-            if (panel != null)
+        /// <summary>The only place the pause state changes, so the panel, the clock and the cursor agree.</summary>
+        void SetPaused(bool paused)
+        {
+            _open = paused;
+
+            if (panel != null && panel.activeSelf != paused)
             {
-                panel.SetActive(false);
+                panel.SetActive(paused);
             }
 
-            Time.timeScale = 1f;
-            InputReader.SetCursorLocked(true);
+            Time.timeScale = paused ? 0f : 1f;
+
+            if (paused)
+            {
+                PullSettingsIntoWidgets();
+            }
+
+            EnforceCursor();
+        }
+
+        /// <summary>Cursor state follows the pause state every frame; setting it is idempotent.</summary>
+        void EnforceCursor()
+        {
+            CursorLockMode wanted = _open ? CursorLockMode.None : CursorLockMode.Locked;
+
+            if (Cursor.lockState != wanted)
+            {
+                InputReader.SetCursorLocked(!_open);
+            }
         }
 
         public void Quit()

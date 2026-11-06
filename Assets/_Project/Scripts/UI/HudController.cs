@@ -245,7 +245,7 @@ namespace HeroShooter.Systems
                 }
                 else
                 {
-                    ammoText.text = $"{weapon.Magazine} / {weapon.Reserve}";
+                    ammoText.text = $"{weapon.Magazine} / {weapon.Definition.magazineSize}";
                 }
             }
 
