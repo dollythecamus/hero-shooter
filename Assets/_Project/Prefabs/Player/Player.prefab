@@ -348,6 +348,7 @@ GameObject:
   - component: {fileID: 4661766948856237933}
   - component: {fileID: 7112301968594241213}
   - component: {fileID: 8810033821985226711}
+  - component: {fileID: 8701953925997881048}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -533,6 +534,7 @@ MonoBehaviour:
   weapon: {fileID: 515936480818419589}
   abilities: {fileID: 7115789505888564853}
   appearance: {fileID: 7970637098124364802}
+  cameraRig: {fileID: 0}
 --- !u!114 &4661766948856237933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -601,3 +603,28 @@ MonoBehaviour:
   motor: {fileID: 0}
   dustInterval: 0.22
   dustColor: {r: 0.86, g: 0.83, b: 0.76, a: 0.85}
+--- !u!114 &8701953925997881048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9151086699822332920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0d7a5efdb683090f9804a4fd5c5d739, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroShooter.VFX.EnemyStatusRings
+  hero: {fileID: 0}
+  binder: {fileID: 0}
+  groundOffset: 0.06
+  markedRadius: 0.55
+  snaredRadius: 0.75
+  previewRadius: 0.95
+  segments: 40
+  width: 0.055
+  markedColor: {r: 1, g: 0.72, b: 0.2, a: 0.9}
+  snaredColor: {r: 0.45, g: 0.85, b: 1, a: 0.9}
+  previewColor: {r: 1, g: 1, b: 1, a: 0.85}
+  tetherColor: {r: 0.45, g: 0.85, b: 1, a: 0.55}
+  tetherHeight: 1.2

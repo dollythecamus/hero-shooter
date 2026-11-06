@@ -1,6 +1,56 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 11:05 (-03) · session (default profile, desktop) · **human gate trial ran: ISSUE — 1 of 3 checks passed; backlog decisions awaiting Chloe's answers**
+Updated: 2026-11-06 12:10 (-03) · session (default profile, desktop, MCP for Unity on 8089) · **rework A–E done and built; awaiting the second human gate**
+
+## 2026-11-06 11:10–12:10 — the rework, and what is actually verified
+
+**Builds (from the final code):** Linux `102.91 MB` 68.7 s, Windows `102.43 MB` 16.3 s — both
+`Build Finished, Result: Success`, 0 errors, in `Logs/Editor.log`; both report `errors: 0` from
+`manage_build`. Artefacts: `~/builds/hero-shooter/{linux,windows}`, player data rewritten at 11:57/11:59
+and again at 15:0xZ after the last change.
+
+**Verified by test, not by reading the diff:**
+- **Pause menu, in play mode on `20_Map_Arena`:** `EventSystem.RaycastAll` at the Resume button's centre
+  returns exactly one hit, `Resume`, and `GetEventHandler<IPointerClickHandler>` resolves to the Resume
+  button. **Root cause found:** the HUD canvas had *no* `GraphicRaycaster` at all, so no click in the
+  pause panel could ever be delivered. (First probe returned 0 hits — but that probe raycast in the same
+  frame the panel was activated, when `Graphic.depth` is still −1. Re-run a frame later: hit.)
+- **Cursor:** on pause `Cursor.lockState=None`, after `Resume()` `Locked`; `PauseMenu` now re-asserts the
+  lock every frame while the menu is closed, so a focus change cannot leave it free again.
+- **Prefab wiring re-read from the asset:** raycaster present, `HudController.ammoText` and `.readyFill`
+  wired, `MinimapBlips.mapRect` wired, `SniperReticle` 17 parts at 360×360, Player prefab carries
+  `EnemyStatusRings`.
+- **Ammo state machine exercised:** Rock `SetDefinition` → mag 6 / reserve 42; reload refused at full
+  magazine; Paper → 5 / 25.
+- **Compile:** 0 `error CS` after every change (`read_console`, Unity 6000.6.3f1).
+
+**Per decision:**
+1. *Shot truth* — `Weapon.ResolveAim` starts the round **on the camera-centre ray**, 0.5 m past the hero,
+   and travels along it. The old code aimed from the muzzle at a camera-ray point, which is exactly why
+   the reticle and the bullet disagreed.
+2. *Aim lock* — `PlayerMotor` faces the camera yaw while RMB is held; strafing no longer swings the body
+   across the fixed right-shoulder offset (that swing is what read as "the camera changed sides").
+3. *Mark* — new `EnemyStatusRings`: a white ring on the enemy a ready Mark would take (only while aiming
+   and off cooldown, same LOS rule as the cast), amber while marked, cyan plus a tether while snared.
+   `EnemyHealthBar` now draws a marked enemy's bar **at full health**.
+4. *Paper* — `CharacterDefinition.aimFov` (Paper = 30) is written per character into
+   `ThirdPersonCameraRig.AimFov`; the sniper reticle is rebuilt as a four-post gap cross with three
+   mildots per arm.
+5. *Weapons* — `WeaponDefinition` gains magazine / reserve / reload / pellets; `Weapon` owns that state,
+   auto-reloads when empty, `R` reloads through `InputReader.ReloadPressed`; Rock is 6 shells × 8 pellets
+   × 4 damage (32 total, unchanged) in a 3.5° cone; HUD gains `AmmoText` (`6 / 42`, `RELOADING`) and a
+   `ReadyBar` under the crosshair that fills toward the next shot and doubles as the reload progress.
+6. *Minimap dots* — `MinimapBlips` places one dot per living enemy in the map's local space (world offset
+   ÷ `MinimapCamera.HalfExtent`), pinned to the rim when off-map.
+7. *HUD stretch* — the five panels used Unity's `Background` sprite (10 px border) at `Simple`, smearing
+   corners along a 420×24 bar; now `Sliced`.
+
+**Not verified — needs her eyes:** how the sliced panels, the rings, the reticle and the shotgun actually
+look and feel; `21_Map_Alley`; the tutorial; damage numbers; Scissors (still never played).
+**Not touched:** LMS submission, remote (none exists), assignment status.
+
+**Next action:** second human gate on the build above — same three checks plus minimap dots, ammo/reload,
+Rock's pellets, Paper's zoom and reticle, and the mark/snare rings.
 
 ## 2026-11-06 — human gate trial result, and the backlog it produced
 

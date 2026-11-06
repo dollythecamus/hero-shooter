@@ -25,6 +25,12 @@ namespace HeroShooter.Systems
 
         Camera _camera;
 
+        /// <summary>
+        /// Half the visible width in metres. The HUD's enemy blips divide a world offset by this, so the
+        /// dots and the rendered map cannot disagree about scale.
+        /// </summary>
+        public float HalfExtent => orthographicSize;
+
         void Awake()
         {
             _camera = GetComponent<Camera>();

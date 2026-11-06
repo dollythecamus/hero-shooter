@@ -17,6 +17,9 @@ namespace HeroShooter.Player
         [SerializeField] PlayerAbilities abilities;
         [SerializeField] PlayerAppearance appearance;
 
+        [Tooltip("The scene camera rig, for the per-character aim FOV. Found at runtime when left empty.")]
+        [SerializeField] ThirdPersonCameraRig cameraRig;
+
         public CharacterDefinition Current { get; private set; }
 
         // Read by the HUD: it pushes values into authored widgets, so it needs the parts, not a second lookup.
@@ -67,6 +70,27 @@ namespace HeroShooter.Player
             {
                 appearance.Apply(character);
             }
+
+            if (character.aimFov > 0f)
+            {
+                ThirdPersonCameraRig rig = ResolveCameraRig();
+
+                if (rig != null)
+                {
+                    rig.AimFov = character.aimFov;
+                }
+            }
+        }
+
+        /// <summary>The camera rig lives on the scene camera, not on the hero prefab — resolve it there.</summary>
+        ThirdPersonCameraRig ResolveCameraRig()
+        {
+            if (cameraRig == null)
+            {
+                cameraRig = FindFirstObjectByType<ThirdPersonCameraRig>();
+            }
+
+            return cameraRig;
         }
     }
 }

@@ -55,6 +55,16 @@ namespace HeroShooter.Player
         /// <summary>Flips the vertical look axis without touching the horizontal one.</summary>
         public bool InvertY { get; set; }
 
+        /// <summary>
+        /// The FOV this rig blends to while aiming. The loadout writes it from the character, so Paper zooms
+        /// in further than the shared 42 without every hero gaining a second number to drift.
+        /// </summary>
+        public float AimFov
+        {
+            get => aimFov;
+            set => aimFov = Mathf.Clamp(value, 15f, 90f);
+        }
+
         /// <summary>0 at the hip, 1 fully aiming. The HUD swaps crosshairs on this, not on the raw button.</summary>
         public float AimBlend => _aimBlend;
 

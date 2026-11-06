@@ -7,8 +7,9 @@ namespace HeroShooter.Systems
 {
     /// <summary>
     /// World-space bar over one enemy. Pooled: the pool builds them at start and this component is never
-    /// created per hit. It draws only while the enemy is below full health, never through geometry, and
-    /// tints for the two states the roster wants visible without reading the console — amber when marked,
+    /// created per hit. It draws while the enemy is below full health, and always while it is marked —
+    /// a mark at full health used to show nothing at all. It never draws through geometry, and tints for
+    /// the two states the roster wants visible without reading the console — amber when marked,
     /// blue-grey when snared.
     /// </summary>
     public class EnemyHealthBar : MonoBehaviour, IPooled
@@ -68,7 +69,7 @@ namespace HeroShooter.Systems
             transform.position = _health.transform.position + Vector3.up * headOffset;
             transform.rotation = _camera.transform.rotation;
 
-            if (!_health.IsAlive || _health.Normalized >= 0.999f)
+            if (!_health.IsAlive || (_health.Normalized >= 0.999f && !_health.IsMarked))
             {
                 Show(false);
                 return;

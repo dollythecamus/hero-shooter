@@ -32,6 +32,12 @@ namespace HeroShooter.Systems
         /// <summary>Longest Mark / Snare window currently running on any enemy, for the HUD chips.</summary>
         public float MarkSecondsLeft { get; private set; }
 
+        /// <summary>
+        /// Every enemy this binder has given a bar to. The mini-map blips read the same list, so a body
+        /// that the waves spawn and the HUD draws can never drift apart.
+        /// </summary>
+        public IReadOnlyList<EnemyBrain> Enemies => _bound;
+
         public float SnareSecondsLeft { get; private set; }
 
         void Awake()

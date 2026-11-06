@@ -24,6 +24,8 @@ namespace HeroShooter.Data
         public float sprintMultiplier = 1.6f;
         [Tooltip("Movement multiplier while RMB aiming (roster: 0.9 for every hero, 0.6 for Paper).")]
         [Range(0.1f, 1f)] public float aimMoveMultiplier = 0.9f;
+        [Tooltip("Field of view while aiming. 0 keeps the camera rig's own aim FOV; Paper zooms to 30.")]
+        public float aimFov = 0f;
         [Tooltip("Paper's aim crosshair is a sniper reticle, not the shared one.")]
         public bool sniperReticle;
 

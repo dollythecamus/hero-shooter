@@ -32,6 +32,18 @@ namespace HeroShooter.Data
         [Tooltip("Projectile speed at full charge.")]
         public float chargedProjectileSpeed = 0f;
 
+        [Header("Ammunition")]
+        [Tooltip("Rounds in one magazine. Every trigger pull spends one round, whatever it fires.")]
+        public int magazineSize = 12;
+        [Tooltip("Rounds carried outside the magazine. Reloading draws from here.")]
+        public int reserveAmmo = 96;
+        [Tooltip("Seconds a reload takes.")]
+        public float reloadTime = 1.4f;
+        [Tooltip("Projectiles per trigger pull. Rock fires eight small ones like a shotgun.")]
+        public int pelletsPerShot = 1;
+        [Tooltip("Cone for a multi-pellet shot, in degrees. Ignored when pelletsPerShot is 1.")]
+        public float pelletSpreadDegrees = 3.5f;
+
         [Header("Movement while firing")]
         [Tooltip("1 = no slowdown. Rock fires heavy shots and slows to this fraction while shooting.")]
         [Range(0f, 1f)] public float firingSpeedMultiplier = 1f;

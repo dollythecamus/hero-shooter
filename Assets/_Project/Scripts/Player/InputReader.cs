@@ -89,6 +89,9 @@ namespace HeroShooter.Player
 
         public static bool PausePressed => Kb != null && Kb.escapeKey.wasPressedThisFrame;
 
+        /// <summary>R — reload. A press, not a hold: the weapon starts and finishes it on its own clock.</summary>
+        public static bool ReloadPressed => Kb != null && Kb.rKey.wasPressedThisFrame;
+
         public static void SetCursorLocked(bool locked)
         {
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;

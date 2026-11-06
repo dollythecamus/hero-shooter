@@ -20,6 +20,7 @@ MonoBehaviour:
   moveSpeed: 5.2
   sprintMultiplier: 1.6
   aimMoveMultiplier: 0.6
+  aimFov: 30
   sniperReticle: 1
   weapon: {fileID: 11400000, guid: 646588d95fb8418e9959766e9becab06, type: 2}
   abilityPrimary: {fileID: 11400000, guid: d511f9e99cc4381fda0acb8c29ca5ec1, type: 2}

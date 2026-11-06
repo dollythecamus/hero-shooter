@@ -49,6 +49,12 @@ namespace HeroShooter.Player
 
             bool held = InputReader.FireHeld;
 
+            // R works whether or not the trigger is held: a reload is a decision, not a mode.
+            if (InputReader.ReloadPressed)
+            {
+                weapon.BeginReload();
+            }
+
             // Charge weapons (Paper) fire on release; automatic weapons (Rock, Scissors) fire while held.
             if (weapon.Definition != null && weapon.Definition.RequiresCharge)
             {

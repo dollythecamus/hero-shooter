@@ -51,6 +51,14 @@ namespace HeroShooter.Systems
         [SerializeField] GameObject chargeRoot;
         [SerializeField] Image chargeFill;
 
+        [Header("Ammunition")]
+        [Tooltip("Magazine / reserve readout, e.g. '6 / 42'.")]
+        [SerializeField] Text ammoText;
+        [Tooltip("Bar under the crosshair: fills to full as the next shot becomes ready, and shows reload progress.")]
+        [SerializeField] Image readyFill;
+        [SerializeField] Color readyColor = new Color(0.55f, 0.85f, 1f, 0.85f);
+        [SerializeField] Color reloadColor = new Color(1f, 0.72f, 0.2f, 0.95f);
+
         [Header("Minimap")]
         [Tooltip("Facing arrow inside the minimap frame. The map itself is a RenderTexture, so only the arrow turns.")]
         [SerializeField] RectTransform minimapArrow;
@@ -213,6 +221,46 @@ namespace HeroShooter.Systems
             {
                 chargeFill.fillAmount = weapon.ChargeRatio;
             }
+
+            PushAmmo(weapon);
+        }
+
+        /// <summary>
+        /// Ammo count and the fire-rate bar. The bar is the reload bar too: while a reload runs it turns amber
+        /// and tracks the reload, otherwise it fills toward the next shot.
+        /// </summary>
+        void PushAmmo(Weapon weapon)
+        {
+            bool hasWeapon = weapon != null && weapon.Definition != null;
+
+            if (ammoText != null)
+            {
+                if (!hasWeapon)
+                {
+                    ammoText.text = string.Empty;
+                }
+                else if (weapon.IsReloading)
+                {
+                    ammoText.text = "RELOADING";
+                }
+                else
+                {
+                    ammoText.text = $"{weapon.Magazine} / {weapon.Reserve}";
+                }
+            }
+
+            if (readyFill == null)
+            {
+                return;
+            }
+
+            readyFill.fillAmount = !hasWeapon
+                ? 0f
+                : weapon.IsReloading
+                    ? weapon.ReloadRatio
+                    : weapon.ShotReadyRatio;
+
+            readyFill.color = hasWeapon && weapon.IsReloading ? reloadColor : readyColor;
         }
 
         void PushChips()

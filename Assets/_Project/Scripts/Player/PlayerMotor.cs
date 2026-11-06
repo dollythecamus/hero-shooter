@@ -132,9 +132,16 @@ namespace HeroShooter.Player
                 _launched = false;
             }
 
-            if (desired.sqrMagnitude > 0.01f)
+            // While aiming the body faces where the camera looks and the legs strafe. A body that kept
+            // turning into the move direction swung the hero across the fixed right-shoulder offset, which
+            // read as a camera that had swapped sides (2026-11-06 gate).
+            Vector3 facing = InputReader.AimHeld && cameraTransform != null
+                ? Flatten(cameraTransform.forward)
+                : desired;
+
+            if (facing.sqrMagnitude > 0.01f)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(desired, Vector3.up);
+                Quaternion targetRotation = Quaternion.LookRotation(facing, Vector3.up);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
                     rotationSpeed * Time.deltaTime);
             }

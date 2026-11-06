@@ -69,6 +69,27 @@ namespace HeroShooter.Systems
                 {
                     Pause();
                 }
+
+                return;
+            }
+
+            if (!_open)
+            {
+                ReassertCursorLock();
+            }
+        }
+
+        /// <summary>
+        /// The 2026-11-06 gate found the cursor still free after Resume. Unity does not re-apply
+        /// <c>Cursor.lockState</c> when the game window regains focus, so a lock set once in
+        /// <see cref="Resume"/> can be dropped silently. Re-asserting it while the menu is closed is
+        /// idempotent and cannot fight the menu, which is the only other owner of the cursor.
+        /// </summary>
+        static void ReassertCursorLock()
+        {
+            if (Cursor.lockState != CursorLockMode.Locked)
+            {
+                InputReader.SetCursorLocked(true);
             }
         }
 
