@@ -1,6 +1,38 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 13:20 (-03) · session (default profile, MCP for Unity on 8089) · **fourth pass: all PASS except Overclock, now fixed and rebuilt; ready to package**
+Updated: 2026-11-06 13:30 (-03) · session (default profile, MCP for Unity on 8089) · **corpses now fall and always clear; Overclock PASS; ready to package**
+
+## 2026-11-06 13:25–13:30 — dead bodies: clear every one, and make death legible
+
+**Overclock PASS** on her fifth pass. She also changed the boot menu's Hint text herself (her preference) —
+committed as hers, no code behind it.
+
+**Reported:** *"why only some enemies dead bodies despawn after a wave clears? so some enemies stay like
+dummies in the way of the level"*, plus a request for a death visual — the body lying on the floor.
+
+**Cause, and it was exactly half of the enemy set.** `WaveDirector` recycled only the bodies it had spawned
+(`_poolOf`). The arena's hand-placed enemies were bound by `EnemyBarBinder` for their health bars but never
+tracked for recycling, so they stood upright in the level for the rest of the match while wave spawns
+disappeared on schedule  1.5 s after death.
+
+**Fix — one lifecycle for every enemy:**
+- `WaveDirector.Track(enemy)` subscribes every enemy at Start, not just the ones `SpawnWave` creates.
+- `Release()` sends pooled bodies back to their pool as before; a **hand-placed body is deactivated**
+  instead, because nothing owns it and it has no pool to return to.
+- `Alive` still counts wave spawns only — a hand-placed body was never part of the wave budget.
+
+**Death pose (new):** `EnemyBrain.OnDied` calls `TipOver()` — the `Body` capsule is rotated 90° onto its
+side and dropped so it rests at its own collider radius, and the `Face` is hidden. `OnSpawned` calls
+`RestorePose()`, so a recycled body stands back up with its authored offset and its face.
+
+*Verified in play mode on `20_Map_Arena`:* a hand-placed `RangedEnemy` and a wave `RangedEnemy(Clone)` were
+both killed → both read `bodyRot=(0,0,90)`, `bodyY=0.30/0.21` (their collider radii), `faceActive=False`;
+4 s later `active bodies: 5, dead-but-standing: 0`, with both corpses in the cleared list. A body pulled
+straight from the ranged pool came back `bodyRot=(0,0,0) bodyY=0.90 faceActive=True`.
+
+**Builds:** Linux 102.98 MB / 21.5 s, Windows 102.50 MB / 17.7 s, `errors: 0`.
+
+**Next action:** her pass on the dead bodies; then zip the two build folders for the LMS upload.
 
 ## 2026-11-06 13:15–13:20 — fourth pass (all pass) and the Overclock fix
 

@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -420}
-  m_SizeDelta: {x: 1600, y: 40}
+  m_AnchoredPosition: {x: 0, y: -465.1712}
+  m_SizeDelta: {x: 1600, y: 130.3423}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9082090909567431005
 CanvasRenderer:
@@ -77,8 +77,14 @@ MonoBehaviour:
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: "WASD move  \xB7  LMB shoot  \xB7  RMB aim  \xB7  Q / E abilities  \xB7  Space jump"
+    m_LineSpacing: 1.1
+  m_Text: 'it''s a hero shooter.
+
+    move - shoot - sprint - jump
+
+    Q - E for abilities
+
+    :3'
 --- !u!1 &887565199286039784
 GameObject:
   m_ObjectHideFlags: 0

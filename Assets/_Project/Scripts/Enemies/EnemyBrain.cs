@@ -41,6 +41,12 @@ namespace HeroShooter.Enemies
         Vector3 _knockback;
         float _knockbackUntil;
 
+        // Death pose: the capsule child that is tipped over, the face that is hidden, and the values to restore.
+        Transform _body;
+        Transform _face;
+        Vector3 _bodyOrigin;
+        Quaternion _bodyRotation = Quaternion.identity;
+
         public EnemyStats Stats => stats;
         public StateMachine Machine => _machine;
         public Health Health => _health;
@@ -86,6 +92,15 @@ namespace HeroShooter.Enemies
             _health = GetComponent<Health>();
             _attack = GetComponent<IEnemyAttack>();
             _spawnPoint = transform.position;
+
+            _body = transform.Find("Body");
+            _face = transform.Find("Face");
+
+            if (_body != null)
+            {
+                _bodyOrigin = _body.localPosition;
+                _bodyRotation = _body.localRotation;
+            }
 
             if (spyglass == null)
             {
@@ -145,6 +160,7 @@ namespace HeroShooter.Enemies
             _nextFleeTime = 0f;
             _nextAllyCallTime = 0f;
             CallTarget = null;
+            RestorePose();
 
             if (_health != null)
             {
@@ -215,6 +231,9 @@ namespace HeroShooter.Enemies
         /// A corpse must not keep thinking. The FSM is frozen, the agent is switched off so the body stops
         /// moving, and the brain ignores further ally calls. Recycling/destroying the body belongs to the
         /// wave director (S6), not here.
+        ///
+        /// The body also **falls over** (2026-11-06: an upright body with no health read as a dummy standing
+        /// in the way). The pose is restored by <see cref="OnSpawned"/>, so a recycled body comes back upright.
         /// </summary>
         void OnDied(DamageInfo info)
         {
@@ -222,11 +241,52 @@ namespace HeroShooter.Enemies
             _agent.isStopped = true;
             _agent.enabled = false;
             StopAllCoroutines();
+            TipOver();
 
             if (logTransitions)
             {
                 Debug.Log($"[EnemyBrain] {name}: died in {_machine.Current} (source: " +
                           $"{(info.Source != null ? info.Source.name : "unknown")})", this);
+            }
+        }
+
+        /// <summary>
+        /// Lays the body down: the capsule is tipped onto its side and dropped so it rests on the ground at its
+        /// own radius. Measured from the collider rather than the renderer, because renderer bounds update a
+        /// frame late after a rotation and the body would visibly sink first.
+        /// </summary>
+        void TipOver()
+        {
+            if (_body == null)
+            {
+                return;
+            }
+
+            _body.localRotation = Quaternion.Euler(0f, 0f, 90f);
+
+            CapsuleCollider capsule = _body.GetComponent<CapsuleCollider>();
+            float radius = capsule != null ? capsule.radius * _body.lossyScale.x : 0.4f;
+
+            _body.localPosition = new Vector3(_bodyOrigin.x, radius, _bodyOrigin.z);
+
+            if (_face != null)
+            {
+                // A face floating upright over a fallen body looks worse than no face.
+                _face.gameObject.SetActive(false);
+            }
+        }
+
+        void RestorePose()
+        {
+            if (_body != null)
+            {
+                _body.localPosition = _bodyOrigin;
+                _body.localRotation = _bodyRotation;
+            }
+
+            if (_face != null)
+            {
+                _face.gameObject.SetActive(true);
             }
         }
 

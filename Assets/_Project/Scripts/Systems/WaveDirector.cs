@@ -82,6 +82,28 @@ namespace HeroShooter.Systems
             {
                 _score.HeroDied += OnHeroDied;
             }
+
+            // Hand-placed enemies get the same corpse treatment as spawned ones. They are not pooled, so
+            // 2026-11-06 reported bodies standing upright in the level forever while only wave spawns cleared.
+            EnemyBrain[] placed = FindObjectsByType<EnemyBrain>(FindObjectsSortMode.None);
+
+            for (int i = 0; i < placed.Length; i++)
+            {
+                Track(placed[i]);
+            }
+        }
+
+        /// <summary>Subscribes one enemy to the corpse lifecycle, whoever spawned it.</summary>
+        void Track(EnemyBrain enemy)
+        {
+            if (enemy == null || enemy.Health == null || _deathHandlers.ContainsKey(enemy))
+            {
+                return;
+            }
+
+            Action<DamageInfo> handler = _ => OnEnemyDied(enemy);
+            _deathHandlers[enemy] = handler;
+            enemy.Health.Died += handler;
         }
 
         void OnDestroy()
@@ -222,9 +244,7 @@ namespace HeroShooter.Systems
                 _bars?.Bind(enemy);
                 Alive++;
 
-                Action<DamageInfo> handler = _ => OnEnemyDied(enemy);
-                _deathHandlers[enemy] = handler;
-                enemy.Health.Died += handler;
+                Track(enemy);
             }
         }
 
@@ -237,9 +257,14 @@ namespace HeroShooter.Systems
 
             enemy.Health.Died -= handler;
             _deathHandlers.Remove(enemy);
-            Alive = Mathf.Max(0, Alive - 1);
 
-            // Leave the body where it fell for a beat, then recycle it.
+            // Only wave spawns are counted in Alive; a hand-placed body was never part of the wave budget.
+            if (_poolOf.ContainsKey(enemy))
+            {
+                Alive = Mathf.Max(0, Alive - 1);
+            }
+
+            // Leave the body where it fell for a beat, then clear it — pooled or not.
             _releaseAt[enemy] = Time.time + corpseSeconds;
         }
 
@@ -255,7 +280,13 @@ namespace HeroShooter.Systems
                 _poolOf.Remove(enemy);
                 _score?.Unregister(enemy.Health);
                 pool.Release(enemy);
+                return;
             }
+
+            // Not from a pool: nothing owns it, so the only way to clear the body is to switch it off. Leaving
+            // it upright in the level is exactly what the gate reported as "enemies stay like dummies".
+            _score?.Unregister(enemy.Health);
+            enemy.gameObject.SetActive(false);
         }
 
         Vector3 FindSpawnPosition()
