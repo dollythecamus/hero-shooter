@@ -49,9 +49,7 @@ P3: add the `MapDefinition` and catalog entry, then the Build Settings scene ent
 
 - Notion: no API token / CLI on this host (`ntn` absent, no `NOTION_TOKEN`). Does she want to paste the doc
   herself from a markdown file I write, or provide an integration token?
-- Does the new map ship in the *same* build as the finished submission (v1.0.0 stays untouched, new build for this
-  class) or replace it? Default assumption: a new build, v1.0.0 untouched.
-- **Design decision from P2:** keep this geometry and make the measurement explicit rather than overclaiming safety. The inner loop measures 62% exposure and 100% crossfire; the yard measures 64% / 100%. Its cover offers local repositioning, not a materially safer route. The outer gallery is the clearly safer but longer option; if the class argues for a safer middle route, we can add cover and remeasure.
+
 
 ## Decisions
 
