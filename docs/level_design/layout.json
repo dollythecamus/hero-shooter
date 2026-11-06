@@ -1,0 +1,647 @@
+{
+ "name": "Patio de Subestacao",
+ "scene": "22_Map_Substation",
+ "unit": "m",
+ "footprint": {
+  "w": 44,
+  "d": 44
+ },
+ "levels": {
+  "yard": 0.0,
+  "deck": 4.0,
+  "bank": 3.0,
+  "mast": 8.5
+ },
+ "solids": [
+  {
+   "name": "Wall_S",
+   "x0": -22,
+   "z0": -22,
+   "x1": 22,
+   "z1": -21,
+   "h": 5,
+   "kind": "wall"
+  },
+  {
+   "name": "Wall_N",
+   "x0": -22,
+   "z0": 21,
+   "x1": 22,
+   "z1": 22,
+   "h": 5,
+   "kind": "wall"
+  },
+  {
+   "name": "Wall_W",
+   "x0": -22,
+   "z0": -21,
+   "x1": -21,
+   "z1": 21,
+   "h": 5,
+   "kind": "wall"
+  },
+  {
+   "name": "Wall_E",
+   "x0": 21,
+   "z0": -21,
+   "x1": 22,
+   "z1": 21,
+   "h": 5,
+   "kind": "wall"
+  },
+  {
+   "name": "RingWall_S1",
+   "x0": -15,
+   "z0": -15,
+   "x1": -2.5,
+   "z1": -14,
+   "h": 3.0,
+   "kind": "ring"
+  },
+  {
+   "name": "RingWall_S2",
+   "x0": 2.5,
+   "z0": -15,
+   "x1": 15,
+   "z1": -14,
+   "h": 3.0,
+   "kind": "ring"
+  },
+  {
+   "name": "RingWall_N1",
+   "x0": -15,
+   "z0": 14,
+   "x1": -2.5,
+   "z1": 15,
+   "h": 3.0,
+   "kind": "ring"
+  },
+  {
+   "name": "RingWall_N2",
+   "x0": 2.5,
+   "z0": 14,
+   "x1": 15,
+   "z1": 15,
+   "h": 3.0,
+   "kind": "ring"
+  },
+  {
+   "name": "RingWall_W1",
+   "x0": -15,
+   "z0": -14,
+   "x1": -14,
+   "z1": -1.25,
+   "h": 3.0,
+   "kind": "ring"
+  },
+  {
+   "name": "RingWall_W2",
+   "x0": -15,
+   "z0": 1.25,
+   "x1": -14,
+   "z1": 14,
+   "h": 3.0,
+   "kind": "ring"
+  },
+  {
+   "name": "RingWall_E1",
+   "x0": 14,
+   "z0": -14,
+   "x1": 15,
+   "z1": -1.25,
+   "h": 3.0,
+   "kind": "ring"
+  },
+  {
+   "name": "RingWall_E2",
+   "x0": 14,
+   "z0": 1.25,
+   "x1": 15,
+   "z1": 14,
+   "h": 3.0,
+   "kind": "ring"
+  },
+  {
+   "name": "TransformerBank",
+   "x0": -3,
+   "z0": -3,
+   "x1": 3,
+   "z1": 3,
+   "h": 3,
+   "kind": "mass"
+  },
+  {
+   "name": "Alcove_N_W",
+   "x0": -10,
+   "z0": 11,
+   "x1": -9,
+   "z1": 14,
+   "h": 3.0,
+   "kind": "alcove"
+  },
+  {
+   "name": "Alcove_N_E",
+   "x0": -8,
+   "z0": 11,
+   "x1": -7,
+   "z1": 14,
+   "h": 3.0,
+   "kind": "alcove"
+  },
+  {
+   "name": "Alcove_S_W",
+   "x0": 7,
+   "z0": -14,
+   "x1": 8,
+   "z1": -11,
+   "h": 3.0,
+   "kind": "alcove"
+  },
+  {
+   "name": "Alcove_S_E",
+   "x0": 9,
+   "z0": -14,
+   "x1": 10,
+   "z1": -11,
+   "h": 3.0,
+   "kind": "alcove"
+  },
+  {
+   "name": "Breaker_0",
+   "x0": -6.5,
+   "z0": 10.9,
+   "x1": -4.5,
+   "z1": 12.1,
+   "h": 1.8,
+   "kind": "cover"
+  },
+  {
+   "name": "Breaker_1",
+   "x0": 4.5,
+   "z0": 10.9,
+   "x1": 6.5,
+   "z1": 12.1,
+   "h": 1.8,
+   "kind": "cover"
+  },
+  {
+   "name": "Breaker_2",
+   "x0": 4.5,
+   "z0": -12.1,
+   "x1": 6.5,
+   "z1": -10.9,
+   "h": 1.8,
+   "kind": "cover"
+  },
+  {
+   "name": "Breaker_3",
+   "x0": -13.0,
+   "z0": -12.1,
+   "x1": -11.0,
+   "z1": -10.9,
+   "h": 1.8,
+   "kind": "cover"
+  },
+  {
+   "name": "Breaker_4",
+   "x0": 11.4,
+   "z0": -7.0,
+   "x1": 12.6,
+   "z1": -5.0,
+   "h": 1.8,
+   "kind": "cover"
+  },
+  {
+   "name": "Breaker_5",
+   "x0": -12.6,
+   "z0": 5.0,
+   "x1": -11.4,
+   "z1": 7.0,
+   "h": 1.8,
+   "kind": "cover"
+  },
+  {
+   "name": "Mast_SW",
+   "x0": -15.1,
+   "z0": -15.1,
+   "x1": -13.9,
+   "z1": -13.9,
+   "h": 8.0,
+   "kind": "mast"
+  },
+  {
+   "name": "Mast_NW",
+   "x0": -15.1,
+   "z0": 13.9,
+   "x1": -13.9,
+   "z1": 15.1,
+   "h": 8.0,
+   "kind": "mast"
+  },
+  {
+   "name": "Mast_SE",
+   "x0": 13.9,
+   "z0": -15.1,
+   "x1": 15.1,
+   "z1": -13.9,
+   "h": 8.0,
+   "kind": "mast"
+  },
+  {
+   "name": "Mast_NE",
+   "x0": 13.9,
+   "z0": 13.9,
+   "x1": 15.1,
+   "z1": 15.1,
+   "h": 8.0,
+   "kind": "mast"
+  },
+  {
+   "name": "CornerMast",
+   "x0": -12.5,
+   "z0": 9.5,
+   "x1": -9.5,
+   "z1": 12.5,
+   "h": 8.5,
+   "kind": "mast"
+  }
+ ],
+ "pads": [
+  {
+   "name": "Pad",
+   "x0": -7,
+   "z0": -7,
+   "x1": 7,
+   "z1": 7,
+   "h": 0.0,
+   "kind": "pad"
+  }
+ ],
+ "decks": [
+  {
+   "name": "Deck_N",
+   "x0": -9.5,
+   "z0": 9.5,
+   "x1": 12.5,
+   "z1": 12.5,
+   "h": 4.0,
+   "kind": "deck"
+  },
+  {
+   "name": "Deck_W",
+   "x0": -12.5,
+   "z0": -12.5,
+   "x1": -9.5,
+   "z1": 9.5,
+   "h": 4.0,
+   "kind": "deck"
+  }
+ ],
+ "connectors": [
+  {
+   "name": "Ramp_N",
+   "kind": "ramp",
+   "x0": 9.5,
+   "z0": 1.5,
+   "x1": 12.5,
+   "z1": 9.5,
+   "low": [
+    10.0,
+    1.5
+   ],
+   "high": [
+    10.0,
+    9.5
+   ],
+   "rise": 4.0
+  },
+  {
+   "name": "Stair_W",
+   "kind": "stair",
+   "x0": -9.5,
+   "z0": -12.5,
+   "x1": -3.1,
+   "z1": -9.5,
+   "low": [
+    -3.1,
+    -11.0
+   ],
+   "high": [
+    -9.5,
+    -11.0
+   ],
+   "rise": 4.0,
+   "steps": 16,
+   "riser": 0.25,
+   "tread": 0.4
+  }
+ ],
+ "routes": {
+  "CP1_principal": {
+   "kind": "critical",
+   "label": "Critical path",
+   "pts": [
+    [
+     0,
+     -18
+    ],
+    [
+     0,
+     -14.5
+    ],
+    [
+     0,
+     -9
+    ],
+    [
+     0,
+     -7
+    ],
+    [
+     0,
+     -4.5
+    ]
+   ]
+  },
+  "L1_inner": {
+   "kind": "loop",
+   "label": "Anel interno (tanque)",
+   "pts": [
+    [
+     -5.0,
+     -5.0
+    ],
+    [
+     5.0,
+     -5.0
+    ],
+    [
+     5.0,
+     5.0
+    ],
+    [
+     -5.0,
+     5.0
+    ],
+    [
+     -5.0,
+     -5.0
+    ]
+   ],
+   "closed": true
+  },
+  "L2_middle": {
+   "kind": "loop",
+   "label": "Anel medio (patio)",
+   "pts": [
+    [
+     -9.0,
+     -9.0
+    ],
+    [
+     9.0,
+     -9.0
+    ],
+    [
+     9.0,
+     9.0
+    ],
+    [
+     -9.0,
+     9.0
+    ],
+    [
+     -9.0,
+     -9.0
+    ]
+   ],
+   "closed": true
+  },
+  "L3_outer": {
+   "kind": "loop",
+   "label": "Anel externo (galeria)",
+   "pts": [
+    [
+     -18.0,
+     -18.0
+    ],
+    [
+     18.0,
+     -18.0
+    ],
+    [
+     18.0,
+     18.0
+    ],
+    [
+     -18.0,
+     18.0
+    ],
+    [
+     -18.0,
+     -18.0
+    ]
+   ],
+   "closed": true
+  },
+  "S1_gallery_detour": {
+   "kind": "secondary",
+   "label": "Desvio pela galeria",
+   "pts": [
+    [
+     0,
+     -14.5
+    ],
+    [
+     0,
+     -18
+    ],
+    [
+     -18,
+     -18
+    ],
+    [
+     -18,
+     0
+    ],
+    [
+     -14.5,
+     0
+    ],
+    [
+     -18,
+     0
+    ],
+    [
+     -18,
+     18
+    ],
+    [
+     0,
+     18
+    ],
+    [
+     0,
+     14.5
+    ]
+   ]
+  },
+  "V1_elevated": {
+   "kind": "elevated",
+   "label": "Loop elevado (Scissors)",
+   "pts": [
+    [
+     10.0,
+     11.0
+    ],
+    [
+     -9.5,
+     11.0
+    ],
+    [
+     -11.0,
+     11.0
+    ],
+    [
+     -11.0,
+     9.5
+    ],
+    [
+     -11.0,
+     -11.0
+    ]
+   ]
+  },
+  "A1_ramp": {
+   "kind": "access",
+   "label": "Acesso rampa",
+   "pts": [
+    [
+     10.0,
+     1.5
+    ],
+    [
+     10.0,
+     9.5
+    ]
+   ]
+  },
+  "A2_stair": {
+   "kind": "access",
+   "label": "Acesso escada",
+   "pts": [
+    [
+     -3.1,
+     -11.0
+    ],
+    [
+     -9.5,
+     -11.0
+    ]
+   ]
+  },
+  "B1_breadcrumbs": {
+   "kind": "breadcrumb",
+   "label": "Breadcrumbs",
+   "pts": [
+    [
+     0,
+     -20.5
+    ],
+    [
+     0,
+     -16
+    ],
+    [
+     0,
+     -14.5
+    ],
+    [
+     0,
+     -11
+    ],
+    [
+     0,
+     -7.5
+    ]
+   ]
+  }
+ },
+ "spawn": {
+  "x": 0,
+  "z": -18,
+  "yaw": 0
+ },
+ "enemies": [
+  {
+   "prefab": "ranged",
+   "x": 10.0,
+   "z": 11.0,
+   "y": 4.0,
+   "on": "Deck_N"
+  },
+  {
+   "prefab": "ranged",
+   "x": -11.0,
+   "z": -8.0,
+   "y": 4.0,
+   "on": "Deck_W"
+  },
+  {
+   "prefab": "melee",
+   "x": -10.5,
+   "z": 0.0,
+   "y": 0.0,
+   "on": "yard"
+  },
+  {
+   "prefab": "melee",
+   "x": 10.5,
+   "z": -2.0,
+   "y": 0.0,
+   "on": "yard"
+  }
+ ],
+ "pois": [
+  {
+   "id": 1,
+   "name": "Pilar de canto",
+   "x": -11.0,
+   "z": 11.0,
+   "y": 8.5,
+   "note": "unico ponto que fecha o loop elevado; so Scissors (wall climb)"
+  },
+  {
+   "id": 2,
+   "name": "Ponta NE do deck",
+   "x": 10.0,
+   "z": 11.0,
+   "y": 4.0,
+   "note": "vantagem sobre metade norte do patio"
+  },
+  {
+   "id": 3,
+   "name": "Topo do banco",
+   "x": 0.0,
+   "z": 0.0,
+   "y": 3.0,
+   "note": "ancora visual e cobertura central"
+  },
+  {
+   "id": 4,
+   "name": "Nicho N",
+   "x": -8.5,
+   "z": 12.6,
+   "y": 0.0,
+   "note": "bolsao de contencao: cobertura do deck, uma saida"
+  },
+  {
+   "id": 5,
+   "name": "Nicho S",
+   "x": 8.5,
+   "z": -12.6,
+   "y": 0.0,
+   "note": "bolsao de contencao: cobertura do deck, uma saida"
+  }
+ ]
+}

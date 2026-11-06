@@ -24,9 +24,6 @@ namespace HeroShooter.Systems
         [SerializeField] GameObject meterRoot;
         [SerializeField] Image meterFill;
 
-        [Tooltip("Passive slots have no button and no cooldown, so the slot says so instead of drawing an empty bar.")]
-        [SerializeField] GameObject passiveRoot;
-
         [SerializeField] Color readyColor = Color.white;
         [SerializeField] Color notReadyColor = new Color(0.55f, 0.55f, 0.55f, 1f);
 
@@ -54,7 +51,6 @@ namespace HeroShooter.Systems
 
             SetActive(cooldownRoot, shape == AbilityShape.Instant);
             SetActive(meterRoot, shape == AbilityShape.Channel);
-            SetActive(passiveRoot, shape == AbilityShape.Passive);
         }
 
         /// <param name="cooldownRatio">1 = ready, 0 = just used.</param>

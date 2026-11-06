@@ -2,6 +2,20 @@
 
 Updated: 2026-11-06 14:00 (-03) · session (default profile) · **published on GitHub; every document brought to the final state**
 
+## 2026-11-06 (later) — new requirement: the level-design assignment on this project as base
+
+Chloe brought the second deliverable: a **hero-shooter level that tests the blockmesh principle Circulation**, for
+the Level Design class, with this project as the working base. Deliverables: a Notion document with the same
+directives as her previous level-design activity, a topdown blueprint, a 3D map in Unity ProBuilder, and — her
+addition — a build that **plays the new level and shows it in the level selector**.
+
+- `docs/level_design/assignment.md` and the reference export `docs/level_design/level-design-1_EXAMPLE/` are the
+  source of truth for the document's shape.
+- Phase ledger for this assignment: **`docs/level_design/LEDGER.md`** (status, next action, open questions).
+- Decision taken with her in this session: the level is a **third map**; the finished hero-shooter deliverable
+  (v1.0.0, both maps, tutorial, flow) is not modified, and this class gets its own build.
+
+
 ## 2026-11-06 14:00 — documentation brought to the final state
 
 She asked whether the docs match the code. An audit found **seven that predated the work**; all are now current.

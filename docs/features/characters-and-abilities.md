@@ -217,9 +217,10 @@ world-space enemy bars.
 
 - No ability charges, no ultimate meter, no cancellation, no aiming prediction for moving targets. A channelled
   Bulwark can be kept up until it empties; there is no manual "cancel" beyond releasing the key.
-- The passive slot has no *button*, and the HUD renders it as one: `AbilitySlotUI.Bind` swaps the cooldown bar
-  for the `passive` label and the "always on, no cooldown" line when `ShapeOf(slot) == Passive`, and the key hint
-  reads `passive` instead of `Q`. The character-select card still prints the definition's `cooldown` (0).
+- The passive slot has no *button*: `AbilitySlotUI.Bind` hides the cooldown and meter bars when
+  `ShapeOf(slot) == Passive` and the key hint reads `passive` instead of `Q`. The "always on, no cooldown" line
+  that used to sit under it was **removed on 2026-11-06** (Chloe: unnecessary text). The character-select card
+  still prints the definition's `cooldown` (0).
 - A climb's budget resets on floor contact, so mantling onto a wall top counts as landing and refunds it; there
   is no notion of "the same wall" and no cooldown of any kind, per the roster.
 - Mark and Snare write a deadline instead of restoring a captured value, so re-casting on the same enemy

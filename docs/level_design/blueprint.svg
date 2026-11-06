@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1336" height="1474" viewBox="0 0 1336 1474">
+<rect x="0" y="0" width="1336" height="1474" fill="#ffffff"/>
+<defs><pattern id="hatch" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="11" height="11" fill="#ffffff"/><line x1="0" y1="0" x2="0" y2="11" stroke="#9aa1a7" stroke-width="1.5"/></pattern><pattern id="mhatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#7d858c"/><line x1="0" y1="0" x2="0" y2="7" stroke="#4b5257" stroke-width="1.2"/></pattern></defs>
+<line x1="96.0" y1="1240.0" x2="96.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="1240.0" x2="1240.0" y2="1240.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="148.0" y1="1240.0" x2="148.0" y2="96.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="96.0" y1="1188.0" x2="1240.0" y2="1188.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="200.0" y1="1240.0" x2="200.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="1136.0" x2="1240.0" y2="1136.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="252.0" y1="1240.0" x2="252.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="1084.0" x2="1240.0" y2="1084.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="304.0" y1="1240.0" x2="304.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="1032.0" x2="1240.0" y2="1032.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="356.0" y1="1240.0" x2="356.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="980.0" x2="1240.0" y2="980.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="408.0" y1="1240.0" x2="408.0" y2="96.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="96.0" y1="928.0" x2="1240.0" y2="928.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="460.0" y1="1240.0" x2="460.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="876.0" x2="1240.0" y2="876.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="512.0" y1="1240.0" x2="512.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="824.0" x2="1240.0" y2="824.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="564.0" y1="1240.0" x2="564.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="772.0" x2="1240.0" y2="772.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="616.0" y1="1240.0" x2="616.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="720.0" x2="1240.0" y2="720.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="668.0" y1="1240.0" x2="668.0" y2="96.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="96.0" y1="668.0" x2="1240.0" y2="668.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="720.0" y1="1240.0" x2="720.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="616.0" x2="1240.0" y2="616.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="772.0" y1="1240.0" x2="772.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="564.0" x2="1240.0" y2="564.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="824.0" y1="1240.0" x2="824.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="512.0" x2="1240.0" y2="512.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="876.0" y1="1240.0" x2="876.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="460.0" x2="1240.0" y2="460.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="928.0" y1="1240.0" x2="928.0" y2="96.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="96.0" y1="408.0" x2="1240.0" y2="408.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="980.0" y1="1240.0" x2="980.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="356.0" x2="1240.0" y2="356.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="1032.0" y1="1240.0" x2="1032.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="304.0" x2="1240.0" y2="304.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="1084.0" y1="1240.0" x2="1084.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="252.0" x2="1240.0" y2="252.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="1136.0" y1="1240.0" x2="1136.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="200.0" x2="1240.0" y2="200.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="1188.0" y1="1240.0" x2="1188.0" y2="96.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="96.0" y1="148.0" x2="1240.0" y2="148.0" stroke="#e2e6ea" stroke-width="1.2"/>
+<line x1="1240.0" y1="1240.0" x2="1240.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<line x1="96.0" y1="96.0" x2="1240.0" y2="96.0" stroke="#f0f2f4" stroke-width="0.8"/>
+<text x="96.0" y="44.0" font-family="DejaVu Sans Mono, monospace" font-size="23.0" fill="#12161a" text-anchor="start" font-weight="bold">PATIO DE SUBESTACAO  -  blockmesh</text>
+<text x="96.0" y="68.0" font-family="DejaVu Sans Mono, monospace" font-size="13.5" fill="#525a61" text-anchor="start" font-weight="normal">Hero Shooter  |  44 x 44 m  |  1 quadrado de grade = 2 m  |  ProBuilder</text>
+<rect x="486.0" y="486.0" width="364.0" height="364.0" fill="#fbfbfc" stroke="#a7aeb4" stroke-width="1.6" opacity="1.00" stroke-dasharray="9 6"/>
+<rect x="915.0" y="421.0" width="78.0" height="208.0" fill="#e8ebee" stroke="#5a6167" stroke-width="1.6" opacity="1.00"/>
+<line x1="928.0" y1="525.0" x2="928.0" y2="446.6" stroke="#00695c" stroke-width="2.2" opacity="0.90" stroke-linecap="round"/><polygon points="928.0,437.6 933.0,446.6 923.0,446.6" fill="#00695c" opacity="0.90"/>
+<rect x="421.0" y="915.0" width="166.4" height="78.0" fill="#e8ebee" stroke="#5a6167" stroke-width="1.6" opacity="1.00"/>
+<line x1="504.2" y1="954.0" x2="443.3" y2="954.0" stroke="#00695c" stroke-width="2.2" opacity="0.90" stroke-linecap="round"/><polygon points="434.3,954.0 443.3,949.0 443.3,959.0" fill="#00695c" opacity="0.90"/>
+<rect x="421.0" y="343.0" width="572.0" height="78.0" fill="url(#hatch)" stroke="#2b3036" stroke-width="2.0" opacity="1.00"/>
+<rect x="343.0" y="421.0" width="78.0" height="572.0" fill="url(#hatch)" stroke="#2b3036" stroke-width="2.0" opacity="1.00"/>
+<rect x="96.0" y="1214.0" width="1144.0" height="26.0" fill="#2b3036" stroke="#12161a" stroke-width="1.6" opacity="1.00"/>
+<rect x="96.0" y="96.0" width="1144.0" height="26.0" fill="#2b3036" stroke="#12161a" stroke-width="1.6" opacity="1.00"/>
+<rect x="96.0" y="122.0" width="26.0" height="1092.0" fill="#2b3036" stroke="#12161a" stroke-width="1.6" opacity="1.00"/>
+<rect x="1214.0" y="122.0" width="26.0" height="1092.0" fill="#2b3036" stroke="#12161a" stroke-width="1.6" opacity="1.00"/>
+<rect x="278.0" y="1032.0" width="325.0" height="26.0" fill="#959da4" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="733.0" y="1032.0" width="325.0" height="26.0" fill="#959da4" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="278.0" y="278.0" width="325.0" height="26.0" fill="#959da4" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="733.0" y="278.0" width="325.0" height="26.0" fill="#959da4" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="278.0" y="700.5" width="26.0" height="331.5" fill="#959da4" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="278.0" y="304.0" width="26.0" height="331.5" fill="#959da4" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="1032.0" y="700.5" width="26.0" height="331.5" fill="#959da4" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="1032.0" y="304.0" width="26.0" height="331.5" fill="#959da4" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="590.0" y="590.0" width="156.0" height="156.0" fill="#b7bdc3" stroke="#4b5257" stroke-width="1.6" opacity="1.00"/>
+<rect x="408.0" y="304.0" width="26.0" height="78.0" fill="#c6ccd1" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="460.0" y="304.0" width="26.0" height="78.0" fill="#c6ccd1" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="850.0" y="954.0" width="26.0" height="78.0" fill="#c6ccd1" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="902.0" y="954.0" width="26.0" height="78.0" fill="#c6ccd1" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="499.0" y="353.4" width="52.0" height="31.2" fill="#d5dade" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="785.0" y="353.4" width="52.0" height="31.2" fill="#d5dade" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="785.0" y="951.4" width="52.0" height="31.2" fill="#d5dade" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="330.0" y="951.4" width="52.0" height="31.2" fill="#d5dade" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="964.4" y="798.0" width="31.2" height="52.0" fill="#d5dade" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="340.4" y="486.0" width="31.2" height="52.0" fill="#d5dade" stroke="#5a6167" stroke-width="1.4" opacity="1.00"/>
+<rect x="275.4" y="1029.4" width="31.2" height="31.2" fill="url(#mhatch)" stroke="#3f454a" stroke-width="1.8" opacity="1.00"/>
+<rect x="275.4" y="275.4" width="31.2" height="31.2" fill="url(#mhatch)" stroke="#3f454a" stroke-width="1.8" opacity="1.00"/>
+<rect x="1029.4" y="1029.4" width="31.2" height="31.2" fill="url(#mhatch)" stroke="#3f454a" stroke-width="1.8" opacity="1.00"/>
+<rect x="1029.4" y="275.4" width="31.2" height="31.2" fill="url(#mhatch)" stroke="#3f454a" stroke-width="1.8" opacity="1.00"/>
+<rect x="343.0" y="343.0" width="78.0" height="78.0" fill="url(#mhatch)" stroke="#3f454a" stroke-width="1.8" opacity="1.00"/>
+<line x1="668.0" y1="1125.6" x2="668.0" y2="1077.4" stroke="#c62828" stroke-width="3.0" opacity="1.00" stroke-linecap="round"/><polygon points="668.0,1068.4 673.0,1077.4 663.0,1077.4" fill="#c62828" opacity="1.00"/>
+<line x1="668.0" y1="210.4" x2="668.0" y2="258.6" stroke="#c62828" stroke-width="3.0" opacity="1.00" stroke-linecap="round"/><polygon points="668.0,267.6 663.0,258.6 673.0,258.6" fill="#c62828" opacity="1.00"/>
+<line x1="210.4" y1="668.0" x2="258.6" y2="668.0" stroke="#c62828" stroke-width="3.0" opacity="1.00" stroke-linecap="round"/><polygon points="267.6,668.0 258.6,673.0 258.6,663.0" fill="#c62828" opacity="1.00"/>
+<line x1="1125.6" y1="668.0" x2="1077.4" y2="668.0" stroke="#c62828" stroke-width="3.0" opacity="1.00" stroke-linecap="round"/><polygon points="1068.4,668.0 1077.4,663.0 1077.4,673.0" fill="#c62828" opacity="1.00"/>
+<text x="668.0" y="241.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PORTAO N  5 m</text>
+<text x="668.0" y="1094.4" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PORTAO S  5 m</text>
+<text x="959.2" y="720.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
+<text x="376.8" y="720.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#c62828" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GARGALO 2.5 m</text>
+<polyline points="668.0,1201.0 668.0,1084.0 668.0,1045.0 668.0,954.0 668.0,863.0" fill="none" stroke="#8e959c" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round" opacity="0.90" stroke-dasharray="5 7"/>
+<circle cx="668.0" cy="1136.0" r="13" fill="#ffffff" stroke="#1b5e20" stroke-width="2.6"/>
+<circle cx="668.0" cy="1136.0" r="5" fill="#1b5e20"/>
+<text x="668.0" y="1185.4" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#1b5e20" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">SPAWN</text>
+<circle cx="928.0" cy="382.0" r="13.0" fill="#22262a" stroke="#ffffff" stroke-width="1.6"/><text x="928.0" y="386.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#ffffff" text-anchor="middle" font-weight="bold">R</text>
+<circle cx="382.0" cy="876.0" r="13.0" fill="#22262a" stroke="#ffffff" stroke-width="1.6"/><text x="382.0" y="880.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#ffffff" text-anchor="middle" font-weight="bold">R</text>
+<circle cx="395.0" cy="668.0" r="13.0" fill="#22262a" stroke="#ffffff" stroke-width="1.6"/><text x="395.0" y="672.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#ffffff" text-anchor="middle" font-weight="bold">M</text>
+<circle cx="941.0" cy="720.0" r="13.0" fill="#22262a" stroke="#ffffff" stroke-width="1.6"/><text x="941.0" y="724.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#ffffff" text-anchor="middle" font-weight="bold">M</text>
+<circle cx="382.0" cy="366.4" r="13.0" fill="#ffffff" stroke="#12161a" stroke-width="2.2"/><text x="382.0" y="371.0" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#12161a" text-anchor="middle" font-weight="bold">1</text>
+<circle cx="928.0" cy="382.0" r="13.0" fill="#ffffff" stroke="#12161a" stroke-width="2.2"/><text x="928.0" y="386.6" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#12161a" text-anchor="middle" font-weight="bold">2</text>
+<circle cx="722.6" cy="613.4" r="13.0" fill="#ffffff" stroke="#12161a" stroke-width="2.2"/><text x="722.6" y="618.0" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#12161a" text-anchor="middle" font-weight="bold">3</text>
+<circle cx="447.0" cy="340.4" r="13.0" fill="#ffffff" stroke="#12161a" stroke-width="2.2"/><text x="447.0" y="345.0" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#12161a" text-anchor="middle" font-weight="bold">4</text>
+<circle cx="889.0" cy="995.6" r="13.0" fill="#ffffff" stroke="#12161a" stroke-width="2.2"/><text x="889.0" y="1000.2" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#12161a" text-anchor="middle" font-weight="bold">5</text>
+<text x="668.0" y="200.0" font-family="DejaVu Sans Mono, monospace" font-size="13.0" fill="#525a61" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GALERIA DE CABOS  6 m</text>
+<text x="200.0" y="486.0" font-family="DejaVu Sans Mono, monospace" font-size="13.0" fill="#525a61" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GALERIA</text>
+<text x="1136.0" y="850.0" font-family="DejaVu Sans Mono, monospace" font-size="13.0" fill="#525a61" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">GALERIA</text>
+<text x="813.6" y="452.2" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#525a61" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PATIO 7 m</text>
+<text x="428.8" y="779.8" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#525a61" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">PATIO 7 m</text>
+<text x="668.0" y="639.4" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#4b5257" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">TRANSFORMADOR</text>
+<text x="668.0" y="701.8" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#4b5257" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">6 x 6 x 3 m</text>
+<text x="954.0" y="509.4" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#00695c" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">RAMPA</text>
+<text x="954.0" y="553.6" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#00695c" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">4 m</text>
+<text x="504.2" y="938.4" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#00695c" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">ESCADA</text>
+<text x="504.2" y="982.6" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#00695c" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">4 m</text>
+<text x="590.0" y="382.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#2b3036" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">DECK 4 m</text>
+<text x="382.0" y="808.4" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#2b3036" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">DECK</text>
+<text x="382.0" y="850.0" font-family="DejaVu Sans Mono, monospace" font-size="12.0" fill="#2b3036" text-anchor="middle" font-weight="bold" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">4 m</text>
+<text x="382.0" y="408.0" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#ffffff" text-anchor="middle" font-weight="normal" opacity="1.00" stroke="#ffffff" stroke-width="3.6" paint-order="stroke" stroke-linejoin="round">8.5 m</text>
+<rect x="88.0" y="1262.0" width="1160.0" height="200" fill="#f7f8f9" stroke="#e2e6ea" stroke-width="1.4"/>
+<text x="96.0" y="1292.0" font-family="DejaVu Sans Mono, monospace" font-size="15.0" fill="#12161a" text-anchor="start" font-weight="bold">PATIO DE SUBESTACAO   |   22_Map_Substation   |   CIRCULATION</text>
+<text x="96.0" y="1322.0" font-family="DejaVu Sans Mono, monospace" font-size="13.0" fill="#12161a" text-anchor="start" font-weight="normal">aneis  40 / 72 / 144 m      vao curto 37 m (54% exposto)  vs  vao coberto 72 m (40%)  =  x1.95</text>
+<text x="96.0" y="1348.0" font-family="DejaVu Sans Mono, monospace" font-size="13.0" fill="#525a61" text-anchor="start" font-weight="normal">POIs  1 pilar de canto   2 deck NE   3 topo do banco   4/5 nichos      R = ranged   M = melee</text>
+<line x1="96.0" y1="1390.0" x2="356.0" y2="1390.0" stroke="#12161a" stroke-width="2.4"/>
+<line x1="96.0" y1="1383.0" x2="96.0" y2="1397.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="148.0" y1="1383.0" x2="148.0" y2="1397.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="200.0" y1="1383.0" x2="200.0" y2="1397.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="252.0" y1="1383.0" x2="252.0" y2="1397.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="304.0" y1="1383.0" x2="304.0" y2="1397.0" stroke="#12161a" stroke-width="1.6"/>
+<line x1="356.0" y1="1383.0" x2="356.0" y2="1397.0" stroke="#12161a" stroke-width="1.6"/>
+<text x="370.0" y="1395.0" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#525a61" text-anchor="start" font-weight="normal">10 m</text>
+<text x="96.0" y="1416.0" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#525a61" text-anchor="start" font-weight="normal">1 quadrado de grade = 2 m</text>
+<polygon points="1210.0,1356.0 1200.0,1388.0 1220.0,1388.0" fill="#12161a"/>
+<text x="1210.0" y="1410.0" font-family="DejaVu Sans Mono, monospace" font-size="14.0" fill="#12161a" text-anchor="middle" font-weight="bold">N</text>
+</svg>
