@@ -1,6 +1,53 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 12:10 (-03) · session (default profile, desktop, MCP for Unity on 8089) · **rework A–E done and built; awaiting the second human gate**
+Updated: 2026-11-06 12:40 (-03) · session (default profile, MCP for Unity on 8089) · **second-gate fixes done, verified and rebuilt; awaiting her third pass**
+
+## 2026-11-06 12:15–12:40 — second gate: fixes, evidence, rebuild
+
+Her second pass, item by item, with what was measured rather than assumed.
+
+**Pause (was: Esc left the mouse free and the camera kept turning).** The pause state is now one
+boolean that every path writes through — Esc, the Resume button, any scene load — with a 0.15 s toggle
+cooldown; the cursor is re-derived from it every frame. The camera freeze was a real bug: mouse look is
+read in raw pixels, not scaled by `deltaTime`, so `timeScale = 0` never stopped it. Verified in play mode
+on `20_Map_Arena` with injected Input System events:
+- Esc → panel open, `timeScale 0`, `cursor None`; a **300 px mouse delta while paused left yaw at 0.00**.
+- Esc again → panel closed, `timeScale 1`, `cursor Locked`.
+- **Control:** the same 300 px delta while playing moved yaw 0 → **36.00** (300 × the 0.12 sensitivity), so
+  the camera is frozen by the pause, not broken.
+- Two full open/close cycles, no state drift. `PlayerMotor`, `PlayerCombat`, `PlayerAbilities` and
+  `WallClimbPassive` all ignore input while the clock is frozen.
+
+**Smeared status bar.** Cause: fills and thin bars still used the 10 px rounded `Background` sprite, which
+stretches along a 420×24 fill; slicing fixed only the panels. New borderless `Assets/_Project/Art/UI/White.png`
+is now on 35 images — every fill, the cooldown/meter/charge/ready bars, the crosshair parts and the reticle
+arms/mildots. The five rounded panels keep the sliced sprite.
+
+**Point-blank misses.** The round now starts at the hero's own depth on the crosshair ray instead of 0.5 m
+past it, and `Projectile` uses a non-alloc `SphereCastNonAlloc` that ignores the owner's colliders — the
+gap that dodged melee enemies is gone, and the player still cannot shoot itself.
+
+**Scissors climb.** 3 → 5 m/s, and the pull-over is a move, not a teleport: the controller (still enabled)
+is walked onto the ledge over 0.08–0.4 s. Max climbable height unchanged, as she asked.
+
+**Ammo.** Reserve removed entirely. A reload always fills to the magazine, `R` works whenever the magazine
+is not full, auto-reload on empty stays. The HUD reads `mag / magazineSize`. Fire rates: Rock 1.1 → 0.85/s,
+Paper 1.0 → 0.7/s.
+
+**Navmesh (the real finding).** All three scenes carried a *stale legacy navmesh*, and the tutorial carried
+no `NavMeshSurface` at all — so a plain rebake changed nothing (measured: Arena stayed at 665 verts through
+two bakes). Clearing the legacy dataset with `UnityEditor.AI.NavMeshBuilder.ClearAllNavMeshes()` and then
+rebaking from the surface is what took effect, verified by reopening each scene from disk:
+- Arena: 665 → **508 verts**, 19/23 obstacles carved; the 4 remaining are `Cover_NE/NW/SE/SW`, whose
+  interior floor is an unreachable island (`CalculatePath` → `PathPartial`), so no agent can enter them.
+- Alley: 513 → **295 verts**, **0/17** tall structures with navmesh inside them (was 12/17).
+- Tutorial: no surface → added one (collect All, physics colliders), **192 verts, 0/10** covered (was 6/10).
+
+**Builds from this commit:** Linux **102.97 MB** (20.0 s) and Windows **102.49 MB** (18.2 s), both
+`Result: Success`, `errors: 0`.
+
+**Still open:** her third pass (the four hollow covers are cosmetic; Alley and the tutorial have not been
+played); LMS submission still unverified from here.
 
 ## 2026-11-06 11:10–12:10 — the rework, and what is actually verified
 
