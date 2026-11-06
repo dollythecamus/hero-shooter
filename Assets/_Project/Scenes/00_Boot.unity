@@ -703,10 +703,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterSelect
       objectReference: {fileID: 0}
-    - target: {fileID: 5824838938051190433, guid: f3f3afb71ecf9c858b7d0dbe68f58647, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6032938657076807736, guid: f3f3afb71ecf9c858b7d0dbe68f58647, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -785,10 +781,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6032938657076807736, guid: f3f3afb71ecf9c858b7d0dbe68f58647, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6413948313829958421, guid: f3f3afb71ecf9c858b7d0dbe68f58647, type: 3}
-      propertyPath: m_RenderMode
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

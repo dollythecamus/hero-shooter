@@ -1,6 +1,72 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-05 22:25 (-03) · session local-b8865444ccc8d521404936b1199c970dedb4aca869be366d43f871963618774f · **assignment still owed; operator-chosen human gate trial at 2026-11-06 11:00 (-03)**
+Updated: 2026-11-06 11:05 (-03) · session (default profile, desktop) · **human gate trial ran: ISSUE — 1 of 3 checks passed; backlog decisions awaiting Chloe's answers**
+
+## 2026-11-06 — human gate trial result, and the backlog it produced
+
+Chloe ran `~/builds/hero-shooter/linux/HeroShooter.x86_64` at 11:05 and reported the four
+observations herself (recorded verbatim in `docs/tasks/2026-11-06-human-gate.md`):
+
+- **PASS** — Tab frag board: appears on hold, disappears on release.
+- **ISSUE** — HUD readable, layout boxes look stretched horizontally.
+- **ISSUE** — minimap shows the player dot only; enemies should be visible dots.
+- **ISSUE** — pause buttons not clickable; after resume the mouse does not lock.
+
+That is the **first time any of this build has been looked at by a human.** Everything the ledger has
+claimed about the HUD, minimap, pause menu, crosshair and abilities until now was a headless probe.
+
+**Read-only cause notes from this session (hypotheses, not verified fixes):**
+- `Weapon.SolveAimDirection` solves a camera-centre point, then fires **from the muzzle** toward it. With
+  the 0.55 m aim shoulder offset, the bullet line sits to one side of the screen-centre ray at closer
+  ranges, and when the ray hits nothing the point is pushed out to max distance. That is a measured
+  candidate for "crosshair does not match the bullet".
+- `MarkTarget` / `Snare` are wired end to end: `Health.IncomingDamageMultiplier` is applied in
+  `TakeDamage`, `EnemyBrain.SpeedMultiplier` is applied in `MoveTo`, and `EnemyHealthBar` prints
+  `MARK`/`SNARE` with a tint. What is missing is any cue **on the enemy model** — which matches "I don't
+  know when an enemy is marked". Snare changes speed only; nothing on screen says it landed.
+- Pause menu wires `resumeButton`/`quitButton` in `Awake`, and both map scenes do carry an
+  `EventSystem` + `InputSystemUIInputModule`, so "not clickable" is **not yet explained** — needs a live
+  check for a raycast blocker over the panel and for the cursor state at the moment of the click.
+- `InputReader.SetCursorLocked(true)` is called once inside `Resume()`. Re-asserting the lock every frame
+  while gameplay owns the cursor is the standard fix for a lock that does not come back after a menu.
+
+**Backlog raised this session (design decisions, Chloe's call):** shot-vs-crosshair truth, aim shoulder
+side, minimap enemy dots, paper reticle/zoom, mark visibility, snare feedback, and a weapons rework
+(ammunition, ammo HUD, reload times, Rock as a shotgun-style multi-projectile, fire-rate readout).
+She did not play Scissors — that hero has no human observations yet.
+
+**Next action:** rework in the phase order below, rebuild both targets, then hand Chloe a build for the
+full human pass (second map, tutorial, damage numbers, Scissors).
+
+### Decisions recorded 2026-11-06 11:10 (her answers, not my inference)
+
+1. **Scope:** *"Everything, weapons rework included, before submitting."* Nothing is deferred past the
+   submission hand-off.
+2. **Shot truth:** the bullet leaves the **camera centre** — the crosshair is literally true at every
+   range; the muzzle flash becomes cosmetic.
+3. **Aiming:** the body **locks to camera yaw** while aiming (she strafes); shoulder stays **fixed right**.
+4. **Mark:** keep the health-bar indication, and a marked enemy's bar must be **forced visible even at
+   full health** (today the bar hides until damage, which is why she could not tell). Additionally, while
+   aiming with the ability ready, something must show **which enemy would be marked** before the cast.
+5. **Paper aim:** zoom to **FOV ~30** while aiming, with a proper sniper reticle — cross, centre gap,
+   mildots.
+
+Defaults stated to her in the same message and not objected to: minimap shows every living enemy as a red
+dot (no wall-hiding); Rock = 8 pellets, ±3.5°, 4 damage each; magazine + reserve with `R` reload (Rock
+1.6 s / Paper 1.4 s / Scissors 1.1 s); fire-rate readout as an arc under the crosshair that fills to full;
+snare gets a tether/ring on the enemy so it reads without the health bar.
+
+### Phase order (each phase ends with a headless build, not a claim)
+
+- **A — gate blockers:** HUD layout no longer stretched; minimap enemy dots; pause buttons clickable;
+  cursor re-locks on resume.
+- **B — shot and camera:** fire from camera centre; body locks to camera yaw while aiming; shoulder side
+  stable.
+- **C — ability feedback:** mark pre-cast target indicator, marked bar forced visible, snare tether.
+- **D — paper aim:** per-character aim FOV, zoom to 30, sniper reticle art.
+- **E — weapons rework:** ammo (magazine + reserve), reload key/times, Rock multi-pellet, ammo HUD,
+  fire-rate arc.
+- **F — verify:** compile + both targets built from the fixed commit, then the human pass.
 
 ## 2026-11-05 — human-gate trial approved
 
