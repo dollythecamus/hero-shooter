@@ -5,6 +5,14 @@ no art assets (textured materials on simple shapes), levels built with **ProBuil
 **Windows + Linux**, and both the "+3 mechanics" and the character designs get decided *inside*
 the sprint once the mandatory systems stand.
 
+**Outcome — 2026-11-06: this plan is history, not current state.** Every sprint block S0–S7 landed, the three
+self-chosen mechanics were decided (wave director, damage numbers, pause menu) and built, and both builds shipped.
+The brief's deadline slipped to 2026-11-03 and then, by agreement with the professors, to "when it is done"; it was
+finished on 2026-11-06 after six human passes. Read `docs/PROJECT_LEDGER.md` for what actually happened and
+`docs/CODE_DEFENSE.md` for how to present it. Two things below are no longer true and are marked where they appear:
+the deferral of balance work (§ 7), and the "installed build support: Linux only" fact (Windows support was
+installed on 2026-10-23 and both targets have been building since 2026-11-03).
+
 Facts this plan is built on (verified 2026-10-23):
 - Deadline **2026-10-30 22:00**; presentation 18:30–20:00, code walkthrough 20:20–22:00 that evening.
   Nothing is developed on 10-30.
@@ -110,8 +118,8 @@ Every block ends with its own verification gate; a block with no gate gets decla
 | **S4 20:00–21:15** | **HUD + game feel** (`docs/tasks/2026-10-23_S4-hud-and-feel.md`): authored `HUD.prefab` (health, Q/E cooldowns, Bulwark meter), enemy health bars (below max only), RMB aiming (FOV + shoulder offset + crosshair, Paper sniper reticle), impact sparks + hit marker, Paper bullet trails, ability particles, minimap, `FragBoardUI` (Tab) | UI is authored, not runtime-built; each ability shows its own feedback; minimap follows the player; Tab shows the frag counts |
 | **— 21:15–21:45** | break / food | — |
 | **S5 21:45–22:45** | Two ProBuilder maps + `MapSelectUI`/`MapDefinition`, tutorial scene with gated steps | tutorial completes from a fresh launch; both maps load from the menu |
-| **S6 22:45–23:30** | The three chosen mechanics (default A+B+E) | each demonstrable in under 30 s |
-| **S7 23:30–00:30** | Linux build, Windows build, `docs/CODE_DEFENSE.md` skeleton, commit + ledger close | a build runs from a clean folder; every defense block opens the file it names |
+| **S6 22:45–23:30** | The three chosen mechanics (default A+B+E) — **delivered 2026-11-03**: wave director, damage numbers, pause menu | each demonstrable in under 30 s |
+| **S7 23:30–00:30** | Linux build, Windows build, `docs/CODE_DEFENSE.md` skeleton, commit + ledger close — **delivered**: first builds 2026-11-03, final builds + a `v1.0.0` GitHub release 2026-11-06 | a build runs from a clean folder; every defense block opens the file it names |
 
 **Note (2026-10-23):** the S3 ability gate is **superseded** by S3b — the six abilities are being redesigned,
 so measuring the old behaviour is wasted work. S3 stays "code + wiring complete, selection verified".
@@ -123,14 +131,18 @@ Anything unfinished at the end of its block goes to the **cut list** that night,
 
 | Day | Use |
 |---|---|
-| Sat 24 – Sun 25 | **Balance pass** (deferred on purpose — Chloe's call 2026-10-23: simple testing looked fine, real balancing happens once every feature exists): TTK per matchup, enemy damage, wave ramp, ability cooldowns |
+| Sat 24 – Sun 25 | **Balance pass** (deferred on purpose and eventually done on 2026-11-06 — see the note below): TTK per matchup, enemy damage, wave ramp, ability cooldowns |
 | Mon 26 – Wed 28 | Finish and rehearse `docs/CODE_DEFENSE.md` out loud (6 systems × ~3 min); Windows build once the module lands |
 | Thu 29 | Final builds for both targets, submit to the LMS (multiple submissions allowed), demo rehearsal with a stopwatch |
 | Fri 30 | Freeze. 18:30 demo, 20:20 code walkthrough. No edits after 18:00. |
 
-**Balance is explicitly deferred, not forgotten.** Recorded 2026-10-23: features first (the whole point of the
-one-day sprint), balancing after the sprint with every system present. Current known imbalance: four S2 enemies
-kill the player in ~13 s, and the player has no death handling yet (that is S4 work, not a balance fix).
+**Balance was deferred, then done — 2026-11-06.** Recorded 2026-10-23: features first (the whole point of the
+one-day sprint), balancing after the sprint with every system present. That pass happened in the final session, driven
+by play rather than by numbers: Rock and Paper fire rates came down (1.1 → 0.85/s and 1.0 → 0.7/s), Paper gained a
+30° aim zoom, Scissors' climb went 3 → 5 m/s with a real mantle, ammunition became magazine-only with no reserve, and
+Overclock now refills the magazine when it starts. Values live in `Assets/_Project/Data/` — one asset edit each, no
+recompile. The S2-era imbalance (four enemies killing the player in ~13 s) was fixed by the hero respawn in the wave
+director, not by tuning.
 
 
 ## 8. Code-defense preparation

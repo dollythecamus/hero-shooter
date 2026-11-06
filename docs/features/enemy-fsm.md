@@ -1,5 +1,7 @@
 # Enemy FSM
 
+> **Currency note (2026-11-06):** this document describes the system as designed and built on 2026-10-23/24. Everything that changed afterwards is listed in the *2026-11-06 update* at the bottom; where the two disagree, the update wins and `docs/PROJECT_LEDGER.md` has the evidence.
+
 ## Purpose
 
 The graded ranged/melee FSM rows: **Search, Attack, Chase, Run away, Call friends**, twice over. The design
@@ -166,3 +168,12 @@ static class AllyCall {
   disabled agent; it is safe today only because death freezes the machine first.
 - Both enemy prefabs still carry `DamageLog`, the S1 console probe. It is intentional for now and must be
   removed once the HUD reads `Health` directly.
+
+## 2026-11-06 update — corpses fall over, and every enemy body clears
+
+- **Death pose:** `EnemyBrain.OnDied` calls `TipOver()` — the `Body` capsule rotates 90° onto its side and drops to
+  its own collider radius, and the `Face` is hidden. `OnSpawned` restores both, so a recycled body stands up.
+- **One corpse lifecycle for every enemy:** `WaveDirector.Track()` subscribes hand-placed enemies too (they were
+  bound for bars but never recycled, so half the enemy set stood upright in the level forever). Pooled bodies go back
+  to their pool; hand-placed bodies are deactivated after `corpseSeconds`. `Alive` still counts wave spawns only.
+- `AttackState.Exit` touching a disabled agent is still only safe because death freezes the machine first.

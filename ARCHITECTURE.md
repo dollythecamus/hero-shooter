@@ -2,12 +2,15 @@
 
 A single-player, wave-based third-person hero shooter: the player picks 1 of 3 heroes (Rock / Paper /
 Scissors), fights FSM-driven ranged and melee enemies with pooled projectiles and two abilities. Built for
-UNICAP *Level Design e Programação 3D*, individual project, due **2026-10-30 22:00**.
-"Working" means: both builds run from a clean folder, all 11 checklist rows in `docs/ASSIGNMENT.md` are
-demonstrable, and every system can be opened and defended out loud in the 20:20 code session.
+UNICAP *Level Design e Programação 3D*, individual project; the brief's deadline was 2026-10-30 and a late
+delivery was agreed with the professors on 2026-11-06.
+"Working" meant: both builds run from a clean folder, all 11 checklist rows in `docs/ASSIGNMENT.md` are
+demonstrable, and every system can be opened and defended out loud in the code session. **All three now hold** —
+the builds are published as `v1.0.0`, every checklist row has been played by a human, and
+`docs/CODE_DEFENSE.md` is the walkthrough script.
 
-This file describes **what exists**. The sprint plan and requirement→system map live in `docs/PLAN.md`;
-its § 3 file listing is partly aspirational (see *Not built yet*).
+This file describes **what exists**. The sprint plan lives in `docs/PLAN.md` (written before the code); where the
+two disagree the code wins, and the plan says so at the top.
 
 ## Stack
 
@@ -119,19 +122,22 @@ screen inside the match). Every match scene carries the `ProjectilePool`, `Match
 | Match flow, maps & tutorial | `docs/features/match-flow-and-maps.md` | `GameFlow`, `MapDefinition`, `MainMenuUI`/`MapSelectUI`, `TutorialDirector`/`TutorialPanelUI`, the five scenes |
 | Editor bridge | `docs/features/editor-mcp-tooling.md` | MCP for Unity v10 setup and pitfalls |
 
-## Not built yet (listed here so it is not mistaken for existing code)
+## Everything the plan named is now built (as of 2026-11-06)
 
-`docs/PLAN.md` § 3 names files that do not exist: `WaveDirector`, `ScoreService`, `SpawnPoint`, `MinimapCamera`,
-`FragBoardUI`, `AbilityCooldownUI`, `PauseMenu`, `HitFeedback`, `EnemyHealth`, `WaveDefinition`, `PlayerHealth`.
-Health is one `Health` component for player and enemies; there is no wave spawning, no death/score handling and no
-minimap. `GameFlow`, `TutorialDirector`, `MapSelectUI`, `MapDefinition` and the menu scenes **do** exist now (S5).
-The HUD itself, the enemy bars and the VFX pool exist too — the `HUD` name in that list refers to the planned
-standalone `HUD.cs` from the first draft, which was built as `UI/HudController.cs` instead.
+`docs/PLAN.md` § 3 was written before the code and its file list was partly aspirational. Every file it named is now
+real: `WaveDirector`, `ScoreService`, `MinimapCamera`, `FragBoardUI`, `PauseMenu`, `EnemyHealthBar`,
+`DamageNumber( Pool )`, `MatchBootstrap`, `MapSelectUI`, `MapDefinition`, `TutorialDirector`, `HudController`.
+Where the plan and the code disagree, the code wins and the plan says so.
 
-**Sprint blocks still ahead** (`docs/PLAN.md` § 6): **S6** the three self-chosen mechanics (default: wave director,
-ultimate meter, pause menu — this is where `WaveDirector`, `WaveDefinition`, `SpawnPoint`, `ScoreService` and the
-kill events come from); **S7** Linux + Windows builds, `docs/CODE_DEFENSE.md`, close and submit. **S5 is closed**
-— see `docs/tasks/2026-10-24_S5-maps-and-tutorial.md`.
+Names that **never** existed and must not be looked for: `WaveDefinition` (waves are numbers on `WaveDirector`),
+`PlayerHealth` (one `Health` component serves hero and enemy), `HitFeedback` (folded into `HudController`'s hit
+marker and `VfxPool`), `SpawnPoint` (spawns come from `NavMesh.SamplePosition` in a ring around the hero),
+`AbilityCooldownUI` (it is `AbilitySlotUI`), and a standalone `HUD.cs` (it is `UI/HudController.cs`).
+
+Added after the plan, and worth knowing about: `Systems/SceneExit.cs` (menu exit that works without `GameFlow`),
+`UI/MinimapBlips.cs` (enemy dots on the minimap), `VFX/EnemyStatusRings.cs` (mark/snare rings and tether),
+`Art/UI/White.png` (the borderless sprite every bar and thin mark uses), and `Editor/BuildScript.cs` (Linux and
+Windows player builds from `Build Settings`).
 
 ## External constraints
 

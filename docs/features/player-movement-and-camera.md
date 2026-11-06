@@ -1,5 +1,7 @@
 # Player movement & camera
 
+> **Currency note (2026-11-06):** this document describes the system as designed and built on 2026-10-23/24. Everything that changed afterwards is listed in the *2026-11-06 update* at the bottom; where the two disagree, the update wins and `docs/PROJECT_LEDGER.md` has the evidence.
+
 ## Purpose
 
 Everything the player character does that is not shooting or abilities: reading hardware, moving a
@@ -124,4 +126,17 @@ class PlayerStatus : MonoBehaviour {          // multiplies; never moves the con
   (the select screen) still respects the speed multiplier. There is no per-hero aim sensitivity and no FOV
   setting exposed to the player.
 - No crouch, no ground/air control distinction, no wall-run, no slope-slide tuning.
-- Death is unhandled: when the player's `Health` reaches 0 the controller keeps accepting input.
+- Death is handled: `WaveDirector` respawns the hero two seconds after `Health.Died`.
+
+## 2026-11-06 update — aim lock, per-hero zoom, and a camera that stops when the game does
+
+- **While aiming the body locks to camera yaw** (`PlayerMotor` faces `camera.forward`, legs strafe). Before that the
+  body turned into the movement direction, which swung the hero across the fixed right-shoulder offset and read as
+  "the camera changed sides" in the second gate.
+- **Per-character aim FOV:** `CharacterDefinition.aimFov` (Paper = 30) is written into
+  `ThirdPersonCameraRig.AimFov` by `HeroLoadout`, so the sniper zooms further than the shared 42.
+- **The camera freezes while the game is frozen:** `LateUpdate` returns when `Time.timeScale <= 0`. Mouse look is
+  read in raw pixels rather than scaled by `deltaTime`, so pausing never stopped the orbit on its own — measured:
+  a 300 px delta moved yaw 36.00° playing and 0.00° paused.
+- **Death is handled now:** the wave director respawns the hero two seconds after `Health.Died` at the match spawn
+  point, so the controller does not keep accepting input on a corpse.

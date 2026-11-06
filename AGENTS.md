@@ -1,53 +1,62 @@
 # AGENTS.md — hero-shooter
 
-Unity 6 third-person hero shooter (UNICAP assignment, due 2026-10-30 22:00). Five scenes, in build order:
+Unity 6 third-person hero shooter (UNICAP assignment; the brief said 2026-10-30, a late delivery was agreed with
+the professors on 2026-11-06). **The project is complete, played and published** — `docs/PROJECT_LEDGER.md` is the
+record of what was verified and when; this file is how to work on it. Five scenes, in build order:
 `00_Boot` (menu, `GameFlow`, both select screens) → `10_Tutorial` → `20_Map_Arena` → `21_Map_Alley` →
 `90_TestArena` (the dev scene, still opens the character select inside the match). Scene routing is `GameFlow`
 (`Scripts/Systems/GameFlow.cs`) and it is the only `SceneManager.LoadScene` caller; a match scene starts by
-`MatchBootstrap` applying the carried pick. Read `ARCHITECTURE.md` first, then only the feature doc for the
-system you are touching (`docs/features/match-flow-and-maps.md` for anything touching scenes, maps or tutorial).
+`MatchBootstrap` applying the carried pick. `Scripts/Systems/SceneExit.cs` is the one deliberate second exit
+(it prefers `GameFlow` and falls back to loading `00_Boot`, for scenes opened without the boot flow).
+Read `ARCHITECTURE.md` first, then only the feature doc for the system you are touching
+(`docs/features/match-flow-and-maps.md` for anything touching scenes, maps or tutorial).
+
+> **Shell trap:** the agent's `HOME` is `/var/lib/hermes`, but the GitHub credentials live in
+> `/home/chloe/.config/gh`. Run `gh` and `git` for this repo with `HOME=/home/chloe`; the repo carries a
+> repo-local `credential.helper = !gh auth git-credential` so pushes authenticate without touching the global
+> git config.
 
 ## Commands
 
-Everything below was run on this host on 2026-10-23 unless marked `UNVERIFIED`.
+Everything below was run on this host. The "UNVERIFIED" markers from the 2026-10-23 draft are gone: every command
+here has since been executed, most of them many times (see `docs/PROJECT_LEDGER.md` for the runs).
 
 ```bash
 # Open the project (GUI editor — the normal working mode)
 ~/Unity/Hub/Editor/6000.6.3f1/Editor/Unity -projectpath /home/chloe/projects/hero-shooter
-#   verified: an editor was already running with exactly this argument (pgrep -af 6000.6.3f1)
 #   while it is open, Temp/UnityLockfile exists and holds the project — nothing else may open it
 
-# Does the project compile? (no CLI compile has ever been run on this project)
-ls -l Library/ScriptAssemblies/Assembly-CSharp.dll   # must be newer than the newest Assets/_Project/Scripts/**/*.cs
-last=$(grep -n 'Tundra build success' Logs/Editor.log | tail -1 | cut -d: -f1)
-awk -v L="$last" 'NR>L && /error CS/' Logs/Editor.log | wc -l   # verified 0; 7399 was the last build line on 2026-10-24
-#   do NOT use `grep -c "error CS"` as the gate: it is cumulative over the whole log (21 lines on 2026-10-24,
-#   all old CS0103 "Vfx" from the missing-Particle-System compile) and can never return to 0 again
-#   UNVERIFIED — headless compile:
-#   Unity -batchmode -quit -nographics -projectPath . -logFile -
-#   blocked because the GUI editor currently holds the project; quit the editor first
+# Does the project compile? (through the editor bridge, not from the CLI)
+python3 mcp_unity.py call refresh_unity '{"mode":"force","scope":"all","compile":"request","wait_for_ready":true}'
+python3 mcp_unity.py call read_console '{"count":80}'      # filter for "error CS"
+#   cumulative-log caveat still applies: grep -c "error CS" over Editor.log can never return to 0.
+#   A tiny MCP client lives in the scratch dir (mcp_unity.py) and talks JSON-RPC over POST /mcp.
 
-# Static done-criteria greps (the only automatable gates that exist)
+# Static done-criteria greps
 grep -rn "Instantiate(" Assets/_Project/Scripts    # must return ONLY Core/ObjectPool.cs:43
-grep -rn "attackRange" Assets/_Project/Scripts     # EnemyStats.attackRange is read by nobody — see enemy-fsm.md
-grep -rn "SceneManager.LoadScene(" Assets/_Project/Scripts  # 3 call sites, all in Systems/GameFlow.cs
-#   without the "(" it also matches a /// cref and a tooltip (5 lines on 2026-10-24): assert call sites, not text
-git diff --check                                   # verified clean; keep it clean in every commit
+grep -rn "SceneManager.LoadScene(" Assets/_Project/Scripts  # GameFlow.cs (3) + SceneExit.cs (1)
+git diff --check                                   # keep it clean; Unity's own trailing spaces excepted
 
-# Editor bridge (how the agent wires prefabs/scenes/ProBuilder instead of editing YAML)
-curl -sS http://127.0.0.1:8080/health              # verified {"status":"healthy",...,"version":"10.0.0"}
-#   setup + pitfalls: docs/features/editor-mcp-tooling.md
+# Editor bridge (how prefabs/scenes/ProBuilder are wired instead of editing YAML)
+curl -sS http://127.0.0.1:8089/health              # {"status":"healthy",...,"version":"10.0.0"}
+#   PORT IS 8089 on this host (8080 was taken) — Window > MCP for Unity > Auto-Connect starts it.
+#   Setup + pitfalls: docs/features/editor-mcp-tooling.md
 
-# Builds
-#   UNVERIFIED — never run from the CLI on this project. Use the editor: File > Build Profiles,
-#   targets Linux x86_64 and Windows x86_64 (Windows module installed, Mono backend).
-#   No executeMethod build class exists.
+# Builds (in-editor, both targets, from Build Settings' scene list)
+#   through the bridge: manage_build {"action":"build","target":"linux64"|"windows64","output_path":"..."}
+#   headless equivalent (editor must be closed):
+tools/unity-run.sh -batchmode -nographics -projectPath . \
+  -executeMethod HeroShooter.EditorTools.BuildScript.BuildLinux
+#   output: /home/chloe/builds/hero-shooter/{linux,windows}; archives in /home/chloe/builds/*.zip
 
-# Scene order (a fresh launch must start in 00_Boot or there is no hero)
-grep -A2 "m_Scenes" ProjectSettings/EditorBuildSettings.asset   # 00_Boot first; edit only with Chloe's sign-off
+# Publish (see the shell trap above)
+export HOME=/home/chloe
+git push origin main && gh release view v1.0.0
 
 # Play-mode verification (there are no automated tests)
-#   Editor Play mode + console probes through the MCP bridge (execute_code / debugger_get_log).
+#   Editor Play mode + console probes through the MCP bridge (execute_code / read_console).
+#   Keyboard/mouse can be injected: InputSystem.QueueStateEvent(Keyboard.current, new KeyboardState(Key.Escape))
+#   — that is how the Esc/pause path was proven end-to-end on 2026-11-06.
 #   Every gate in docs/tasks/*.md was measured this way, never inferred from "it compiles".
 ```
 
@@ -84,6 +93,10 @@ A task is complete when:
 - `git status --short` shows only intended paths — no `Library/`, `Temp/`, `Logs/`, no stray `.meta` churn.
 - The touched `docs/features/*.md` is updated from the actual diff, and `docs/PROJECT_LEDGER.md` records the
   block, the gate result and the uncommitted files at checkpoint.
+- **A requirement is not done until a human ran it from a built binary.** Probe numbers are evidence about code,
+  not about the game: on 2026-11-06 six human passes each found something no probe had (a canvas with no
+  raycaster, a mouse that would not re-lock, bars smeared by a stretched sprite, bodies that never cleared).
+  Record what she saw, in her words, next to what was measured.
 
 ## Worker delegation
 

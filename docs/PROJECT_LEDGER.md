@@ -1,6 +1,36 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 13:50 (-03) · session (default profile) · **published to GitHub (private) with a v1.0.0 release; only the walkthrough rehearsal remains**
+Updated: 2026-11-06 14:00 (-03) · session (default profile) · **published on GitHub; every document brought to the final state**
+
+## 2026-11-06 14:00 — documentation brought to the final state
+
+She asked whether the docs match the code. An audit found **seven that predated the work**; all are now current.
+
+- **`ARCHITECTURE.md`** — the "Not built yet" section is gone: every file the plan named is real, the names that
+  never existed (`WaveDefinition`, `PlayerHealth`, `HitFeedback`, `SpawnPoint`, `AbilityCooldownUI`) are flagged so
+  nobody hunts for them, and the files added after the plan are listed. The intro now says the project is finished.
+- **`AGENTS.md`** — rewritten around what actually works: the compile gate is the editor bridge (`refresh_unity` +
+  `read_console`), the bridge is on **8089**, builds go through `manage_build` or `tools/unity-run.sh`, publishing
+  needs `HOME=/home/chloe`, and the done criteria gained the rule this session taught: **a requirement is not done
+  until a human ran it from a built binary.**
+- **`docs/PLAN.md`** — marked as history at the top with an Outcome block; S6 and S7 rows marked delivered; the
+  "balance is deferred" paragraph replaced by what was actually tuned.
+- **`docs/HERO_ROSTER.md`** — "deferred to the rework" replaced by an as-built table: Rock's shotgun, the lower fire
+  rates, the magazine-only ammo model, Overclock's refill, the 5 m/s climb with a mantle, and the mark/snare rings.
+- **`docs/ASSIGNMENT.md`** — requirement 11 is no longer "decision owed" (wave director, damage numbers, pause menu),
+  plus a Delivery section with the repo, the release and the walkthrough.
+- **All 8 feature docs** — each got a currency note at the top and a `2026-11-06 update` block at the bottom, and the
+  nine bullets that had become false were corrected (`weapons`: "no ammo, no reload", the pending rework, deferred
+  balance, and `ShotsFired` — which the tutorial's Shoot gate does consume; `match-flow`: "no pause menu, no score,
+  no waves, those are S6"; `hud`: minimap/frags deferred, "no pause menu … no damage numbers"; `player-movement`:
+  "death is unhandled"; `damage-and-pooling`: "systems that do not exist yet"; `characters`: "no VFX").
+- **New `docs/tasks/2026-11-06_final-pass.md`** — the six human gates as a table with cause and fix per row, the
+  verification methods, the artefacts, and what the block did not do.
+- `README.md`, `docs/CODE_DEFENSE.md` and this ledger were already current.
+
+**Verified:** a sweep for the stale phrases (`not built yet`, `decision owed`, `pending her answers`, `death is
+unhandled`, `no ammo, no reload`, `nothing consumes it`) returns nothing outside the ledger and task history, and all
+eight feature docs carry both the note and the update block.
 
 ## 2026-11-06 13:45–13:50 — published to GitHub
 

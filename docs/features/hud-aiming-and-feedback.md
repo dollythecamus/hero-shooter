@@ -1,5 +1,7 @@
 # HUD, aiming & feedback
 
+> **Currency note (2026-11-06):** this document describes the system as designed and built on 2026-10-23/24. Everything that changed afterwards is listed in the *2026-11-06 update* at the bottom; where the two disagree, the update wins and `docs/PROJECT_LEDGER.md` has the evidence.
+
 ## Status (2026-10-23 22:5x)
 
 **Aiming, the HUD and the enemy health bars are built and measured in play mode.** The VFX half (impact
@@ -57,8 +59,9 @@ cooldowns and the Bulwark meter, the weapon charge, enemy health, the aiming sta
   `Scripts/VFX/VfxOneShot.cs` + `VfxPool.cs`, per-hit sparks from `Projectile.Impact`, Paper's tracer and
   Overclock's green through the projectile's `TrailRenderer` + a material swap, a landing burst from
   `SlamDriver`, climb dust from `WallClimbPassive`, and the Bulwark shell (`BulwarkShieldVfx`). Details below.
-- **Still missing** — the Scissors fire-rate-window readout (only Paper's charge bar is drawn), and the minimap
-  / Tab frag board stay deferred with the reasons below.
+- **Built after this list was written (2026-11-06)** — the minimap, the Tab frag board, the ammunition readout and
+  the fire-rate/reload bar all exist now; see *2026-11-06 update* at the bottom of this file. Nothing on the HUD is
+  deferred any more.
 
 ## Interface (as built)
 
@@ -137,7 +140,22 @@ Nothing yet.
 
 ## Known limitations / deliberately not handled
 
-- Minimap and Tab frag board are out of this block (ledger, 2026-10-23) — they need systems that do not exist.
-- No settings/pause menu, no key rebinding, no damage numbers, no localisation; the HUD is English-only like
-  the rest of the UI copy.
+- Minimap and Tab frag board shipped (2026-11-06 update below).
+- The pause menu with sensitivity/invert settings and the floating damage numbers exist now. Still true: no key
+  rebinding, no localisation, English-only copy, and uGUI `Text` rather than TextMeshPro.
 - Screen-space UI uses uGUI `Text`, not TextMeshPro (not in `manifest.json`), so text shaping is basic.
+
+## 2026-11-06 update — minimap dots, status rings, ammo, and the sprite that was smearing
+
+- **Minimap enemy dots:** `UI/MinimapBlips` draws one dot per living enemy in the map's own scale (world offset ÷
+  `MinimapCamera.HalfExtent`), pinned to the rim when off-map. The list comes from `EnemyBarBinder.Enemies`, the
+  same list the bars use.
+- **Ability feedback on the enemy, not only in the corner:** `VFX/EnemyStatusRings` draws a white ring on the target
+  a ready Mark would take (aiming, off cooldown, same line-of-sight rule as the cast), amber while marked, cyan plus
+  a tether while snared. `EnemyHealthBar` no longer hides a **marked** enemy at full health.
+- **Ammunition readout** (`AmmoText`: `6 / 6`, `RELOADING`) and a **fire-rate/reload bar** under the crosshair.
+- **The smear was a sprite, not layout:** every fill and thin bar used Unity's built-in `Background` sprite (10 px
+  rounded border) at `Simple`, so it stretched along a 420×24 bar. All 35 fills/bars/marks now use the borderless
+  `Art/UI/White.png`; the five rounded panels keep the sliced sprite.
+- **Pause panel** gained a **Main Menu** entry (Resume / Main Menu / Quit), so any scene has a way out.
+- Paper's reticle was rebuilt as a four-post gap cross with three mildots per arm, not a dot.

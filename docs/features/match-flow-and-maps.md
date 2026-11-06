@@ -1,5 +1,7 @@
 # Match flow, maps & tutorial
 
+> **Currency note (2026-11-06):** this document describes the system as designed and built on 2026-10-23/24. Everything that changed afterwards is listed in the *2026-11-06 update* at the bottom; where the two disagree, the update wins and `docs/PROJECT_LEDGER.md` has the evidence.
+
 ## Purpose
 
 Everything that happens **between** matches: which hero and which map the player picked, how a scene is loaded,
@@ -108,7 +110,8 @@ in both.
   `sceneName` (`Debug.LogWarning`), so a half-authored map asset cannot strand the player on a blank screen.
 - `GameFlow.Quit` stops play mode under `UNITY_EDITOR` instead of doing nothing, so the button is demonstrable in
   the editor.
-- Not here, deliberately: no pause menu, no score, no wave spawning, no restart-after-death. Those are S6.
+- Pause menu, score, wave spawning and restart-after-death all exist now — that was S6, and it shipped. The exit
+  paths (pause menu Main Menu, tutorial completion, `SceneExit`) are covered in the 2026-11-06 update below.
 
 ## Invariants (re-runnable)
 
@@ -120,3 +123,21 @@ grep -rn "PickCharacter" Assets/_Project/Scripts           # interface + 2 imple
 
 Build order is asserted by `ProjectSettings/EditorBuildSettings.asset`: `00_Boot` must stay index 0 or a fresh
 launch starts in a map with no hero.
+
+## 2026-11-06 update — exit paths, the tutorial's ending, and the navmesh trap
+
+- **The pause menu, score, waves and death handling all exist now** (this doc said they were S6). `ScoreService`,
+  `WaveDirector`, `PauseMenu` and the respawn all shipped.
+- **`Systems/SceneExit` is the one exit that does not need `GameFlow`.** It prefers `GameFlow.ReturnToMenu()` and
+  falls back to `SceneManager.LoadScene("00_Boot")`. It exists because the tutorial's completion button called
+  `GameFlow.Instance`, which is **null** when a scene is played straight from the editor — the button and the timed
+  exit both did nothing, which was the second gate's report.
+- **Tutorial completion** freezes the clock (`timeScale = 0`), hands the cursor back, and its timed exit runs on
+  `Time.unscaledTime`; the pause menu in turn only claims the cursor while the clock is running. Verified by clicking
+  the real button: `00_Boot` loads.
+- **Navmesh, the trap worth explaining:** the scenes carried a stale *legacy* navmesh alongside the
+  `NavMeshSurface` data, so enemies walked through cover while the surface looked healthy, and a plain rebake
+  changed nothing. The fix is `UnityEditor.AI.NavMeshBuilder.ClearAllNavMeshes()`, then `surface.BuildNavMesh()`,
+  then save and reopen to confirm. Measured by sampling the navmesh inside every obstacle's footprint: Arena 13/23 →
+  4 (four hollow covers with unreachable interior islands), Alley 12/17 → 0, Tutorial 6/10 → 0 after adding the
+  surface it never had.

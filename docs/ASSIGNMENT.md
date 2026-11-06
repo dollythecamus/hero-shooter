@@ -90,4 +90,14 @@ Assessment happens in 2 moments:
 | 8 | Minimap | second ortho camera → RenderTexture → `RawImage` | agent |
 | 9 | Tab frag board | `ScoreService` + `FragBoardUI` (hold Tab) | agent |
 | 10 | Map select | `MapDefinition` (SO) + map-select screen → scene load | agent |
-| 11 | +3 free mechanics | **decision owed by Chloe** — see `docs/PLAN.md` § 8 | Chloe |
+| 11 | +3 free mechanics | wave director (`Systems/WaveDirector.cs`), damage numbers (`UI/DamageNumber*.cs`), pause menu (`UI/PauseMenu.cs`) — **chosen 2026-11-03, all three built and played** | Chloe (design) + agent |
+
+## Delivery (2026-11-06)
+
+- **Code:** https://github.com/dollythecamus/hero-shooter (private; access given at submission).
+- **Builds:** release `v1.0.0` on that repo — `hero-shooter-2026-11-06-linux.zip` (38.4 MB) and
+  `-windows.zip` (39.9 MB), plus the same archives in `~/builds/` for the LMS upload.
+- **Walkthrough:** `docs/CODE_DEFENSE.md`, one block per requirement.
+- Every row above was confirmed from a built binary by a human across six passes on 2026-11-06; the fixes those
+  passes produced are in `docs/PROJECT_LEDGER.md`.
+

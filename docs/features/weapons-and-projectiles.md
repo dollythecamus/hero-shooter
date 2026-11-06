@@ -1,5 +1,7 @@
 # Weapons & projectiles
 
+> **Currency note (2026-11-06):** this document describes the system as designed and built on 2026-10-23/24. Everything that changed afterwards is listed in the *2026-11-06 update* at the bottom; where the two disagree, the update wins and `docs/PROJECT_LEDGER.md` has the evidence.
+
 ## Purpose
 
 The graded "shooting with correct mechanics — no instantiate, use object pooling" feature. A hero's gun is a
@@ -119,11 +121,28 @@ overridden at launch, so those numbers only matter if something calls `Launch` w
 
 ## Known limitations / deliberately not handled
 
-- No recoil, no ammo, no reload, no muzzle flash, no impact VFX, no hit marker, no tracer — the S4 feedback
-  block (`docs/features/hud-aiming-and-feedback.md`) owns all of it.
+- Recoil: none. Ammunition, reload, muzzle flash, impact VFX, hit marker and tracer all exist now — see the
+  2026-11-06 update below.
 - No hit-scan option: everything is a travelling projectile, so range limits are lifetime × speed.
-- Chloe is not satisfied with the current gun feel; a guns/projectiles rework is **pending her answers**
-  (ledger open question). Do not change feel numbers before that lands.
-- Balance is deferred on purpose until every feature exists (`docs/PLAN.md` § 7). The 102 m SMG range is a
-  tuning observation, not a bug to "fix" now.
-- `ShotsFired` is a debugging counter reset by `SetDefinition`; nothing consumes it yet.
+- The gun-feel rework **landed** on 2026-11-06 (ammunition, Rock's shotgun, fire rates); the values in the
+  2026-11-06 update at the bottom of this file are the ones that shipped.
+- The balance pass is done (2026-11-06); the 102 m SMG range stands as a deliberate tuning choice.
+- `ShotsFired` is reset by `SetDefinition` and **consumed by the tutorial's Shoot gate**
+  (`TutorialDirector` compares it against the count taken when the step started).
+
+## 2026-11-06 update — ammunition, shotgun, and the shot now leaves the camera
+
+- **Ammunition exists** (it did not when this doc was written): `WeaponDefinition.magazineSize` and `reloadTime`,
+  owned by `Weapon` as `Magazine`/`IsReloading`. `R` reloads, an empty magazine reloads itself, and a reload runs on
+  a deadline (`Time.time >= _reloadEnd`) so a paused game freezes it. **No reserve ammo** — a reload always fills to
+  the magazine, so the player can never be left with nothing.
+- **Multiple projectiles per trigger pull:** `pelletsPerShot` + `pelletSpreadDegrees`. Rock is 8 pellets × 4 damage
+  (32 per shell, same total as the old slug) in a 3.5° cone.
+- **The round leaves the camera-centre ray, not the muzzle.** `Weapon.ResolveAim` starts it at the hero's own depth
+  on that ray, so the reticle and the bullet are the same line at every range. The first version aimed from the
+  muzzle at a point on the ray, which is why the crosshair lied at close range — a gate found it, not a probe.
+- Because the round now starts inside the hero, `Projectile` sweeps with `SphereCastNonAlloc` and **skips its
+  owner's colliders**; that skip is what stops point-blank melee enemies being missed.
+- **Fire-rate feedback:** `Weapon.ShotReadyRatio` (fills to the next shot) and `ReloadRatio` (amber while
+  reloading) drive one bar under the crosshair.
+- Feel numbers after the balance pass: Rock 0.85/s, Paper 0.7/s, Scissors 7/s unchanged.

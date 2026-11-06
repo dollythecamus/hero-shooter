@@ -173,11 +173,25 @@ reached while the wall is still above him.
 +80 % fire rate and +25 % move speed for 3 s (12 s cooldown). Feedback (decided 2026-10-23): **particles,
 trails and green bullets** while active so the state is readable in a fight.
 
-## Deferred to the rework step
+## As built — 2026-11-06 (where the code ended up against this roster)
 
-- Guns and projectiles: **Chloe is not satisfied with the current feel** — design questions pending (asked
-  2026-10-23, answers will be recorded here before the rework starts).
-- Balance pass: still deferred until every feature exists (`docs/PLAN.md` § 7).
+The rework step happened across 2026-11-03 and 2026-11-06; these are the values that shipped, so they are what to
+quote in the walkthrough:
+
+- **Gun feel (was deferred):** Rock's heavy slug became a **shotgun** — 6-shell magazine, 8 pellets × 4 damage
+  (32 per shell, unchanged total) in a 3.5° cone. Paper's charge rifle kept its 15 → 65 charge and gained a **30°
+  aim zoom**; its reticle is a four-post gap cross with three mildots. Scissors' SMG is 7/s, 12-round magazine.
+- **Fire rates came down after play:** Rock 1.1 → **0.85/s**, Paper 1.0 → **0.7/s**. Scissors unchanged.
+- **Ammunition:** magazine + reload only; **no reserve and no ammo pool** — a reload always fills to the magazine
+  and the player can never be left empty-handed. Reload: Rock 1.6 s, Paper 1.4 s, Scissors 1.1 s.
+- **Overclock:** ×1.8 fire rate and +25 % speed for 3 s, and it **refills the magazine when it starts** (the burst
+  out-runs a 12-round magazine in under a second, so starting loaded was the fix Chloe chose).
+- **Wall climb:** **5 m/s** (roster said 3) and the top is a **0.08–0.4 s mantle** instead of a teleport. The
+  climbable height cap is unchanged at 6 m.
+- **Mark / Snare feedback (was "needs feedback"):** a white ring marks the enemy a ready Mark would take, amber
+  while marked, cyan plus a tether while snared; a marked enemy's health bar no longer hides at full health.
+- **Balance pass:** done, by play, in the same session (`docs/PLAN.md` § 7).
+
 
 ## Why this is code-shaped the way it is
 

@@ -1,5 +1,7 @@
 # Characters & abilities
 
+> **Currency note (2026-11-06):** this document describes the system as designed and built on 2026-10-23/24. Everything that changed afterwards is listed in the *2026-11-06 update* at the bottom; where the two disagree, the update wins and `docs/PROJECT_LEDGER.md` has the evidence.
+
 ## Purpose
 
 Turns "pick 1 of 3 characters, each with 2 abilities" into data: a `CharacterDefinition` holds the whole hero
@@ -223,8 +225,20 @@ world-space enemy bars.
 - Mark and Snare write a deadline instead of restoring a captured value, so re-casting on the same enemy
   refreshes the window; what is not supported is *layering* two vulnerability sources on one enemy
   (see `damage-and-pooling.md`).
-- Abilities have no cost, no VFX and no range indicator. `AbilityDefinition.description` is read by **nobody**
-  (`grep -rn description Assets/_Project/Scripts` → its declaration only): the select card renders
-  `displayName` + `cooldown` from `CharacterCardUI.AbilityLine`.
+- Abilities have no resource cost and no range indicator, and `AbilityDefinition.description` is still read by
+  nobody (the select card renders `displayName` + `cooldown`). VFX exist now: climb dust, slam burst, Bulwark
+  shell, Overclock's green bullets, and the status rings added on 2026-11-06.
 - `MatchBootstrap` no longer owns the whole match flow: scene routing, map choice and the tutorial live in
   `match-flow-and-maps.md`; `MatchBootstrap` only applies a pick to the hero already in the scene.
+
+## 2026-11-06 update — abilities now read on screen, and Overclock starts loaded
+
+- **Mark/Snare are legible:** `VFX/EnemyStatusRings` (pre-cast white ring, amber marked, cyan snared + tether) and a
+  marked enemy's health bar now shows at full health. Both effects were already wired into `Health` and
+  `EnemyBrain`; what was missing was any cue on the enemy model, which the gate reported as "I don't know when an
+  enemy is marked".
+- **Overclock refills the magazine when it activates** (`Weapon.RefillMagazine`), because ×1.8 fire rate empties a
+  12-round magazine in 0.95 s — the burst now starts loaded (Chloe's decision).
+- **Wall climb is 5 m/s with a 0.08–0.4 s mantle** instead of a position teleport at the top; the height cap is
+  unchanged. `IsClimbing` is true during the mantle too.
+- Abilities do have VFX now (climb dust, slam burst, Bulwark shell, Overclock's green bullets).

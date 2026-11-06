@@ -1,5 +1,7 @@
 # Editor MCP tooling — MCP for Unity
 
+> **Currency note (2026-11-06):** this document describes the system as designed and built on 2026-10-23/24. Everything that changed afterwards is listed in the *2026-11-06 update* at the bottom; where the two disagree, the update wins and `docs/PROJECT_LEDGER.md` has the evidence.
+
 Installed 2026-10-23, same integration and pin as `UnityXR_3DMuseu`:
 
     "com.coplaydev.unity-mcp": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#v10.0.0"
@@ -59,3 +61,20 @@ agent drive the open editor instead.
   per play session.
 - Batchmode runs (`-batchmode -quit`) and the GUI editor must not share the project: check
   `Temp/UnityLockfile` and `pgrep -f <project path>` before any headless run.
+
+## 2026-11-06 update — port 8089, and how prefabs/scenes were actually edited
+
+- **The bridge listens on `127.0.0.1:8089`, not 8080** (8080 was already taken on this host).
+  `curl -sS http://127.0.0.1:8089/health` → `{"status":"healthy",...,"version":"10.0.0"}`.
+- **Prefab edits** go through `execute_code` with `PrefabUtility.LoadPrefabContents(path)` → mutate →
+  `SaveAsPrefabAsset` → `UnloadPrefabContents`. That is how the HUD's `GraphicRaycaster`, the sliced panels, the
+  `MainMenu` button (wired with `UnityEventTools.AddPersistentListener`), `MinimapBlips` and the sniper reticle were
+  authored. Serialized private fields are set through `SerializedObject`.
+- **Scene edits** (steps text, navmesh bake) use the same `execute_code` path with
+  `EditorSceneManager.MarkSceneDirty` + `SaveScene`, and `OpenScene(path, Single)` to prove the result persisted.
+- **Input can be injected for real:** `InputSystem.QueueStateEvent(Keyboard.current, new KeyboardState(Key.Escape))`
+  produced a working Esc press, which is how the pause/cursor path was verified end-to-end.
+- **UI clicks can be verified without a mouse:** raycast the `EventSystem` at the button's rect centre, then
+  `ExecuteEvents.Execute(hit, ped, ExecuteEvents.pointerClickHandler)` — that is how "the button loads `00_Boot`"
+  was proven. Beware raycasting in the same frame a panel is activated: `Graphic.depth` is still −1 and nothing hits.
+- Play-mode probes still dirty scenes; commit before playing so `git checkout` is a safe restore.

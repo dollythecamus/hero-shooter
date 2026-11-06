@@ -1,5 +1,7 @@
 # Damage & pooling
 
+> **Currency note (2026-11-06):** this document describes the system as designed and built on 2026-10-23/24. Everything that changed afterwards is listed in the *2026-11-06 update* at the bottom; where the two disagree, the update wins and `docs/PROJECT_LEDGER.md` has the evidence.
+
 ## Purpose
 
 The two primitives every other system stands on. `DamageInfo` + `IDamageable` + `Health` give one shape for
@@ -109,5 +111,14 @@ Nothing. This is the root of the graph.
   the same enemy would overwrite each other rather than multiply. That is fine today — only Paper's Mark writes
   it on enemies — and the re-mark case (the old bug: the second cast's restore reinstated the first, so a
   re-cast was either cut short or left permanently applied) is fixed by the deadline scheme.
-- `Health` owns no visuals and no death flow by design; kill counting, corpse recycling and respawn belong to
-  the wave/score systems that do not exist yet.
+- `Health` still owns no visuals and no death flow — but the systems that do (`ScoreService`, `WaveDirector`,
+  `EnemyBrain`'s death pose) exist now.
+
+## 2026-11-06 update
+
+- `Projectile` now sweeps with `SphereCastNonAlloc` and **ignores its owner's colliders**, because the round leaves
+  from the hero's own depth on the camera ray. It picks the nearest non-owner hit each frame.
+- Kill counting, corpse recycling and the hero respawn **do exist now** (`ScoreService`, `WaveDirector`), so the
+  "belong to systems that do not exist yet" line above is history.
+- `Health.IncomingDamageMultiplier` is still a single number, so two overlapping Mark sources would overwrite rather
+  than multiply — unchanged and still fine, only Paper writes it on enemies.
