@@ -1,6 +1,33 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 13:10 (-03) · session (default profile, MCP for Unity on 8089) · **tutorial fixed, global exit added, defence doc current; awaiting her pass on this build**
+Updated: 2026-11-06 13:20 (-03) · session (default profile, MCP for Unity on 8089) · **fourth pass: all PASS except Overclock, now fixed and rebuilt; ready to package**
+
+## 2026-11-06 13:15–13:20 — fourth pass (all pass) and the Overclock fix
+
+**Her fourth pass:** Paper's abilities **PASS**, tutorial **PASS**, HUD bars **PASS**, reloading **PASS**,
+fire rates **PASS**. One item only: *"scissors ability Overclock will reload immediately"*.
+
+**Diagnosis — not a bug in the ability.** The numbers collide: Scissors fires 7 rounds/s with a 12-round
+magazine (she tuned the asset from the 20/1.1 the agent set), and Overclock is ×1.8 for 3 s, so 12.6 rounds/s
+empties a full magazine in **0.95 s** and the auto-reload starts inside the burst. A 3 s burst at that rate
+would need ~38 rounds to run unbroken.
+
+**Her decision:** *"Refill the magazine the moment Overclock starts, and leave everything else alone."*
+Implemented as `Weapon.RefillMagazine()` called from `Overclock.Activate`, which fills the magazine and
+cancels a reload in progress (the HUD count follows automatically).
+
+*Evidence:* probe on the Scissors asset — drained to 2 with a reload running → `RefillMagazine()` →
+`mag=12 reloading=False`.
+
+**Known limitation, said out loud:** the refill only fixes a burst that *starts* partially loaded. Holding
+fire for the whole 3 s still empties a 12-round magazine in ~0.95 s, so a reload can still fall inside the
+burst. If that still reads wrong, the untouched options are a bigger magazine (38) or instant reloads for the
+duration.
+
+**Builds:** Linux 102.97 MB / 20.7 s, Windows 102.49 MB / 15.7 s, `errors: 0`.
+
+**Next action:** zip `~/builds/hero-shooter/{linux,windows}` for the LMS upload on her word, then a
+walkthrough rehearsal from `CODE_DEFENSE.md`.
 
 ## 2026-11-06 12:45–13:10 — tutorial fixes, a global exit, and the defence document
 

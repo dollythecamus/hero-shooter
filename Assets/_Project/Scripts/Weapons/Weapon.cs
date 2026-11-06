@@ -214,6 +214,22 @@ namespace HeroShooter.Weapons
             Magazine = Mathf.Max(0, definition.magazineSize);
         }
 
+        /// <summary>
+        /// Fills the magazine now, cancelling any reload in progress. Used by Scissors' Overclock: the burst is
+        /// meant to start loaded (2026-11-06 — at 7 rounds/s × 1.8 a 12-round magazine empties in under a
+        /// second, so a burst that began half-empty reloaded almost immediately).
+        /// </summary>
+        public void RefillMagazine()
+        {
+            if (definition == null)
+            {
+                return;
+            }
+
+            IsReloading = false;
+            Magazine = Mathf.Max(0, definition.magazineSize);
+        }
+
         void Fire(float charge)
         {
             ResolvePool();
