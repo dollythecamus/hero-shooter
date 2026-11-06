@@ -34,9 +34,14 @@ namespace HeroShooter.Systems
         [Tooltip("Seconds a toggle is immune to the next one: a held key must not open and close the panel.")]
         [SerializeField] float toggleCooldown = 0.15f;
 
+        [Header("Exit")]
+        [Tooltip("Loaded by the Main Menu button when there is no GameFlow — e.g. a map played straight from the editor.")]
+        [SerializeField] string menuSceneName = "00_Boot";
+
         ThirdPersonCameraRig _rig;
         bool _open;
         float _nextToggle;
+        float _restoreTimeScale = 1f;
 
         public bool IsOpen => _open;
 
@@ -100,25 +105,52 @@ namespace HeroShooter.Systems
                 panel.SetActive(paused);
             }
 
-            Time.timeScale = paused ? 0f : 1f;
-
             if (paused)
             {
+                // Remember what the clock was: the tutorial's completion screen freezes it too, and resuming must
+                // not quietly restart a game that something else stopped.
+                _restoreTimeScale = Time.timeScale;
+                Time.timeScale = 0f;
                 PullSettingsIntoWidgets();
+            }
+            else
+            {
+                Time.timeScale = _restoreTimeScale > 0f ? _restoreTimeScale : 0f;
             }
 
             EnforceCursor();
         }
 
-        /// <summary>Cursor state follows the pause state every frame; setting it is idempotent.</summary>
+        /// <summary>
+        /// Cursor state follows the pause state every frame. It claims the cursor only while the game is running:
+        /// any other system that freezes the clock — the tutorial's completion panel — needs a free pointer to be
+        /// clickable (2026-11-06: force-locking it made that button unreachable).
+        /// </summary>
         void EnforceCursor()
         {
-            CursorLockMode wanted = _open ? CursorLockMode.None : CursorLockMode.Locked;
+            bool wantFree = _open || Time.timeScale <= 0f;
+            CursorLockMode wanted = wantFree ? CursorLockMode.None : CursorLockMode.Locked;
 
             if (Cursor.lockState != wanted)
             {
-                InputReader.SetCursorLocked(!_open);
+                InputReader.SetCursorLocked(!wantFree);
             }
+        }
+
+        /// <summary>
+        /// The pause panel's Main Menu entry: leaves from any scene, whether or not there is a GameFlow to route
+        /// through, so there is always a way out — including out of a tutorial whose own exit has gone wrong.
+        /// </summary>
+        public void ReturnToMenu()
+        {
+            _open = false;
+
+            if (panel != null && panel.activeSelf)
+            {
+                panel.SetActive(false);
+            }
+
+            SceneExit.ReturnToMenu(menuSceneName);
         }
 
         public void Quit()

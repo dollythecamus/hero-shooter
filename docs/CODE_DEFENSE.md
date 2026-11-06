@@ -4,6 +4,10 @@ Half the grade is this walkthrough (20:20–22:00). One block per system: **the 
 sentence that frames it**, **the three points that carry it**, and **the measured line** that proves it.
 Numbers in *Evidence* were produced by play-mode probes on this machine, not inferred.
 
+**Updated 2026-11-06** after three human passes on real builds. Where a block now cites a gate, that is
+Chloe playing the built game, not a probe — the two kinds of evidence are labelled apart on purpose, because
+"it measured right" and "it plays right" failed differently twice today.
+
 Open files in this order — it follows a bullet's life: input → hero → weapon → projectile → damage →
 enemy → HUD. FSM and abilities are the two "design" blocks; skip between them if the examiner leads.
 
@@ -36,9 +40,18 @@ player is still reading.
 - The scene is `Scenes/10_Tutorial.unity`; the panel is the authored prefab `Prefabs/UI/TutorialPanel.prefab`.
 - **Design choice worth saying out loud:** the tutorial has no enemies. The kill step uses three static
   targets carrying the same `Health` component, so a stray enemy cannot kill the player mid-explanation.
+- The onboarding text is **player-facing**: it says "shoot a dummy until it drops", never "the Health
+  component". The implementation vocabulary belongs in this document, which is the answer if asked why the
+  tutorial does not mention pooling.
+- Completion **freezes the clock and hands the cursor back** (`Time.timeScale = 0`, cursor unlocked) so the
+  panel's button is clickable — a locked cursor made it unreachable until the 2026-11-06 gate. The exit
+  routes through `SceneExit.ReturnToMenu`, which uses `GameFlow` when it exists and loads `00_Boot` directly
+  when it does not (the tutorial played straight from the editor has no `GameFlow` instance — that null is
+  why the button "did nothing").
 
-*Evidence:* `step=0/5 gate=Move → … → COMPLETED=True step=5/5 panelTitle='TRAINING COMPLETE'`, then the done
-button returns to `00_Boot` (2026-10-24 probe).
+*Evidence:* five gates complete → `COMPLETED=True panelTitle='TRAINING COMPLETE'`, `timeScale=0 cursor=None`;
+*2026-11-06 human gate:* clicking the panel's BackButton loads `00_Boot` (raycast hit `BackButton` →
+scene `00_Boot`), and the same run proves the pause menu's Main Menu entry.
 
 ## 2. Third-person camera — `Scripts/Player/ThirdPersonCameraRig.cs` (+ `PlayerMotor.cs`, `InputReader.cs`)
 
@@ -49,12 +62,19 @@ button returns to `00_Boot` (2026-10-24 probe).
 - The rig orbits a pivot above the hero, pulls the boom in when level geometry is between camera and hero
   (`collisionMask` = Structure layer = 8), and lerps with an exponential smoothing that is frame-rate
   independent (`1 - Exp(-sharpness * dt)`).
-- RMB aiming: FOV 60 → 42, +0.55 right / −0.20 down offset, movement ×0.9 (×0.6 for Paper), weapon spread
-  halved. Paper swaps in a sniper reticle.
-- **The pause menu writes straight into this rig** (`MouseSensitivity`, `InvertY`) — one number, no copy.
+- RMB aiming: FOV 60 → 42 (per-character override: Paper zooms to **30**), +0.55 right / −0.20 down offset,
+  movement ×0.9 (×0.6 for Paper), weapon spread halved. Paper swaps in a sniper reticle (gap cross + mildots).
+- **While aiming the body locks to camera yaw** (`PlayerMotor` faces `camera.forward`, legs strafe). Before
+  that, the body turned into the movement direction, which swung the hero across the fixed shoulder offset
+  and read as "the camera changed sides" — the 2026-11-06 gate.
+- **A frozen clock freezes the camera** (`LateUpdate` returns when `timeScale <= 0`). Mouse look is read in
+  raw pixels, not scaled by `deltaTime`, so pausing alone never stopped the orbit.
+- **The pause menu writes straight into this rig** (`MouseSensitivity`, `InvertY`, `AimFov`) — one number,
+  no copy.
 
 *Evidence:* `fov=60.0 → 45.7 → 42.2 → 42.0`, release `59.9`; Paper `hip=False aim=False sniper=True`
-(2026-10-23 probe).
+(2026-10-23 probe). *2026-11-06 gate, injected mouse delta:* 300 px moved yaw 0 → **36.00** while playing
+and **0.00** while paused, which is the same delta proving both halves.
 
 ## 3–4. Enemy FSM, ranged and melee — `Scripts/Enemies/EnemyBrain.cs`, `Enemies/FSM/StateMachine.cs`, `Enemies/States/*.cs`
 
@@ -85,9 +105,23 @@ callTarget=Player … dPlayer 12.00 → 5.63` while `dOwn` grows (2026-10-23).
 - `Weapon` owns rate of fire, spread and the aim solve; `PlayerAbilities` is ordered **before** it
   (`[DefaultExecutionOrder(-100)]`) so a shield raised on the same frame as a shot cannot leak a bullet
   through — a defect the probes caught.
+- **The round leaves the camera axis, not the barrel.** `Weapon.ResolveAim` starts the projectile on the
+  camera-centre ray at the hero's own depth: the reticle and the bullet are the same line at every range.
+  The first version aimed *from the muzzle at a point on that ray*, which is why the crosshair lied at close
+  range. Because the round now starts inside the hero, `Projectile` sweeps with a non-alloc
+  `SphereCastNonAlloc` and skips its owner's colliders — that skip is what stops point-blank melee enemies
+  being missed.
+- **Ammunition is data, not code:** `WeaponDefinition.magazineSize` and `reloadTime`; `Weapon` owns the
+  count, reloads on a deadline (`Time.time >= _reloadEnd`, so a paused game freezes a reload), auto-reloads
+  when empty, and `R` refills whenever the magazine is not full. There is **no reserve** — a run cannot end
+  with the player empty-handed. `pelletPerShot` + `pelletSpreadDegrees` make Rock's eight-pellet shotgun a
+  data row, not a second weapon class.
+- The HUD reads two ratios off the weapon: `ShotReadyRatio` (fire-rate bar filling to the next shot) and
+  `ReloadRatio` (the same bar turns amber and tracks the reload).
 
-*Evidence:* pool `created=64` before and after 61 shots, `active=0`; and today `rangedCreated=6
-rangedActive=1` after wave 1 spawned.
+*Evidence:* pool `created=64` before and after 61 shots, `active=0`; `rangedCreated=6 rangedActive=1` after wave 1.
+*2026-11-06:* Rock `SetDefinition` → `mag=6`, reload refused at a full magazine; both player builds compiled
+and the shotgun, ammo readout and fire-rate bar all passed a human gate.
 
 ## 6. Three characters — `Scripts/Data/CharacterDefinition.cs`, `Scripts/Player/HeroLoadout.cs`, `UI/CharacterSelectUI.cs`
 
@@ -117,10 +151,17 @@ selectedCharacter=Paper`; the map loads with `maxHealth=90` (Paper's stat), prov
   flag instead of fighting ground acceleration.
 - Effects are multipliers with deadlines (`Health.ApplyDamageMultiplier`, `EnemyBrain.ApplySpeedMultiplier`)
   so a second application refreshes instead of restoring early.
+- **Effects are visible on the enemy, not only in the corner chip.** `VFX/EnemyStatusRings` draws, per bound
+  enemy: a white ring on the target a ready Mark *would* take (only while aiming and off cooldown, using the
+  same line-of-sight rule as the cast, so the preview cannot promise a target the cast refuses), amber while
+  marked, cyan plus a tether while snared. Rings are `LineRenderer` circles built in code — no imported art,
+  nothing per-map. `EnemyHealthBar` also stops hiding a **marked** enemy at full health, which was why the
+  mark was invisible until the first hit.
 
 *Evidence:* `apexAboveTakeOff=3.96`; Bulwark `raised=True meter=4.94 dmgMult=0.40`, `hp 180 → 176 (10 raw)`,
 `depleted after 5.34 s … +8.6 s canRaise=True`; climb `0.08 → 2.19 m in 0.7 s`, exit jump `outward=4.90`;
-Mark `dmgMult=1.35`, Snare `speedMult=0.25`.
+Mark `dmgMult=1.35`, Snare `speedMult=0.25`. *2026-11-06 gate:* all three heroes' abilities played and passed,
+but the mark/snare *readability* fix landed after that pass — it is the one thing here no human has seen yet.
 
 ## 8. Minimap — `Scripts/UI/MinimapCamera.cs`, `Assets/_Project/Data/Minimap/MinimapRT.renderTexture`, `Prefabs/UI/HUD.prefab`
 
@@ -132,9 +173,14 @@ Mark `dmgMult=1.35`, Snare `speedMult=0.25`.
   world-space enemy bars never bleed into the map.
 - 256×256 `RenderTexture` asset → `RawImage` inside the authored `MinimapFrame` (top-right, 232 px, 6 px
   inset). `HudController.PushMinimapArrow` turns only the arrow from the hero's yaw.
+- **Enemies appear as dots** (`UI/MinimapBlips`): the map camera is axis-aligned and orthographic, so a blip
+  is a plain world offset ÷ `MinimapCamera.HalfExtent` — no second projection that could drift from the
+  texture underneath. The dot list comes from `EnemyBarBinder.Enemies`, the same list the health bars use, so
+  a wave-spawned body cannot show a bar but no dot. Off-map enemies pin to the rim.
 
 *Evidence:* `camera=True ortho=True size=26 mask=201 rt=MinimapRT`; live `cam pos=(5.00, 29.60, -7.00)
-rot=(90.00, 0.00, 0.00)` with the hero yawed 90° — i.e. exactly 30 m up, bolt upright.
+rot=(90.00, 0.00, 0.00)` with the hero yawed 90° — i.e. exactly 30 m up, bolt upright. *2026-11-06 gate:* the
+minimap (dot layer included) passed twice.
 
 ## 9. Tab frag board — `Scripts/Systems/ScoreService.cs`, `Scripts/UI/FragBoardUI.cs`, `InputReader.FragsHeld`
 
@@ -156,13 +202,23 @@ reads `ROCK / 1 / 0 / ENEMIES ALIVE 3`.
 **Frame:** two `MapDefinition` assets, two ProBuilder scenes, one router.
 
 - `GameFlow` is the only `SceneManager.LoadScene` caller (3 call sites, all in that file) and carries the
-  chosen hero and map across the load.
+  chosen hero and map across the load. `Systems/SceneExit` is the one *other* way out: it prefers `GameFlow`
+  and falls back to loading `00_Boot`, so a menu or tutorial exit still works when the scene was opened
+  without the boot flow (editor tests, or a build started on a map).
 - `MapDefinition` names the scene; `MapSelectUI` builds cards from the asset list, so a third map is data.
 - The maps are ProBuilder geometry (`20_Map_Arena`, `21_Map_Alley`) with a `NavMeshSurface` bake each —
   that is the level-design half of the grade, and they are the two scenes the enemies path on.
+- **Baking is the trap worth explaining.** The scenes had drifted into carrying a *legacy* navmesh (baked
+  before the current layout) alongside the surface's data, so enemies walked through cover while the
+  `NavMeshSurface` looked healthy. A plain rebake changed nothing — the stale dataset stayed loaded. The fix
+  is `UnityEditor.AI.NavMeshBuilder.ClearAllNavMeshes()` first, then `surface.BuildNavMesh()`, then save and
+  reopen to confirm. Verified by sampling the navmesh *inside* every obstacle's footprint: Arena 13/23 → 4
+  (all four are hollow shells with unreachable interior islands), Alley 12/17 → 0, Tutorial 6/10 → 0 after
+  adding the surface it never had.
 
 *Evidence:* `mapCards=2 names=ARENA|ALLEY`; `E scene=20_Map_Arena selectedMap=ARENA hero=Paper … navmesh
 agents=4 onNavMesh=4`; Alley `agentsOnNavMesh=4/4 stair/ramp present=True doorway=True balcony=True`.
+*2026-11-06 gate:* both maps played and passed after the rebake.
 
 ---
 
@@ -192,15 +248,26 @@ meleeActive=2` (warm-up, not instantiation); after a spawned enemy died `alive=2
 
 *Evidence:* after a hit, `damageNumbersActive=1 damagePoolChildren=16` (pooled, reused).
 
-## E. Pause menu — `Scripts/UI/PauseMenu.cs` (+ `ThirdPersonCameraRig.MouseSensitivity` / `InvertY`)
+## E. Pause menu — `Scripts/UI/PauseMenu.cs` (+ `ThirdPersonCameraRig.MouseSensitivity` / `InvertY` / `AimFov`)
 
 - Esc freezes the match with `Time.timeScale = 0`, unlocks the cursor and shows the authored panel; Esc or
   Resume restores it. A frozen clock already stops the FSM, the wave loop and the weapon — no system needs a
   pause flag.
+- **The pause state is one boolean and the cursor is derived from it** (`SetPaused` → `EnforceCursor` every
+  frame), with a 0.15 s toggle cooldown. The first version set the cursor inside `Pause()`/`Resume()` only,
+  and the gate found the mouse free after resuming. It claims the cursor only while the clock is running, so
+  any other system that freezes the game (the tutorial's completion panel) can have a clickable pointer.
+- Three buttons: Resume, **Main Menu** (`SceneExit.ReturnToMenu`, works with or without `GameFlow`) and Quit.
+  The Main Menu entry is the guaranteed way out of any scene — added after the tutorial's own exit turned out
+  to be a dead end.
 - Sensitivity slider and invert-Y write into the camera rig directly (no duplicated setting), quit calls
-  `Application.Quit` (and leaves play mode in the editor).
+  `Application.Quit` (and leaves play mode in the editor). Resume restores the clock it found, so pausing on
+  top of another freeze does not restart the game underneath.
 
-*Evidence:* `paused timeScale=0 panel=True` → `resumed timeScale=1 panel=False`.
+*Evidence:* `paused timeScale=0 panel=True` → `resumed timeScale=1 panel=False`. *2026-11-06 gate:* two full
+Esc cycles with injected key events — open → `timeScale 0`, `cursor None`; close → `timeScale 1`,
+`cursor Locked`; a 300 px mouse delta moved the camera 36.00° playing and 0.00° paused; clicking Main Menu
+loaded `00_Boot`.
 
 ---
 
@@ -218,7 +285,8 @@ steam-run tools/unity-run.sh -batchmode -nographics -projectPath . \
 ```
 
 *Evidence:* `[Build] result=Succeeded size=102.8MB time=00:04:09 errors=0` (Linux), `result=Succeeded
-size=102.3MB time=00:03:43 errors=0` (Windows).
+size=102.3MB time=00:03:43 errors=0` (Windows). *2026-11-06, in-editor:* Linux **102.97 MB / 21.7 s** and
+Windows **102.49 MB / 19.8 s**, `errors: 0` on both — the same commit produced both targets.
 
 ---
 
@@ -237,10 +305,15 @@ Slam and the climb suspend it explicitly while they drive the controller.
 
 # Honest gaps (say them before they are found)
 
-- Nobody has *looked* at the Game view; every number here is a probe line, and the 14:00 pass is the first
-  visual check.
-- Tab and Esc cannot be held through an injected keyboard in a headless probe (the editor overwrites injected
-  key state each input update), so those two keys are proven by their handlers, not by a held key — a human
-  press is the proof.
+- **Three human passes happened on 2026-11-06** (Rock, Paper, Scissors; Arena and Alley; the tutorial), and
+  each one found things no probe had. The *last* round of fixes — the mark/snare rings, the tutorial's exit,
+  the borderless bar sprites, ammo without a reserve, the lower fire rates — was built and checked by probe,
+  **not yet played**. Say that plainly rather than claiming a clean final pass.
+- Damage numbers and the wave HUD line have never been reviewed on screen; the probes only counted them.
+- Tab and held keys cannot be held through an injected keyboard in a headless probe (the editor overwrites
+  injected key state each input update). Esc is now proven end-to-end with injected `InputSystem` events
+  (2026-11-06); Tab is proven by its handler plus a human hold.
 - No automated tests; `com.unity.test-framework` is installed but unused and must not be presented as a gate.
-- Enemies are not networked, there is no save, and balance is untouched beyond what the probes measured.
+- Four `Cover_*` blocks in the Arena are hollow shells: the bake leaves an unwalkable-around island of floor
+  inside them. Unreachable, so harmless, but do not claim "every obstacle is carved" without that caveat.
+- Enemies are not networked, there is no save, and balance is untouched beyond what the gates measured.

@@ -1,6 +1,53 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 12:40 (-03) · session (default profile, MCP for Unity on 8089) · **second-gate fixes done, verified and rebuilt; awaiting her third pass**
+Updated: 2026-11-06 13:10 (-03) · session (default profile, MCP for Unity on 8089) · **tutorial fixed, global exit added, defence doc current; awaiting her pass on this build**
+
+## 2026-11-06 12:45–13:10 — tutorial fixes, a global exit, and the defence document
+
+**Her tutorial pass, plus two acceptances she had not mentioned earlier:** Rock's Slam and Bulwark **PASS**,
+Alley **PASS** — so all three heroes and both maps now have human passes. She also fixed two tutorial visuals
+herself in the editor (a dark overlay across the whole screen, and step text overflowing the info strip) and
+saved the scenes.
+
+**Tutorial text.** The kill step read *"every enemy carries the same Health component"* — implementation
+speak in player-facing copy. Rewritten, along with the shoot and ability steps, which leaked pooling and
+ScriptableObjects the same way:
+- Shoot: "Hold left click to fire. Press R to reload early - the magazine refills itself when it runs dry."
+- Ability: "Press Q for your first ability and E for your second. Each hero has its own pair."
+- Kill: "Shoot a training dummy until it drops. Every enemy goes down the same way."
+
+**The dead completion button had two causes, one of them mine.**
+1. `PauseMenu` force-locked the cursor every frame (my previous fix), so no pointer could ever reach the panel.
+2. `TutorialDirector` exited through `GameFlow.Instance`, and `10_Tutorial` has **no GameFlow** — so the button
+   *and* the 4-second auto-return both called into a null and did nothing. `GameFlow` only exists when play
+   starts at `00_Boot`, and the tutorial is tested by opening the scene directly.
+
+Fixed: completion freezes the clock and hands the cursor back; the timed exit runs on **unscaled** time (a
+frozen clock would never fire it); and the exit goes through `Systems/SceneExit`, which prefers `GameFlow` and
+falls back to loading `00_Boot`.
+
+**Pause menu:** gained the **MAIN MENU** button she suggested, on the same exit path, so any scene has a way
+out. Resume now restores the clock it found rather than forcing `1`, so pausing on top of another freeze
+(tutorial completion) cannot restart the game underneath.
+
+**Verified in play mode, by clicking the real UI:**
+- Pause → MAIN MENU: `raycast hits=1 first=MainMenu`, click executed → scene `00_Boot`.
+- Tutorial completion: `timeScale=0 cursor=None`, done panel active → raycast hit `BackButton` → scene `00_Boot`.
+
+**`docs/CODE_DEFENSE.md` is current again** (it was dated 3 Nov and mentioned none of today's work): ammo /
+reload / pellets, the camera-ray shot origin and owner-ignoring sweep, per-character aim FOV and body lock,
+`MinimapBlips`, `EnemyStatusRings` and the marked-bar rule, the navmesh trap and its fix, the pause state
+machine and `SceneExit`, plus a rewritten "honest gaps" section that separates what three human passes
+covered from what only a probe did.
+
+**Deadline:** she asked the professors to accept a late delivery and it was accepted — the project is done
+when it is done, with no fixed time. She expects to finish it today at this pace.
+
+**Builds from this commit:** Linux 102.97 MB / 21.7 s, Windows 102.49 MB / 19.8 s, `errors: 0`.
+
+**Next action:** her pass on this build — the mark/snare rings, the tutorial's exit, the bar sprites, ammo
+without a reserve and the lower fire rates. Then zip the two build folders and upload; then a walkthrough
+rehearsal from `CODE_DEFENSE.md`.
 
 ## 2026-11-06 12:15–12:40 — second gate: fixes, evidence, rebuild
 
