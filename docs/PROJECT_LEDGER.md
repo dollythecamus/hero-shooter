@@ -1,6 +1,31 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 14:00 (-03) · session (default profile) · **published on GitHub; every document brought to the final state**
+Updated: 2026-11-06 15:05 (-03) · session (default profile) · **HUD passive label removed; builds, archives and the v1.0.0 assets all replaced. Note: the `docs/level_design/` files in commit `7b5d937` are a parallel session's work (see below).**
+
+## 2026-11-06 15:00 — HUD: the passive ability's label is gone
+
+Her ask: *"the passive ability shows a text 'passive - always on, no cooldown', remove that text, unnecessary."*
+
+The text came from a `PassiveLabel` node in both ability slots, shown only when
+`ShapeOf(slot) == AbilityShape.Passive` — that is, Scissors' wall climb. Removed the node from both `SlotQ` and
+`SlotE`, and deleted the now-unused `AbilitySlotUI.passiveRoot` field so no dangling reference survives. The slot
+still reads `passive` where the key hint would be, which is the useful half of that information.
+
+**Verified:** `grep passiveRoot` → 0 hits in scripts and in `HUD.prefab`; `grep "always on, no cooldown"` → 0 hits in
+the prefab; both slots down to 4 children; compile with 0 `CS` errors.
+
+**Artifacts refreshed so nothing shipped stale:** Linux 102.97 MB / 22.6 s, Windows 102.49 MB / 16.3 s, both 0 errors;
+archives rebuilt (SHA-256 `2f0d767e…` linux, `a5888f74…` windows) and re-uploaded over the `v1.0.0` release assets
+with `--clobber`, release notes' checksums updated to the new pair.
+
+**Recorded for honesty — `7b5d937` carries more than its message says.** That commit was made with `git add -A` in a
+tree another session is actively working in, so it also swept in **16 files of the `docs/level_design/` phase**
+(blueprint/circulation SVG+PNG, `layout.json`, `metrics.json`, `tools/blueprint.py`, the Notion export) plus the
+level-design requirement section below. Nothing was lost or altered — the content is that session's work, committed
+under my message. The commit is pushed, so it stands as history; the lesson is that staging here must be by explicit
+path (`git commit -- <paths>`), never `-A`, because this repo is now shared by two live workstreams. Files still
+being edited by that session (`blueprint.*`, `circulation.*`, `tools/blueprint.py`) were left untouched.
+
 
 ## 2026-11-06 (later) — new requirement: the level-design assignment on this project as base
 
