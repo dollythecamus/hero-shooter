@@ -1,6 +1,14 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-05 13:20 (-03) · session local (default profile) · **still owed — the due date passed**
+Updated: 2026-11-05 22:25 (-03) · session local-b8865444ccc8d521404936b1199c970dedb4aca869be366d43f871963618774f · **assignment still owed; operator-chosen human gate trial at 2026-11-06 11:00 (-03)**
+
+## 2026-11-05 — human-gate trial approved
+
+Chloe, 22:25: *"approved we try this human gate suggestion on the next step in hero-shooter project for tomorrow morning at 11. i appreciate the rehearsed plan for what my fixed task is"*
+
+**Next action:** run `docs/tasks/2026-11-06-human-gate.md` at 11:00–11:15 Recife time (UTC−03). It records the exact build, three checks, and `PASS` / `ISSUE` / `BLOCKED` response.
+**Scope:** this is a 15-minute first slice only; a pass does not complete the full human play pass or close the assignment.
+**Scheduling:** time was chosen by Chloe. No calendar event or Dayboard item was created: Google Calendar is unauthenticated and Dayboard is unpaired.
 
 ## 2026-11-05 — review after the deadline; the deliverable is still owed
 
@@ -21,9 +29,10 @@ is picked up **2026-11-06**.
   planned for 2026-11-03 never happened, so nothing about how the game looks or feels is verified.
 
 **Still missing, in order:**
-1. **A human play pass from a built binary** — HUD layout, the actual minimap image, damage numbers,
-   pause panel, both maps, Tab and Esc on a real keyboard, the five tutorial steps under a human. Every
-   other claim in this file is a number from a headless probe.
+1. **A human play pass from a built binary.** The first slice is the 2026-11-06 11:00 Human Gate trial
+   in `docs/tasks/2026-11-06-human-gate.md` (HUD/minimap, Tab, Esc); passing it does not finish the full pass.
+   The remaining visual checks include damage numbers, both maps, the complete tutorial and any HUD details
+   beyond the three trial checks. Every other claim in this file is a number from a headless probe.
 2. Fixes from that pass, then a rebuild of both targets from the fixed commit.
 3. **Commit the tree.** Dirty: `Assets/Settings/PC_RPAsset.asset`,
    `Assets/Settings/UniversalRenderPipelineGlobalSettings.asset`,
