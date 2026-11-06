@@ -1,6 +1,30 @@
 # Project ledger — hero-shooter
 
-Updated: 2026-11-06 13:30 (-03) · session (default profile, MCP for Unity on 8089) · **corpses now fall and always clear; Overclock PASS; ready to package**
+Updated: 2026-11-06 13:40 (-03) · session (default profile, MCP for Unity on 8089) · **packaged for upload; only the LMS upload and the walkthrough rehearsal remain**
+
+## 2026-11-06 13:35–13:40 — packaged for submission
+
+**Corpses PASS** on her sixth pass, so every system in the brief now has a human pass.
+
+Final builds from HEAD (`21748cf`): Linux 102.98 MB, Windows 102.50 MB, `errors: 0`.
+
+**Artefacts** (outside the repo, in `~/builds/`):
+- `hero-shooter-2026-11-06-linux.zip` — 38.4 MB · sha256 `0bf2e49e31b25681f534062524f5515bce3d7b80972b1df8b9f3b2d8768612bb`
+- `hero-shooter-2026-11-06-windows.zip` — 39.9 MB · sha256 `2ca465912026c7a0e3974bf16f60244d67fa98062a2fd40e7a2466b73fa04f33`
+
+Each contains the executable, its `HeroShooter_Data` folder and a `README.txt` (how to run, full control list,
+the three heroes' abilities). Excluded on purpose: `HeroShooter_BackUpThisFolder_ButDontShipItWithYourGame`
+(crash-symbol backup, not needed by a player) and the stray `player*.log` files. There is no `zip` binary on
+this host, so the archives were built with Python's `zipfile`; the Linux executable keeps mode `0755` inside
+the archive.
+
+**Verified:** CRC test on both archives passes; the extracted executables hash-match the build folders; no
+backup folder in either. The Linux archive was then **extracted to a scratch directory and launched** —
+`Initialize engine version 6000.6.3f1`, `NullGfxDevice`, no exception, ran until a 25 s timeout killed it
+(exit 124). So the package is not just complete, it starts.
+
+**Next action:** she uploads the two archives to the LMS (multiple submissions are allowed by the brief);
+then the walkthrough rehearsal from `docs/CODE_DEFENSE.md`.
 
 ## 2026-11-06 13:25–13:30 — dead bodies: clear every one, and make death legible
 
